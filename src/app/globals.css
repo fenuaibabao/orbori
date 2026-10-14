@@ -1,26 +1,68 @@
 @import "tailwindcss";
+@import "@fontsource/syne/600.css";
+@import "@fontsource/syne/700.css";
+@import "@fontsource/syne/800.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-space: #060528;
+  --color-deep: #0d0a35;
+  --color-night: #161240;
+  --color-night-2: #1c1752;
+  --color-royal: #343e9f;
+  --color-line: #23205a;
+  --color-line-2: #2e2a6e;
+  --color-starlight: #ece8f4;
+  --color-muted: #b7b2d8;
+  --color-dim: #9c97c2;
+  --color-gold: #a2752c;
+  --color-gold-lite: #d4a24c;
+  --color-mauve: #957579;
+  --color-mauve-lite: #c9a3a6;
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body { background: var(--color-space); color: var(--color-starlight); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+/* Gold & pink star speckles */
+.sky {
+  background-color: var(--color-space);
+  background-image:
+    radial-gradient(circle at 8% 4%, #d4a24c 0 1px, transparent 1.6px),
+    radial-gradient(circle at 82% 3%, #957579 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 64% 14%, #ece8f4 0 .8px, transparent 1.4px),
+    radial-gradient(circle at 22% 24%, #957579 0 .9px, transparent 1.5px),
+    radial-gradient(circle at 92% 30%, #d4a24c 0 1px, transparent 1.6px),
+    radial-gradient(circle at 12% 48%, #ece8f4 0 .8px, transparent 1.4px),
+    radial-gradient(circle at 86% 61%, #d4a24c 0 .9px, transparent 1.5px),
+    radial-gradient(circle at 6% 74%, #957579 0 1px, transparent 1.6px),
+    radial-gradient(circle at 70% 84%, #ece8f4 0 .8px, transparent 1.4px),
+    radial-gradient(circle at 34% 94%, #d4a24c 0 .9px, transparent 1.5px);
+  background-attachment: fixed;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:focus-visible { outline: 2px solid var(--color-gold-lite); outline-offset: 2px; }
+
+@keyframes orbori-spin { to { transform: rotate(360deg); } }
+@keyframes orbori-rise { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes orbori-fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes orbori-pop { 0% { opacity: 0; transform: translateY(8px) scale(.96); } 60% { opacity: 1; transform: translateY(-2px) scale(1.02); } 100% { transform: none; } }
+.anim-spin { animation: orbori-spin 14s linear infinite; }
+.anim-spin-slow { animation: orbori-spin 40s linear infinite; }
+.anim-rise { animation: orbori-rise .9s cubic-bezier(.2,.9,.3,1.2) both; }
+.anim-fade { animation: orbori-fade .6s both; }
+.anim-pop { animation: orbori-pop .5s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-spin, .anim-spin-slow, .anim-rise, .anim-fade, .anim-pop { animation: none; }
 }

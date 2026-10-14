@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Orbori
 
-## Getting Started
+**Where the stars agree.** Western, Vedic, Chinese zodiac, Numerology and Mayan Tzolk'in in one Cosmic Council.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000 (builds the city index on first run)
+npm test         # engine + council tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## What's here
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Path | What it does |
+| --- | --- |
+| `src/lib/astro/` | Calculation engine: tropical + sidereal (Lahiri) planets, Ascendant/MC, nakshatras, Chinese zodiac with true Lunar New Year boundaries, Life Path, Tzolk'in (GMT 584283). |
+| `src/lib/council/` | Daily Cosmic Council: one signal per system (transits, Tara Bala/Chandrashtama, day pillar, Personal Day, Tzolk'in day), Convergence Score, agree/dissent. |
+| `src/lib/rarity.ts` + `src/data/rarity.json` | Chart Rarity: estimated share of people (born 1940–2012) with the same Sun + Moon + animal + Life Path, and tier cutoffs (rarest 5% Mythic, next 15% Rare, next 30% Uncommon). Rebuild with `npx tsx scripts/build-rarity.ts`. |
+| `src/lib/progress.ts` | Oracle Levels, XP, streaks and badges. |
+| `src/app/api/card/[kind]` | 1080×1920 story share cards (`rarity`, `score`). |
+| `src/app/api/cities` | Birth-city search with time zones (GeoNames, CC BY 4.0). |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Profiles and check-ins are stored on the device for now (`src/lib/store.ts`); accounts come next.
 
-## Learn More
+## Accuracy
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`scripts/verify_swe.py` compares 400 random births against Swiss Ephemeris (used only as a test reference, not shipped). Planets agree within ~20″, the Ascendant within ~2″.
