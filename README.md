@@ -21,6 +21,8 @@ npm test         # engine + council tests
 | `src/app/api/card/[kind]` | 1080×1920 story share cards (`rarity`, `score`). |
 | `src/app/api/cities` | Birth-city search with time zones (GeoNames, CC BY 4.0). |
 
+Live at **https://orbori.vercel.app** (deploys automatically from `main`).
+
 Profiles and check-ins are stored on the device for now (`src/lib/store.ts`); accounts come next.
 
 ## Accuracy
