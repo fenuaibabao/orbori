@@ -83,7 +83,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
 
   if (kind === 'rarity') {
     const tier = (['Common', 'Uncommon', 'Rare', 'Mythic'].includes(q.get('tier') ?? '') ? q.get('tier')! : 'Rare').toUpperCase();
-    const share = clean(q.get('share'), 10);
+    const pct = clean(q.get('pct'), 14);
+    const oneIn = clean(q.get('oneIn'), 12);
+    const [line1, line2] = pct ? [`Only ${pct} of people`, 'have a chart this rare.'] : ['A classic combo.', `1 in ${oneIn} share it exactly.`];
     const combo = clean(q.get('combo'), 80).toUpperCase();
     cta = 'How rare is yours? Find out on Orbori';
     body = (
@@ -96,8 +98,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
             <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: Math.min(74, 300 / (tier.length * 1.15)), color: C.goldLite, letterSpacing: 2 }}>{tier}</span>
           </div>
         </div>
-        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 72, marginTop: 50, textAlign: 'center', lineHeight: 1.1 }}>Only {share} of people</span>
-        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 72, textAlign: 'center', lineHeight: 1.1 }}>share my combo.</span>
+        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 68, marginTop: 50, textAlign: 'center', lineHeight: 1.1 }}>{line1}</span>
+        <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 68, textAlign: 'center', lineHeight: 1.1 }}>{line2}</span>
         <span style={{ fontFamily: 'Space Mono', fontSize: 26, color: C.muted, marginTop: 36 }}>{combo}</span>
       </div>
     );

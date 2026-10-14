@@ -10,7 +10,7 @@ import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, TZOLKIN_LINE
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed, randomSeed } from '@/lib/identity';
 import { badges, computeProgress, XP } from '@/lib/progress';
-import { formatOneIn, formatShare } from '@/lib/rarity-format';
+import { formatOneIn, formatPct, rarityFootnote } from '@/lib/rarity-format';
 import { localToday, useAppStore } from '@/lib/store';
 
 interface Row { id: string; label: string; value: string; explain: string }
@@ -102,7 +102,11 @@ export default function MyChart() {
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-gold-lite"><ShareIcon size={16} />Share</span>
               </span>
               <span className="text-[13px] leading-snug">
-                Only <span className="font-mono text-gold-lite">{formatShare(rarity.share)}</span> of people share your Sun, Moon, animal &amp; Life Path. That&apos;s 1 in {formatOneIn(rarity.oneIn)}.
+                {rarity.pct <= 0.5
+                  ? <>Only <span className="font-mono text-gold-lite">{formatPct(rarity.pct)}</span> of people have a chart this rare. </>
+                  : <>A classic combo. </>}
+                About 1 in {formatOneIn(rarity.oneIn)} share your exact Sun, Moon, animal &amp; Life Path.
+                <span className="mt-1 block text-[11px] text-dim">{rarityFootnote(rarity.population)}</span>
               </span>
             </Link>
             <button type="button" onClick={() => setProfile({ ...profile, seed: randomSeed() })}

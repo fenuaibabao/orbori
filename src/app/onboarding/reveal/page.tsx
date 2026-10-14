@@ -5,7 +5,7 @@ import { RarityBurst, TierLadder } from '@/components/RarityBurst';
 import { LinkButton, Screen } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { formatOneIn, formatShare } from '@/lib/rarity-format';
+import { formatOneIn, formatPct, rarityFootnote } from '@/lib/rarity-format';
 import { useStore } from '@/lib/store';
 
 export default function Reveal() {
@@ -23,10 +23,12 @@ export default function Reveal() {
       <RarityBurst tier={rarity.tier} />
       <div className="anim-fade flex flex-col gap-2" style={{ animationDelay: '.5s' }}>
         <h1 className="font-display text-[26px] font-bold leading-tight">
-          Only <span className="font-mono text-gold-lite">{formatShare(rarity.share)}</span> of people<br />share your combo.
+          {rarity.pct <= 0.5
+            ? <>Only <span className="font-mono text-gold-lite">{formatPct(rarity.pct)}</span> of people<br />have a chart this rare.</>
+            : <>A classic combo.<br />The cosmos ordered extra.</>}
         </h1>
         <p className="text-sm text-muted">
-          About 1 in {formatOneIn(rarity.oneIn)}. You&apos;re basically a limited edition, {handleFromSeed(state.profile.seed)}.
+          About 1 in {formatOneIn(rarity.oneIn)} people share your exact combo, {handleFromSeed(state.profile.seed)}.
         </p>
       </div>
       <div className="anim-fade flex flex-wrap justify-center gap-1.5 font-mono text-xs" style={{ animationDelay: '.7s' }}>
@@ -36,6 +38,7 @@ export default function Reveal() {
         <span className="rounded-xl bg-night px-2.5 py-1.5">Life Path {rarity.combo.lifePath}</span>
       </div>
       <div className="anim-fade w-full" style={{ animationDelay: '.9s' }}><TierLadder tier={rarity.tier} /></div>
+      <p className="anim-fade text-[11px] leading-snug text-dim" style={{ animationDelay: '.9s' }}>{rarityFootnote(rarity.population)}</p>
       <div className="flex-1" />
       <div className="anim-fade flex w-full flex-col gap-2.5" style={{ animationDelay: '1.1s' }}>
         <LinkButton href="/onboarding/share">Share your rarity</LinkButton>

@@ -10,7 +10,7 @@ import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
 import { badges, computeProgress, LEVELS, XP } from '@/lib/progress';
-import { formatShare } from '@/lib/rarity-format';
+import { formatOneIn, formatPct } from '@/lib/rarity-format';
 import { localToday, saveDraft, useAppStore } from '@/lib/store';
 
 export default function Profile() {
@@ -96,7 +96,7 @@ export default function Profile() {
           </div>
           <Link href="/onboarding/share" className="flex flex-1 flex-col gap-0.5 rounded-[14px] border border-gold bg-deep px-2 py-2.5 text-center">
             <span className="flex min-h-[26px] items-center justify-center font-mono text-[13px] font-bold tracking-[0.04em] text-gold-lite">{data ? data.rarity.tier.toUpperCase() : '…'}</span>
-            <span className="text-[11px] text-muted">{data ? `${formatShare(data.rarity.share)} of people` : 'rarity'}</span>
+            <span className="text-[11px] text-muted">{data ? (data.rarity.pct <= 0.5 ? `rarest ${formatPct(data.rarity.pct)}` : `1 in ${formatOneIn(data.rarity.oneIn)}`) : 'rarity'}</span>
           </Link>
           <div className="flex flex-1 flex-col gap-0.5 rounded-[14px] bg-deep px-2 py-2.5 text-center">
             <span className="font-mono text-[17px] font-bold text-dim">0</span><span className="text-[11px] text-muted">Streak Shields · Plus</span>
