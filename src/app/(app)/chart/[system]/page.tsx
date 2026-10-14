@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { deg, Meter, Section, What } from '@/components/depth-ui';
 import { BackIcon } from '@/components/icons';
+import { PartnerLink } from '@/components/PartnerLink';
 import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
 import { nameNumbers } from '@/lib/astro/numerology-depth';
@@ -211,6 +212,13 @@ function Chinese({ d, chart }: { d: ChartDepth; chart: Chart }) {
         {b.missing.map((m) => <p key={m} className="text-sm text-muted">{MISSING_ELEMENT[m]}</p>)}
         <p className="text-xs text-dim">Counts the {b.hour ? 8 : 6} visible characters. Hidden stems and seasonal strength are not included.</p>
       </Section>
+
+      <PartnerLink
+        href="https://purpleheaven.app"
+        eyebrow="GO EVEN DEEPER"
+        title="Purple Heaven"
+        body="Full BaZi and Zi Wei charts, the Tongshu almanac and readings with real practitioners. Anonymous, like Orbori."
+      />
     </>
   );
 }
@@ -286,6 +294,12 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           Day {m.trecena.dayOfTrecena} of 13 in the {m.trecena.daySign} ({m.trecena.kicheName}) trecena. {TZOLKIN_LINE[m.trecena.daySign]}
         </p>
       </Section>
+      <PartnerLink
+        href="https://thefourpillars.net"
+        eyebrow="FROM A K'ICHE' DAY-KEEPER"
+        title="The energy of each day, by Mark Elmy"
+        body="An initiated Aj Q'ij who writes about every day of the Chol Q'ij (the K'iche' name for the Tzolk'in), plus workshops and readings."
+      />
       <p className="text-xs text-dim"><Tag>Note</Tag> Day-keeping traditions vary between Maya communities.</p>
     </>
   );
