@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import { AuthProvider } from '@/lib/auth';
+import { SyncProvider } from '@/lib/sync-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,7 +18,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="sky min-h-dvh">{children}</body>
+      <body className="sky min-h-dvh"><AuthProvider><SyncProvider>{children}</SyncProvider></AuthProvider></body>
     </html>
   );
 }

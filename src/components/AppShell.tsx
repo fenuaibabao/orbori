@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { StoreContext, useStore } from '@/lib/store';
+import { useSync } from '@/lib/sync-provider';
 import { ChartIcon, CosmosIcon, ProfileIcon, SunIcon, VisionsIcon } from './icons';
 import { Logo } from './Logo';
 
@@ -18,7 +19,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const store = useStore();
-  const { ready, state } = store;
+  const { ready: synced } = useSync();
+  const ready = store.ready && synced;
+  const { state } = store;
 
   useEffect(() => {
     if (ready && !state.profile) router.replace('/welcome');
@@ -52,6 +55,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z" /><path d="M4 21V5M8 7h7" /></svg>
             Learn
           </Link>
+          <Link href="/plus" aria-current={path.startsWith('/plus') ? 'page' : undefined}
+            className={`flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-medium ${path.startsWith('/plus') ? 'bg-royal text-starlight' : 'text-gold-lite hover:text-starlight'}`}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.3 5.8L12 16l-5 3 1.3-5.8L4 9.3l5.6-.7z" /></svg>
+            Orbori Plus
+          </Link>
         </nav>
       </aside>
 
@@ -60,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile tab bar */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-[#0B0934]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
         {TABS.map(({ href, label, Icon }) => {
-          const on = path.startsWith(href) || (href === '/profile' && (path.startsWith('/compatibility') || path.startsWith('/learn')));
+          const on = path.startsWith(href) || (href === '/profile' && (path.startsWith('/compatibility') || path.startsWith('/learn') || path.startsWith('/plus')));
           return (
             <Link key={href} href={href} aria-current={on ? 'page' : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${on ? 'text-starlight' : 'text-dim'}`}>

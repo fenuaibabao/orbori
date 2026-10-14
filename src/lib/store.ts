@@ -1,7 +1,7 @@
 'use client';
 /**
- * On-device storage for the first build (before accounts exist).
- * Everything lives under one key so it can be migrated to the server later.
+ * On-device storage. Everything lives under one key; when someone is signed in,
+ * SyncProvider (lib/sync-provider) mirrors every change to their account.
  */
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { BirthInput } from './astro/types';
@@ -47,6 +47,9 @@ function write(s: LocalState) {
 }
 
 export const getProfile = () => read().profile;
+/** Used by account sync: read everything / replace everything. */
+export const readState = read;
+export const replaceState = write;
 
 /** Pending birth details while onboarding (not yet calculated). */
 const DRAFT = 'orbori.draft';

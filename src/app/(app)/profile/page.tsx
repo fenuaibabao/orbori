@@ -12,11 +12,30 @@ import { handleFromSeed } from '@/lib/identity';
 import { badges, computeProgress, LEVELS, XP } from '@/lib/progress';
 import { formatOneIn, formatPct } from '@/lib/rarity-format';
 import { localToday, saveDraft, useAppStore } from '@/lib/store';
+import { useAuth } from '@/lib/auth';
+import { goToBilling, usePlus } from '@/lib/plus';
+import { supabase } from '@/lib/supabase/client';
+import { clearAccount } from '@/lib/sync';
 
 export default function Profile() {
   const router = useRouter();
   const { state, reset } = useAppStore();
   const profile = state.profile;
+  const auth = useAuth();
+  const plus = usePlus();
+  const [billingMsg, setBillingMsg] = useState<string | null>(null);
+  const manageBilling = async () => {
+    setBillingMsg('Opening billing…');
+    const e = await goToBilling('/api/billing/portal');
+    if (e) setBillingMsg(e);
+  };
+  const startOver = async () => {
+    if (!confirm(auth.user ? 'Erase your chart, streak and matches from this device and your account?' : 'Erase your profile and streak from this device?')) return;
+    const sb = supabase();
+    if (auth.user && sb) { try { await clearAccount(sb, auth.user.id); } catch { /* local reset still happens */ } }
+    reset();
+    router.replace('/welcome');
+  };
   const { data } = useChart(profile);
   const { date } = localToday();
   const p = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
@@ -99,7 +118,7 @@ export default function Profile() {
             <span className="text-[11px] text-muted">{data ? (data.rarity.pct <= 0.5 ? `rarest ${formatPct(data.rarity.pct)}` : `1 in ${formatOneIn(data.rarity.oneIn)}`) : 'rarity'}</span>
           </Link>
           <div className="flex flex-1 flex-col gap-0.5 rounded-[14px] bg-deep px-2 py-2.5 text-center">
-            <span className="font-mono text-[17px] font-bold text-dim">0</span><span className="text-[11px] text-muted">Streak Shields · Plus</span>
+            <span className="font-mono text-[17px] font-bold text-dim">0</span><span className="text-[11px] text-muted">Streak Shields · soon</span>
           </div>
         </div>
         <div>
@@ -139,11 +158,41 @@ export default function Profile() {
       </section>
 
       <section>
-        <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">THIS DEVICE</p>
-        <div className="rounded-[18px] bg-night p-4 text-sm leading-relaxed text-muted">
-          Accounts are coming soon. For now your profile, streak and matches live only on this device.
-          <button type="button" onClick={() => { if (confirm('Erase your profile and streak from this device?')) { reset(); router.replace('/welcome'); } }}
-            className="mt-3 block min-h-11 font-medium text-[#E7B7BA]">
+        <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">ACCOUNT</p>
+        <div className="overflow-hidden rounded-[18px] bg-night">
+          {auth.user ? (
+            <div className="flex min-h-14 items-center gap-3 px-4 py-3">
+              <span className="flex-1 text-[15px]">Signed in
+                <span className="mt-0.5 block text-xs text-dim">{auth.user.email}. Your chart, streak and matches are saved to your account.</span>
+              </span>
+              <button type="button" onClick={() => auth.signOut()} className="min-h-11 text-sm font-medium text-muted">Sign out</button>
+            </div>
+          ) : (
+            <Link href="/signin?next=%2Fprofile" className="flex min-h-14 w-full items-center gap-3 px-4 py-2">
+              <span className="flex-1 text-[15px]">{auth.enabled ? 'Sign in or create an account' : 'Accounts coming soon'}
+                <span className="mt-0.5 block text-xs text-dim">
+                  {auth.enabled ? 'Keep your chart, streak and matches on every device.' : 'For now everything lives on this device.'}
+                </span>
+              </span>
+              {auth.enabled && <span className="text-dim">›</span>}
+            </Link>
+          )}
+          <div className="flex min-h-14 items-center gap-3 border-t border-line px-4 py-3">
+            <span className="flex-1 text-[15px]">
+              {plus.plus ? <>Orbori Plus <span className="rounded-full bg-gold px-2 py-0.5 font-mono text-[10px] font-bold text-space">ACTIVE</span></> : 'Orbori Plus'}
+              <span className="mt-0.5 block text-xs text-dim">
+                {plus.plus
+                  ? plus.cancelAtPeriodEnd && plus.periodEnd ? `Ends ${new Date(plus.periodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`
+                    : plus.periodEnd ? `Renews ${new Date(plus.periodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : 'Active.'
+                  : 'Every system in depth.'}
+              </span>
+            </span>
+            {plus.plus || plus.status === 'canceled' || plus.status === 'past_due'
+              ? <button type="button" onClick={manageBilling} className="min-h-11 text-sm font-medium text-gold-lite">Manage</button>
+              : <Link href="/plus" className="min-h-11 text-sm font-medium text-gold-lite">See plans</Link>}
+          </div>
+          {billingMsg && <p aria-live="polite" className="px-4 pb-3 text-xs text-muted">{billingMsg}</p>}
+          <button type="button" onClick={startOver} className="flex min-h-12 w-full items-center border-t border-line px-4 text-left text-sm font-medium text-[#E7B7BA]">
             Start over
           </button>
         </div>

@@ -1,5 +1,6 @@
 import { Logo } from '@/components/Logo';
 import { LinkButton, Screen } from '@/components/ui';
+import { accountsEnabled } from '@/lib/supabase/config';
 
 export default function Welcome() {
   return (
@@ -19,6 +20,7 @@ export default function Welcome() {
 
       <div className="relative flex flex-col gap-3">
         <LinkButton href="/onboarding/birth">Map my cosmos</LinkButton>
+        {accountsEnabled && <LinkButton href="/signin" variant="ghost">I already have an account</LinkButton>}
         <p className="mt-1.5 text-center text-xs text-dim">18+ only. Entertainment, not destiny.</p>
       </div>
     </Screen>

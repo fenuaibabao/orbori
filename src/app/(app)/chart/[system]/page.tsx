@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { deg, Meter, Section, What } from '@/components/depth-ui';
 import { BackIcon } from '@/components/icons';
 import { PartnerLink } from '@/components/PartnerLink';
+import { PlusGate } from '@/components/PlusGate';
 import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
 import { nameNumbers } from '@/lib/astro/numerology-depth';
@@ -55,7 +56,7 @@ function Western({ d }: { d: ChartDepth; chart: Chart }) {
   const el = Object.entries(w.balance.elements).sort((a, b) => b[1] - a[1]);
   const mo = Object.entries(w.balance.modes).sort((a, b) => b[1] - a[1]);
   return (
-    <>
+    <PlusGate>
       <Section title="Your balance" learn="elements-west">
         <p className="text-sm leading-relaxed text-muted">
           Heavy on <strong className="text-starlight">{el[0][0]}</strong> ({ELEMENT_WEST[el[0][0]]}) and <strong className="text-starlight">{mo[0][0]}</strong> ({MODE_WEST[mo[0][0]]}).
@@ -108,7 +109,7 @@ function Western({ d }: { d: ChartDepth; chart: Chart }) {
           ))}
         </ul>
       </Section>
-    </>
+    </PlusGate>
   );
 }
 
@@ -116,7 +117,7 @@ function Vedic({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const v = d.vedic;
   const today = new Date().toISOString().slice(0, 10);
   return (
-    <>
+    <PlusGate>
       {v.current.maha && (
         <section className="flex flex-col gap-2 rounded-[22px] border border-gold bg-night p-[18px]">
           <div className="flex items-baseline justify-between"><p className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">YOUR CURRENT CHAPTER</p><What id="dasha" /></div>
@@ -162,7 +163,7 @@ function Vedic({ d, chart }: { d: ChartDepth; chart: Chart }) {
           ))}
         </ul>
       </Section>
-    </>
+    </PlusGate>
   );
 }
 
@@ -172,7 +173,7 @@ function Chinese({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const dm = `${b.dayMaster.polarity} ${b.dayMaster.element}`;
   const yearDiffers = b.year.animal !== chart.chinese.animal;
   return (
-    <>
+    <PlusGate>
       <Section title="Your eight characters" learn="four-pillars">
         <div className="grid grid-cols-4 gap-2 text-center">
           {cols.map(([k, p]) => (
@@ -219,7 +220,7 @@ function Chinese({ d, chart }: { d: ChartDepth; chart: Chart }) {
         title="Purple Heaven"
         body="Full BaZi and Zi Wei charts, the Tongshu almanac and readings with real practitioners. Anonymous, like Orbori."
       />
-    </>
+    </PlusGate>
   );
 }
 
@@ -228,7 +229,7 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const [name, setName] = useState('');
   const nn = name.trim() ? nameNumbers(name) : null;
   return (
-    <>
+    <PlusGate>
       <Section title={`Life Path ${chart.numerology.lifePath}`} learn="life-path">
         <p className="text-sm leading-relaxed text-muted">{LIFE_PATH_LINE[chart.numerology.lifePath]}</p>
       </Section>
@@ -255,7 +256,7 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
           </ul>
         )}
       </Section>
-    </>
+    </PlusGate>
   );
 }
 
@@ -269,7 +270,7 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
     </div>
   );
   return (
-    <>
+    <PlusGate>
       <Section title={`Your nawal: ${chart.tzolkin.label}`} learn="tzolkin">
         <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[chart.tzolkin.daySign]} Your number {chart.tzolkin.number} brings {NUMBER_LINE[chart.tzolkin.number]}.</p>
         <p className="text-xs text-dim">{chart.tzolkin.english} · Yucatec: {chart.tzolkin.yucatec}</p>
@@ -302,6 +303,6 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
         body="An initiated Aj Q'ij who writes about every day of the Chol Q'ij (the K'iche' sacred calendar), plus workshops and readings."
       />
       <p className="text-xs text-dim"><Tag>Note</Tag> Day-keeping traditions vary between Maya communities.</p>
-    </>
+    </PlusGate>
   );
 }
