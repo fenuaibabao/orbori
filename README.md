@@ -19,6 +19,8 @@ npm test         # engine + council tests
 | `src/lib/rarity.ts` + `src/data/rarity.json` | Chart Rarity: estimated share of people (born 1940–2012) with the same Sun + Moon + animal + Life Path, and tier cutoffs (rarest 5% Mythic, next 15% Rare, next 30% Uncommon). Rebuild with `npx tsx scripts/build-rarity.ts`. |
 | `src/lib/progress.ts` | Oracle Levels, XP, streaks and badges. |
 | `src/app/api/card/[kind]` | 1080×1920 story share cards (`rarity`, `score`, `match`, `level`). |
+| `src/lib/astro/bazi.ts`, `houses.ts`, `dasha.ts`, `*-depth.ts` | Go deeper: Four Pillars (Lichun year, solar-term months), Placidus houses (verified vs Swiss Ephemeris, ~30″), aspects, Lilith (mean apogee, ~7′), Vimshottari Dasha, Navamsa, Personal Year, name numbers (on device only), Tzolk'in trecena and Mayan cross. |
+| `src/lib/glossary.ts` | Learn page: every term in plain English. |
 | `src/lib/compat/` | Five-system compatibility incl. Vedic Guna Milan (gender-neutral). |
 | `src/lib/invite.ts` | "See your side" invite tokens, AES-256-GCM with `INVITE_SECRET` (set in Vercel → Settings → Environment Variables). |
 | `src/app/api/cities` | Birth-city search with time zones (GeoNames, CC BY 4.0). |

@@ -129,6 +129,12 @@ export default function Profile() {
             </span>
             <span className="text-dim">›</span>
           </Link>
+          <Link href="/learn" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
+            <span className="flex-1 text-[15px]">Learn
+              <span className="mt-0.5 block text-xs text-dim">Every astrology term, in plain English</span>
+            </span>
+            <span className="text-dim">›</span>
+          </Link>
         </div>
       </section>
 

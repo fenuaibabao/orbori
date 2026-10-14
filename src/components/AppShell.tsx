@@ -47,6 +47,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="9" cy="12" r="6" /><circle cx="15" cy="12" r="6" /></svg>
             Compatibility
           </Link>
+          <Link href="/learn" aria-current={path.startsWith('/learn') ? 'page' : undefined}
+            className={`flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-medium ${path.startsWith('/learn') ? 'bg-royal text-starlight' : 'text-muted hover:text-starlight'}`}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z" /><path d="M4 21V5M8 7h7" /></svg>
+            Learn
+          </Link>
         </nav>
       </aside>
 
@@ -55,7 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile tab bar */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-[#0B0934]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
         {TABS.map(({ href, label, Icon }) => {
-          const on = path.startsWith(href) || (href === '/profile' && path.startsWith('/compatibility'));
+          const on = path.startsWith(href) || (href === '/profile' && (path.startsWith('/compatibility') || path.startsWith('/learn')));
           return (
             <Link key={href} href={href} aria-current={on ? 'page' : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${on ? 'text-starlight' : 'text-dim'}`}>

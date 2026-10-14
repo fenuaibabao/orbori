@@ -16,6 +16,14 @@ import { localToday, useAppStore } from '@/lib/store';
 interface Row { id: string; label: string; value: string; explain: string }
 interface Group { name: string; note: string; rows: Row[] }
 
+const DEEPER: Record<string, { slug: string; teaser: string }> = {
+  Western: { slug: 'western', teaser: 'houses, aspects, balance' },
+  Vedic: { slug: 'vedic', teaser: 'your life chapters (Dasha), D9' },
+  'Chinese zodiac': { slug: 'chinese', teaser: 'Four Pillars, secret animal, elements' },
+  Numerology: { slug: 'numerology', teaser: 'Personal Year, name numbers' },
+  "Mayan Tzolk'in": { slug: 'mayan', teaser: 'your Mayan cross, trecena' },
+};
+
 const deg = (p: Placement) => `${Math.floor(p.degree)}°${String(Math.floor((p.degree % 1) * 60)).padStart(2, '0')}′`;
 
 function groups(c: Chart): Group[] {
@@ -148,6 +156,9 @@ export default function MyChart() {
                     </div>
                   );
                 })}
+                <Link href={`/chart/${DEEPER[g.name].slug}`} className="flex min-h-12 items-center justify-between gap-3 border-t border-line bg-deep px-4 text-sm font-semibold text-gold-lite hover:bg-night-2">
+                  <span>Go deeper: {DEEPER[g.name].teaser}</span><span aria-hidden="true">→</span>
+                </Link>
               </div>
             </section>
           ))}

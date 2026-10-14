@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import type { Chart } from './astro/types';
+import type { ChartDepth } from './astro/depth';
 import type { CouncilReading } from './council/types';
 import type { Rarity } from './rarity';
 import type { Profile } from './store';
@@ -48,6 +49,22 @@ export function useToday(profile: Profile | null) {
       .catch((e) => setError(e.message));
   }, [profile]);
   return { reading, error };
+}
+
+export function useDepth(profile: Profile | null) {
+  const [depth, setDepth] = useState<ChartDepth | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!profile) return;
+    const { date } = localToday();
+    const key = `orbori.depth.${date}.${JSON.stringify(profile.input)}`;
+    const hit = cacheGet<ChartDepth>(key);
+    if (hit) { setDepth(hit); return; }
+    fetch('/api/depth', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ input: profile.input, today: date }) })
+      .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.error); cacheSet(key, d.depth); setDepth(d.depth); })
+      .catch((e) => setError(e.message));
+  }, [profile]);
+  return { depth, error };
 }
 
 /** Share text (and a link) with the native share sheet, falling back to the clipboard. */
