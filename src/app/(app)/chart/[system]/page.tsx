@@ -9,7 +9,7 @@ import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
 import { nameNumbers } from '@/lib/astro/numerology-depth';
 import type { Chart } from '@/lib/astro/types';
-import { ANIMAL_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, TZOLKIN_LINE } from '@/lib/content';
+import { ANIMAL_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
   ASPECT_LINE, CROSS_ROLE, DASHA_LINE, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
@@ -18,7 +18,7 @@ import { useChart, useDepth } from '@/lib/hooks';
 import { useAppStore } from '@/lib/store';
 
 const TITLES: Record<string, string> = {
-  western: 'Western, in depth', vedic: 'Vedic, in depth', chinese: 'Four Pillars (BaZi)', numerology: 'Numerology, in depth', mayan: "Tzolk'in, in depth",
+  western: 'Western, in depth', vedic: 'Vedic, in depth', chinese: 'Four Pillars (BaZi)', numerology: 'Numerology, in depth', mayan: "Chol Q'ij, in depth",
 };
 const ord = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
 const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -261,17 +261,18 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
 
 function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const m = d.mayan;
-  const cell = (label: string, x: { label: string; daySign: string; kicheName: string }) => (
+  const cell = (label: string, x: { label: string; english: string; yucatec: string }) => (
     <div className="flex flex-col items-center gap-0.5 rounded-xl bg-deep p-2.5 text-center">
       <span className="text-[10px] uppercase tracking-wide text-muted">{label}</span>
       <span className="font-mono text-sm font-bold">{x.label}</span>
-      <span className="text-[11px] text-dim">{x.daySign} · {x.kicheName}</span>
+      <span className="text-[11px] text-dim">{x.english} · {x.yucatec}</span>
     </div>
   );
   return (
     <>
       <Section title={`Your nawal: ${chart.tzolkin.label}`} learn="tzolkin">
-        <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[chart.tzolkin.daySign]}</p>
+        <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[chart.tzolkin.daySign]} Your number {chart.tzolkin.number} brings {NUMBER_LINE[chart.tzolkin.number]}.</p>
+        <p className="text-xs text-dim">{chart.tzolkin.english} · Yucatec: {chart.tzolkin.yucatec}</p>
       </Section>
       <Section title="Your Mayan cross" learn="mayan-cross">
         <div className="mx-auto grid w-full max-w-sm grid-cols-3 gap-2">
@@ -280,7 +281,7 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           <div className="flex flex-col items-center gap-0.5 rounded-xl border border-gold bg-deep p-2.5 text-center">
             <span className="text-[10px] uppercase tracking-wide text-gold-lite">You</span>
             <span className="font-mono text-sm font-bold">{chart.tzolkin.label}</span>
-            <span className="text-[11px] text-dim">{chart.tzolkin.daySign} · {chart.tzolkin.kicheName}</span>
+            <span className="text-[11px] text-dim">{chart.tzolkin.english} · {chart.tzolkin.yucatec}</span>
           </div>
           {cell('Right', m.cross.right)}
           <span />{cell('Conception', m.cross.conception)}<span />
@@ -289,16 +290,16 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           {(Object.keys(CROSS_ROLE) as (keyof typeof CROSS_ROLE)[]).map((k) => <li key={k}>{CROSS_ROLE[k]}: <strong className="text-starlight">{m.cross[k].label}</strong></li>)}
         </ul>
       </Section>
-      <Section title={`Born in the ${m.trecena.sign} trecena`} learn="trecena">
+      <Section title={`Born in the ${m.trecena.daySign} trecena`} learn="trecena">
         <p className="text-sm leading-relaxed text-muted">
-          Day {m.trecena.dayOfTrecena} of 13 in the {m.trecena.daySign} ({m.trecena.kicheName}) trecena. {TZOLKIN_LINE[m.trecena.daySign]}
+          Day {m.trecena.dayOfTrecena} of 13 in the {m.trecena.daySign} ({m.trecena.english}) trecena. {TZOLKIN_LINE[m.trecena.daySign]}
         </p>
       </Section>
       <PartnerLink
         href="https://thefourpillars.net"
         eyebrow="FROM A K'ICHE' DAY-KEEPER"
         title="The energy of each day, by Mark Elmy"
-        body="An initiated Aj Q'ij who writes about every day of the Chol Q'ij (the K'iche' name for the Tzolk'in), plus workshops and readings."
+        body="An initiated Aj Q'ij who writes about every day of the Chol Q'ij (the K'iche' sacred calendar), plus workshops and readings."
       />
       <p className="text-xs text-dim"><Tag>Note</Tag> Day-keeping traditions vary between Maya communities.</p>
     </>

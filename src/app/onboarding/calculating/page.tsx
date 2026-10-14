@@ -13,7 +13,7 @@ const STEPS = [
   'Vedic: sliding everything 24° left',
   'Chinese zodiac: finding your Lunar New Year',
   'Numerology: adding it all up',
-  "Mayan Tzolk'in: counting 260 days",
+  "Chol Q'ij: counting the 260 days",
 ];
 
 export default function Calculating() {

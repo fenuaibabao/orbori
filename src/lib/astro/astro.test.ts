@@ -32,13 +32,13 @@ describe('Chinese zodiac', () => {
 });
 
 describe('Tzolkin', () => {
-  it('anchors 13.0.0.0.0 (2012-12-21) on 4 Ajaw', () => {
-    expect(tzolkin('2012-12-21')).toMatchObject({ number: 4, daySign: 'Ajaw', english: 'Sun' });
+  it('anchors 13.0.0.0.0 (2012-12-21) on 4 Ajpu', () => {
+    expect(tzolkin('2012-12-21')).toMatchObject({ number: 4, daySign: 'Ajpu', english: 'Sun', yucatec: 'Ajaw' });
   });
   it('repeats every 260 days and steps one number and one sign per day', () => {
-    expect(tzolkin('2013-09-07')).toMatchObject({ number: 4, daySign: 'Ajaw' }); // +260 days
-    expect(tzolkin('2012-12-22')).toMatchObject({ number: 5, daySign: 'Imix' });
-    expect(tzolkin('2012-12-20')).toMatchObject({ number: 3, daySign: 'Kawak' });
+    expect(tzolkin('2013-09-07')).toMatchObject({ number: 4, daySign: 'Ajpu' }); // +260 days
+    expect(tzolkin('2012-12-22')).toMatchObject({ number: 5, daySign: 'Imox' });
+    expect(tzolkin('2012-12-20')).toMatchObject({ number: 3, daySign: 'Kawok' });
   });
 });
 

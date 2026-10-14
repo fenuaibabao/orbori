@@ -26,7 +26,7 @@ const ADVICE_VERB: Record<Advice, string> = {
   slow: 'says wait', release: 'says let it go',
 };
 const SHORT: Record<string, string> = {
-  western: 'Western', vedic: 'Vedic', chinese: 'The Chinese zodiac', numerology: 'Numerology', mayan: "The Tzolk'in",
+  western: 'Western', vedic: 'Vedic', chinese: 'The Chinese zodiac', numerology: 'Numerology', mayan: "The Chol Q'ij",
 };
 
 const BASE: Record<number, number> = { 1: 1.5, 2: 3.2, 3: 5.3, 4: 7.4, 5: 9.2 };

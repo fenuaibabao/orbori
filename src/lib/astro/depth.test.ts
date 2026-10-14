@@ -55,10 +55,10 @@ describe('Numerology and Mayan depth', () => {
     expect(nameNumbers('---')).toBeNull();
   });
   it('trecena and cross are consistent with the 260-day count', () => {
-    const m = mayanDepth('2012-12-21'); // 4 Ajaw
+    const m = mayanDepth('2012-12-21'); // 4 Ajpu
     expect(m.trecena.dayOfTrecena).toBe(4);
-    expect(m.trecena.daySign).toBe('Kab\'an'); // 3 days before 4 Ajaw is 1 Kab'an
-    expect(m.cross.destiny.label).toBe('12 Star'); // +8: 4+8 = 12; Ajaw (20th) + 8 = Lamat (8th)
-    expect(m.cross.conception.label).toBe('9 Road'); // −8: 4−8 → 9; Ajaw − 8 = Eb' (12th)
+    expect(m.trecena.daySign).toBe('No\'j'); // 3 days before 4 Ajpu is 1 No'j
+    expect(m.cross.destiny.label).toBe('12 Q\'anil'); // +8: 4+8 = 12; Ajpu (20th) + 8 = Q'anil (8th)
+    expect(m.cross.conception.label).toBe('9 E\''); // −8: 4−8 → 9; Ajpu − 8 = E' (12th)
   });
 });

@@ -6,7 +6,7 @@ import { ChevronIcon, ShareIcon } from '@/components/icons';
 import { Sigil } from '@/components/Sigil';
 import { Tag } from '@/components/ui';
 import type { Chart, Placement } from '@/lib/astro/types';
-import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, TZOLKIN_LINE, vedicExplain, westernExplain } from '@/lib/content';
+import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, NUMBER_LINE, TZOLKIN_LINE, vedicExplain, westernExplain } from '@/lib/content';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed, randomSeed } from '@/lib/identity';
 import { badges, computeProgress, XP } from '@/lib/progress';
@@ -21,7 +21,7 @@ const DEEPER: Record<string, { slug: string; teaser: string }> = {
   Vedic: { slug: 'vedic', teaser: 'your life chapters (Dasha), D9' },
   'Chinese zodiac': { slug: 'chinese', teaser: 'Four Pillars, secret animal, elements' },
   Numerology: { slug: 'numerology', teaser: 'Personal Year, name numbers' },
-  "Mayan Tzolk'in": { slug: 'mayan', teaser: 'your Mayan cross, trecena' },
+  "Chol Q'ij (Mayan)": { slug: 'mayan', teaser: 'your Mayan cross, trecena' },
 };
 
 const deg = (p: Placement) => `${Math.floor(p.degree)}°${String(Math.floor((p.degree % 1) * 60)).padStart(2, '0')}′`;
@@ -64,8 +64,8 @@ function groups(c: Chart): Group[] {
       ],
     },
     {
-      name: "Mayan Tzolk'in", note: '260-day sacred calendar', rows: [
-        { id: 'm', label: 'Day sign', value: c.tzolkin.label, explain: `${c.tzolkin.number} ${c.tzolkin.daySign} (K'iche': ${c.tzolkin.kicheName}). ${TZOLKIN_LINE[c.tzolkin.daySign]}` },
+      name: "Chol Q'ij (Mayan)", note: 'The K\'iche\' 260-day sacred calendar', rows: [
+        { id: 'm', label: 'Nawal', value: c.tzolkin.label, explain: `${c.tzolkin.label}, ${c.tzolkin.english} (Yucatec: ${c.tzolkin.yucatec}). ${TZOLKIN_LINE[c.tzolkin.daySign]} Your number ${c.tzolkin.number} brings ${NUMBER_LINE[c.tzolkin.number]}.` },
       ],
     },
   ];

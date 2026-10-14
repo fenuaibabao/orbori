@@ -5,7 +5,7 @@
 import type { Chart, Sign } from '../astro/types';
 import { SIGNS } from '../astro/types';
 import { ANIMALS } from '../astro/chinese';
-import { DAY_SIGNS } from '../astro/mayan';
+import { signIndex } from '../astro/mayan';
 import { gunaMilan, type GunaMilan } from './guna';
 
 export interface SystemMatch {
@@ -130,16 +130,16 @@ function numerology(a: Chart, b: Chart): SystemMatch {
 const DIRECTION = ['East', 'North', 'West', 'South'];
 
 function mayan(a: Chart, b: Chart): SystemMatch {
-  const ia = DAY_SIGNS.findIndex((s) => s.yucatec === a.tzolkin.daySign);
-  const ib = DAY_SIGNS.findIndex((s) => s.yucatec === b.tzolkin.daySign);
+  const ia = signIndex(a.tzolkin.daySign);
+  const ib = signIndex(b.tzolkin.daySign);
   const d = (ib - ia + 20) % 20;
   let score = 6.3, rel = 'different directions', body = 'You walk different directions, which means more ground covered.';
   if (d === 0) { score = 9; rel = 'the same nawal'; body = 'Same day sign. You recognize each other immediately.'; }
   else if (d % 4 === 0) { score = 8.6; rel = `allies of the ${DIRECTION[ia % 4]}`; body = 'Same direction on the sacred wheel. Natural allies.'; }
   else if (d === 10) { score = 4.5; rel = 'opposites'; body = 'Opposite signs on the wheel. Challenging, and a great teacher.'; }
   return {
-    system: 'mayan', label: "Mayan Tzolk'in", score, display: score.toFixed(1),
-    head: `${a.tzolkin.english} × ${b.tzolkin.english}: ${rel}.`, body,
+    system: 'mayan', label: "Chol Q'ij (Mayan)", score, display: score.toFixed(1),
+    head: `${a.tzolkin.daySign} × ${b.tzolkin.daySign}: ${rel}.`, body,
   };
 }
 

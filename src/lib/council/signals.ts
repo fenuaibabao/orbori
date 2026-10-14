@@ -3,7 +3,8 @@ import type { Chart, PlanetKey, Sign } from '../astro/types';
 import { SIGNS } from '../astro/types';
 import { ANIMALS } from '../astro/chinese';
 import { reduce } from '../astro/numerology';
-import { DAY_SIGNS, tzolkin } from '../astro/mayan';
+import { signIndex, tzolkin } from '../astro/mayan';
+import { NUMBER_LINE } from '../content';
 import { bodyLongitude } from '../astro/western';
 import { lahiriAyanamsa, nakshatra } from '../astro/vedic';
 import { julianDayNumber, norm360, parseDate } from '../astro/util';
@@ -222,34 +223,50 @@ export function numerologySignal(chart: Chart, date: string): SystemSignal {
 
 /* ───────────── Mayan Tzolk'in: today's day sign vs your nawal ───────────── */
 
+// Index order: Imox, Iq', Aq'ab'al, K'at, Kan, Kame, Kej, Q'anil, Toj, Tz'i, B'atz', E', Aj, Ix, Tz'ikin, Ajmak, No'j, Tijax, Kawok, Ajpu
 const SIGN_ADVICE: Advice[] = [
-  'act', 'speak', 'slow', 'build', 'act', 'release', 'connect', 'build', 'connect', 'connect',
-  'speak', 'act', 'build', 'slow', 'act', 'release', 'speak', 'release', 'connect', 'act',
+  'slow', 'speak', 'act', 'connect', 'act', 'release', 'build', 'build', 'release', 'speak',
+  'act', 'act', 'connect', 'slow', 'act', 'release', 'speak', 'release', 'connect', 'act',
 ];
 const SIGN_LINE: string[] = [
-  'Crocodile starts things. Begin.', 'Wind carries the word.', 'Night favors rest and home.', 'Seed days reward patience.',
-  'Serpent brings raw energy.', 'Death days honor endings and ancestors.', 'Deer lends a helping hand.', 'Star days multiply what you tend.',
-  'Water day: offer something.', 'Dog day: loyalty pays.', 'Monkey makes everything a little more fun.', 'The Road asks you to move.',
-  'Reed guards the home.', 'Jaguar sharpens your instincts.', 'Eagle sees the big picture.', 'Owl brings wisdom and forgiveness.',
-  'Earth day: ideas land.', 'Flint cuts away what is false.', 'Storm clears and renews.', 'Sun day: lead.',
+  'Imox day: listen to your dreams and gut before you act.',
+  "Iq' day: the wind carries your words. Say what matters.",
+  "Aq'ab'al day: a fresh dawn. Start the thing you've been circling.",
+  "K'at day: gather your people and resources, and untangle one knot.",
+  'Kan day: your power and wisdom are switched on. Use them fairly.',
+  'Kame day: honor an ending, or an ancestor. Something is being reborn.',
+  'Kej day: stand tall and lead. Others are leaning on your strength.',
+  "Q'anil day: plant seeds. What you start now wants to grow.",
+  'Toj day: give back. Gratitude settles old debts, seen and unseen.',
+  "Tz'i day: stand up for what's fair. Loyalty is noticed.",
+  "B'atz' day: make something. Time and creativity are on your side.",
+  "E' day: get moving. The road itself is the answer today.",
+  'Aj day: tend your home and family. Harmony starts there.',
+  'Ix day: trust your instincts and spend time with the Earth.',
+  "Tz'ikin day: zoom out. A vision or a message is on its way.",
+  'Ajmak day: forgive someone, starting with yourself.',
+  "No'j day: think it through. Good counsel and ideas come easily.",
+  'Tijax day: cut away what is false. Healing can sting first.',
+  'Kawok day: clear the air with your people. Community heals.',
+  'Ajpu day: aim high. Spirit and focus are with you.',
 ];
 
 export function mayanSignal(chart: Chart, date: string): SystemSignal {
   const today = tzolkin(date);
   const mine = chart.tzolkin;
-  const ti = DAY_SIGNS.findIndex((s) => s.yucatec === today.daySign);
-  const mi = DAY_SIGNS.findIndex((s) => s.yucatec === mine.daySign);
+  const ti = signIndex(today.daySign);
+  const mi = signIndex(mine.daySign);
   const diff = (ti - mi + 20) % 20;
   let advice = SIGN_ADVICE[ti];
   let polarity = today.number <= 3 ? 0.3 : today.number <= 9 ? 0.5 : 0.6;
-  let tail = '';
-  if (diff === 0) { polarity = 0.9; advice = 'act'; tail = ' It\'s your nawal\'s day. Hard to lose.'; }
-  else if (diff === 10) { polarity = -0.5; advice = 'slow'; tail = ' Your opposite sign rules today, so go gently.'; }
+  let tail = ` Energy of the ${today.number}: ${NUMBER_LINE[today.number]}.`;
+  if (diff === 0) { polarity = 0.9; advice = 'act'; tail += " It's your nawal's day. Hard to lose."; }
+  else if (diff === 10) { polarity = -0.5; advice = 'slow'; tail += ' Your opposite nawal rules today, so go gently.'; }
   return {
-    system: 'mayan', label: "Mayan Tzolk'in", advice, polarity, intensity: 0.3 + today.number / 26 + (diff === 0 ? 0.3 : 0),
-    headline: `Day ${today.label} meets your ${mine.label}`,
+    system: 'mayan', label: "Chol Q'ij (Mayan)", advice, polarity, intensity: 0.3 + today.number / 26 + (diff === 0 ? 0.3 : 0),
+    headline: `${today.label} meets your ${mine.label}`,
     body: SIGN_LINE[ti] + tail,
-    basis: `${today.number} ${today.daySign} (${today.kicheName})`,
+    basis: `${today.label} (${today.english})`,
   };
 }
 

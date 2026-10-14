@@ -57,12 +57,13 @@ export interface Numerology {
 
 export interface Tzolkin {
   number: number;
-  /** Yucatec name, e.g. "Chuwen". */
+  /** K'iche' nawal name, e.g. "B'atz'". */
   daySign: string;
-  /** K'iche' name, e.g. "B'atz'". */
-  kicheName: string;
-  /** English gloss, e.g. "Monkey". */
+  /** English gloss of the K'iche' meaning, e.g. "Thread". */
   english: string;
+  /** Yucatec name, e.g. "Chuwen". */
+  yucatec: string;
+  /** e.g. "11 B'atz'" */
   label: string;
 }
 
