@@ -9,7 +9,7 @@ import type { Chart, Placement } from '@/lib/astro/types';
 import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, TZOLKIN_LINE, vedicExplain, westernExplain } from '@/lib/content';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed, randomSeed } from '@/lib/identity';
-import { badges, computeProgress } from '@/lib/progress';
+import { badges, computeProgress, XP } from '@/lib/progress';
 import { formatOneIn, formatShare } from '@/lib/rarity-format';
 import { localToday, useAppStore } from '@/lib/store';
 
@@ -69,18 +69,18 @@ export default function MyChart() {
   const { data, error } = useChart(profile);
   const [open, setOpen] = useState<string | null>('w-sun');
   const { date } = localToday();
-  const progress = useMemo(() => computeProgress(state.checkIns, date), [state.checkIns, date]);
+  const progress = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
 
   if (error) return <p role="alert" className="text-mauve-lite">{error}</p>;
   if (!data) return <div className="h-96 animate-pulse rounded-3xl bg-night" aria-label="Loading your chart" />;
   const { chart, rarity } = data;
-  const list = badges(progress, { mythic: rarity.tier === 'Mythic', matches: 0 });
+  const list = badges(progress, { mythic: rarity.tier === 'Mythic', matches: state.matches.length });
 
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-center justify-between">
         <h1 className="font-display text-[26px] font-bold">My Chart</h1>
-        <Link href="/profile" className="flex min-h-11 items-center text-sm text-gold-lite">Edit birth info</Link>
+        <Link href="/compatibility" className="flex min-h-11 items-center text-sm text-gold-lite">Compatibility →</Link>
       </header>
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">

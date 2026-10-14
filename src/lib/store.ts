@@ -14,13 +14,23 @@ export interface Profile {
   createdAt: string;
 }
 
+export interface Match {
+  id: string;
+  nickname: string;
+  input: BirthInput;
+  cityLabel: string;
+  seed: number;
+  addedAt: string;
+}
+
 export interface LocalState {
   profile: Profile | null;
   checkIns: Record<string, CheckIn>;
+  matches: Match[];
 }
 
 const KEY = 'orbori.v1';
-const EMPTY: LocalState = { profile: null, checkIns: {} };
+const EMPTY: LocalState = { profile: null, checkIns: {}, matches: [] };
 
 function read(): LocalState {
   try {
@@ -63,8 +73,18 @@ export function useStore() {
     write({ ...s, checkIns: { ...s.checkIns, [date]: { answer, score } } });
   }, []);
   const reset = useCallback(() => write(EMPTY), []);
+  const addMatch = useCallback((m: Omit<Match, 'id' | 'addedAt'>) => {
+    const s = read();
+    const match: Match = { ...m, id: Math.random().toString(36).slice(2, 10), addedAt: new Date().toISOString() };
+    write({ ...s, matches: [...s.matches, match] });
+    return match;
+  }, []);
+  const removeMatch = useCallback((id: string) => {
+    const s = read();
+    write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
+  }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch };
 }
 
 /**

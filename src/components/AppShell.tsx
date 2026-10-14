@@ -42,6 +42,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          <Link href="/compatibility" aria-current={path.startsWith('/compatibility') ? 'page' : undefined}
+            className={`flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-medium ${path.startsWith('/compatibility') ? 'bg-royal text-starlight' : 'text-muted hover:text-starlight'}`}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="9" cy="12" r="6" /><circle cx="15" cy="12" r="6" /></svg>
+            Compatibility
+          </Link>
         </nav>
       </aside>
 
@@ -50,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile tab bar */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-[#0B0934]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
         {TABS.map(({ href, label, Icon }) => {
-          const on = path.startsWith(href);
+          const on = path.startsWith(href) || (href === '/profile' && path.startsWith('/compatibility'));
           return (
             <Link key={href} href={href} aria-current={on ? 'page' : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${on ? 'text-starlight' : 'text-dim'}`}>

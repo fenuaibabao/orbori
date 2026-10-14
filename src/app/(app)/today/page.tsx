@@ -7,7 +7,7 @@ import { Sigil } from '@/components/Sigil';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { computeProgress, type Answer } from '@/lib/progress';
+import { computeProgress, XP, type Answer } from '@/lib/progress';
 import { big3, cardUrl, shareCard } from '@/lib/share';
 import { localToday, useAppStore } from '@/lib/store';
 
@@ -19,7 +19,7 @@ export default function Today() {
   const { reading, error } = useToday(profile);
   const { data } = useChart(profile);
   const { date } = localToday();
-  const progress = useMemo(() => computeProgress(state.checkIns, date), [state.checkIns, date]);
+  const progress = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
   const today = state.checkIns[date];
   const [justAnswered, setJustAnswered] = useState(false);
   const [shareStatus, setShareStatus] = useState('');

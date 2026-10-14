@@ -1,8 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BadgeItem } from '@/components/BadgeShelf';
+import { ShareIcon } from '@/components/icons';
+import { big3, cardUrl, shareCard } from '@/lib/share';
 import { Sigil } from '@/components/Sigil';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
@@ -17,12 +19,34 @@ export default function Profile() {
   const profile = state.profile;
   const { data } = useChart(profile);
   const { date } = localToday();
-  const p = useMemo(() => computeProgress(state.checkIns, date), [state.checkIns, date]);
-  const list = badges(p, { mythic: data?.rarity.tier === 'Mythic', matches: 0 });
+  const p = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
+  const list = badges(p, { mythic: data?.rarity.tier === 'Mythic', matches: state.matches.length });
 
   const editBirth = () => {
     saveDraft({ input: profile.input, cityLabel: profile.cityLabel });
     router.push('/onboarding/birth');
+  };
+
+  const [shareStatus, setShareStatus] = useState('');
+  const BADGE_LINES: Record<string, string> = {
+    'first-light': 'Checked in with the stars for the first time. The council has noted my presence.',
+    'seven-night': 'Showed up every night for a week. Even when the sky was being weird.',
+    'called-it': 'Called it five times when the stars were split. Trust my gut.',
+    constellation: 'Five matches mapped. My Constellation is officially a crowd.',
+    'thirty-night': 'Thirty nights straight. Basically part of the sky now.',
+    mythic: 'Mythic chart. One of the rarest combos out there.',
+  };
+  const shareOrbit = async () => {
+    if (!data) return;
+    const earned = list.filter((b) => b.earned);
+    const top = earned[earned.length - 1];
+    setShareStatus('Preparing your card…');
+    const url = cardUrl('level', {
+      handle: handleFromSeed(profile.seed), seed: profile.seed, big3: big3(data.chart), level: p.level,
+      badge: top?.name ?? p.level, line: top ? BADGE_LINES[top.id] : `${p.xp} XP and counting.`,
+    });
+    const r = await shareCard(url, `Now a ${p.level} on Orbori.`, 'orbori-orbit.png');
+    setShareStatus(r === 'downloaded' ? 'Saved to your downloads.' : r === 'shared' ? 'Shared.' : '');
   };
 
   return (
@@ -41,7 +65,13 @@ export default function Profile() {
       </header>
 
       <section aria-labelledby="orbit" className="flex flex-col gap-4 rounded-[22px] border border-royal bg-night p-[18px]">
-        <h2 id="orbit" className="font-display text-xl font-bold">Your Orbit</h2>
+        <div className="flex items-center justify-between">
+          <h2 id="orbit" className="font-display text-xl font-bold">Your Orbit</h2>
+          <button type="button" onClick={shareOrbit} className="flex min-h-9 items-center gap-1.5 text-[13px] font-semibold text-gold-lite">
+            <ShareIcon size={16} />Share
+          </button>
+        </div>
+        {shareStatus && <p aria-live="polite" className="-mt-2 text-xs text-gold-lite">{shareStatus}</p>}
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
             <span className="font-display text-[26px] font-extrabold text-gold-lite">{p.level}</span>
@@ -91,13 +121,21 @@ export default function Profile() {
             </span>
             <span className="text-dim">›</span>
           </button>
+          <Link href="/compatibility" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
+            <span className="flex-1 text-[15px]">Compatibility &amp; Constellation
+              <span className="mt-0.5 block text-xs text-dim">
+                {state.matches.length ? `${state.matches.length} ${state.matches.length === 1 ? 'match' : 'matches'}` : 'Add your first match'} · +25 XP each
+              </span>
+            </span>
+            <span className="text-dim">›</span>
+          </Link>
         </div>
       </section>
 
       <section>
         <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">THIS DEVICE</p>
         <div className="rounded-[18px] bg-night p-4 text-sm leading-relaxed text-muted">
-          Accounts are coming soon. For now your profile and streak live only on this device.
+          Accounts are coming soon. For now your profile, streak and matches live only on this device.
           <button type="button" onClick={() => { if (confirm('Erase your profile and streak from this device?')) { reset(); router.replace('/welcome'); } }}
             className="mt-3 block min-h-11 font-medium text-[#E7B7BA]">
             Start over
