@@ -22,10 +22,10 @@ describe('Guna Milan', () => {
 });
 
 describe('Compatibility', () => {
-  it('scores five systems and averages them', () => {
+  it('scores seven traditions and averages them', () => {
     const c = compatibility(a, b);
-    expect(c.systems).toHaveLength(5);
-    const avg = c.systems.reduce((s, x) => s + x.score, 0) / 5;
+    expect(c.systems).toHaveLength(7);
+    const avg = c.systems.reduce((s, x) => s + x.score, 0) / 7;
     expect(c.score).toBeCloseTo(avg, 1);
     expect(c.score).toBeGreaterThanOrEqual(1);
     expect(c.score).toBeLessThanOrEqual(10);

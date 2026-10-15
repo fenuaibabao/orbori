@@ -1,15 +1,16 @@
 /**
- * Five-system compatibility between two natal charts.
+ * Seven-tradition compatibility between two natal charts.
  * Scores are 1–10 per system; overall is their average.
  */
 import type { Chart, Sign } from '../astro/types';
 import { SIGNS } from '../astro/types';
 import { ANIMALS } from '../astro/chinese';
 import { signIndex } from '../astro/mayan';
+import { mansionSign } from '../astro/islamic';
 import { gunaMilan, type GunaMilan } from './guna';
 
 export interface SystemMatch {
-  system: 'western' | 'vedic' | 'chinese' | 'numerology' | 'mayan';
+  system: 'western' | 'vedic' | 'chinese' | 'numerology' | 'mayan' | 'hawaiian' | 'islamic';
   label: string;
   score: number;
   /** Display value, e.g. "27/36" for Vedic. */
@@ -143,10 +144,41 @@ function mayan(a: Chart, b: Chart): SystemMatch {
   };
 }
 
+/* ───── Hawaiian: moon nights ───── */
+
+function hawaiian(a: Chart, b: Chart): SystemMatch {
+  const x = a.hawaiian, y = b.hawaiian;
+  let score = 6.4, rel = 'different phases of the moon', body = 'Born under different moons: one of you swells while the other settles. Learn each other\'s tides.';
+  if (x.night === y.night) { score = 9; rel = 'the same night'; body = 'The same moon night. You rise and rest on the same rhythm.'; }
+  else if (x.family === y.family) { score = 8.5; rel = `both ${x.family} nights`; body = 'Nights of the same family: the same kind of work suits you both.'; }
+  else if (x.anahulu === y.anahulu) { score = 7.4; rel = `both ${x.anahulu}`; body = 'The same ten nights of the moon. You share a direction, growing or resting together.'; }
+  else if (x.anahulu !== 'Poepoe' && y.anahulu !== 'Poepoe') { score = 5.2; rel = 'waxing and waning'; body = 'One born as the moon grows, one as it fades. Opposite instincts that can balance each other.'; }
+  return {
+    system: 'hawaiian', label: 'Hawaiian moon', score, display: score.toFixed(1),
+    head: `${x.name} × ${y.name}: ${rel}.`, body,
+  };
+}
+
+/* ───── Islamic: lunar mansions by element ───── */
+
+function islamic(a: Chart, b: Chart): SystemMatch {
+  const ma = a.islamic.mansion, mb = b.islamic.mansion;
+  const ea = elementOf(mansionSign(ma.index)), eb = elementOf(mansionSign(mb.index));
+  const friendly = (ea === 'Fire' && eb === 'Air') || (ea === 'Air' && eb === 'Fire') || (ea === 'Earth' && eb === 'Water') || (ea === 'Water' && eb === 'Earth');
+  let score = 5.4, rel = 'mansions of different natures', body = 'Different stars, different temperaments. Interesting, and it takes translating.';
+  if (ma.index === mb.index) { score = 9; rel = 'the same mansion'; body = 'The Moon in the same mansion: you were lit by the same stars.'; }
+  else if (ea === eb) { score = 8.2; rel = `both ${ea} mansions`; body = 'Mansions of one element. You want the same things from a day.'; }
+  else if (friendly) { score = 7.4; rel = `${ea} and ${eb}, friendly elements`; body = 'Elements that feed each other. Easy company.'; }
+  return {
+    system: 'islamic', label: 'Lunar mansions', score, display: score.toFixed(1),
+    head: `${ma.name} × ${mb.name}: ${rel}.`, body,
+  };
+}
+
 /* ───── Overall ───── */
 
 const HEADLINES: [number, string[]][] = [
-  [8.5, ['Written in the stars, and in four other alphabets.', 'The council is basically planning your wedding.']],
+  [8.5, ['Written in the stars, and in six other alphabets.', 'The council is basically planning your wedding.']],
   [7.5, ['Steam, but the good kind.', 'Strong match. Mostly agreed, gloriously argued.']],
   [6.5, ['Solid ground with a few plot twists.', 'Good bones. Some assembly required.']],
   [5, ['Complicated, in the interesting way.', 'A slow burn the council is still debating.']],
@@ -158,7 +190,7 @@ const sideText = (c: Chart) =>
 
 export function compatibility(a: Chart, b: Chart): Compatibility {
   const guna = gunaMilan(a, b);
-  const systems = [western(a, b), vedic(guna), chinese(a, b), numerology(a, b), mayan(a, b)];
+  const systems = [western(a, b), vedic(guna), chinese(a, b), numerology(a, b), mayan(a, b), hawaiian(a, b), islamic(a, b)];
   const score = round1(systems.reduce((s, x) => s + x.score, 0) / systems.length);
   const options = HEADLINES.find(([min]) => score >= min)![1];
   const seed = SIGNS.indexOf(a.western.planets.sun.sign) + SIGNS.indexOf(b.western.planets.sun.sign);

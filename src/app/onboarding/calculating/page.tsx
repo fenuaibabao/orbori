@@ -14,6 +14,8 @@ const STEPS = [
   'Chinese zodiac: finding your Lunar New Year',
   'Numerology: adding it all up',
   "Chol Q'ij: counting the 260 days",
+  'Hawaiian moon: naming your birth night',
+  'Lunar mansions: placing the Moon among the stars',
 ];
 
 export default function Calculating() {

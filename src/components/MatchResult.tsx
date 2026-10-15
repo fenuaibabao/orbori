@@ -20,7 +20,7 @@ export function MatchResult({ compat, me, them, theirHalfLocked, children }: {
         <p className="text-sm text-muted">{me.label} + {them.label}</p>
         <p className="font-mono font-bold leading-none text-gold-lite"><span className="text-[64px]">{compat.score.toFixed(1)}</span><span className="text-lg text-dim"> /10</span></p>
         <p className="font-display text-[19px] font-bold">{compat.headline}</p>
-        <p className="text-[13px] text-muted">{compat.agreeCount} of 5 systems approve · <span className="text-starlight">orbori</span> · Where the stars agree.</p>
+        <p className="text-[13px] text-muted">{compat.agreeCount} of {compat.systems.length} systems approve · <span className="text-starlight">orbori</span> · Where the stars agree.</p>
         <div className="grid w-full grid-cols-2 gap-2 text-left">
           <div className="rounded-[14px] border border-gold bg-deep p-3">
             <p className="font-mono text-[10px] tracking-[0.06em] text-gold-lite">YOUR SIDE</p>

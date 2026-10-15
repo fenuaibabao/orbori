@@ -4,6 +4,9 @@ import { SIGNS } from '../astro/types';
 import { ANIMALS } from '../astro/chinese';
 import { reduce } from '../astro/numerology';
 import { signIndex, tzolkin } from '../astro/mayan';
+import { moonNight } from '../astro/hawaiian';
+import { ANAHULU_LINE, NIGHT_MEANING } from '../astro/hawaiian-content';
+import { hijriDate, moonMansionAt } from '../astro/islamic';
 import { NUMBER_LINE } from '../content';
 import { bodyLongitude } from '../astro/western';
 import { lahiriAyanamsa, nakshatra } from '../astro/vedic';
@@ -271,3 +274,40 @@ export function mayanSignal(chart: Chart, date: string): SystemSignal {
 }
 
 export type { Sign };
+
+/* ───────────── Hawaiian: tonight's moon (Kaulana Mahina) ───────────── */
+
+export function hawaiianSignal(chart: Chart, date: string, timeZone: string): SystemSignal {
+  const tonight = moonNight(date, timeZone);
+  const m = NIGHT_MEANING[tonight.night - 1];
+  const same = tonight.night === chart.hawaiian.night;
+  return {
+    system: 'hawaiian', label: 'Hawaiian moon', advice: m.advice, polarity: clamp(m.polarity + (same ? 0.2 : 0)),
+    intensity: 0.35 + Math.abs(m.polarity) * 0.6,
+    headline: `${tonight.name}, night ${tonight.night} of the ${tonight.month} moon`,
+    body: m.today + (same ? ' Tonight is your own birth night: the moon is on your side.' : ''),
+    basis: `${tonight.anahulu}, ${ANAHULU_LINE[tonight.anahulu]}`,
+  };
+}
+
+/* ───────────── Islamic: the Moon's mansion and the Hijri day ───────────── */
+
+export function islamicSignal(chart: Chart, when: Date, date: string, timeZone: string): SystemSignal {
+  const mansion = moonMansionAt(A.MakeTime(when));
+  const hijri = hijriDate(date, timeZone);
+  const white = hijri.day >= 13 && hijri.day <= 15;
+  const friday = hijri.weekday === 'Friday';
+  const ramadan = hijri.month === 9;
+  let polarity = mansion.polarity;
+  let note = '';
+  if (white) { polarity = clamp(polarity + 0.2); note = ' A white day, the bright middle of the Hijri month: blessings run high.'; }
+  if (friday) { polarity = clamp(polarity + 0.1); note += ' Friday, the day of gathering.'; }
+  if (ramadan) note += ' In Ramadan the whole month leans toward restraint and reflection.';
+  const same = mansion.index === chart.islamic.mansion.index;
+  return {
+    system: 'islamic', label: 'Lunar mansions', advice: mansion.advice, polarity, intensity: 0.35 + Math.abs(polarity) * 0.6,
+    headline: `Moon in ${mansion.name}, ${mansion.meaning}`,
+    body: mansion.today + note + (same ? ' The Moon is back in your birth mansion.' : ''),
+    basis: `${hijri.label} · mansion ${mansion.index + 1} of 28`,
+  };
+}

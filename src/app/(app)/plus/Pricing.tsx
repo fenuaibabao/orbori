@@ -6,8 +6,8 @@ import { useAuth } from '@/lib/auth';
 import { goToBilling, usePlus } from '@/lib/plus';
 import type { PriceInfo } from '@/lib/stripe';
 
-const FREE = ['Daily Cosmic Council and Convergence Score', 'Your Big Three across all five systems', 'Chart Rarity, streaks, badges and levels', 'Compatibility and invites'];
-const PLUS = ['Everything in Free', 'All five systems in depth: houses, aspects, Dasha timeline, Four Pillars, Mayan cross', 'Personal year, name numbers and the Navamsa', 'Streak Shields (coming soon)', 'Early access to AI readings and The Cosmos'];
+const FREE = ['Daily Cosmic Council and Convergence Score', 'Your placements across all seven traditions', 'Chart Rarity, streaks, badges and levels', 'Compatibility and invites'];
+const PLUS = ['Everything in Free', 'All seven traditions in depth: houses, aspects, Dasha timeline, Four Pillars, Mayan cross, moon nights, lunar mansions', 'Personal year, name numbers and the Navamsa', 'Streak Shields (coming soon)', 'Early access to AI readings and The Cosmos'];
 
 const money = (p: PriceInfo) => new Intl.NumberFormat('en-US', { style: 'currency', currency: p.currency, minimumFractionDigits: p.amount % 1 ? 2 : 0 }).format(p.amount);
 

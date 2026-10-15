@@ -118,7 +118,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
         </div>
         <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 44, marginTop: 10 }}>Convergence Score</span>
         <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: 74, marginTop: 80, textAlign: 'center', lineHeight: 1.1, maxWidth: 860 }}>{headline}</span>
-        <span style={{ fontFamily: 'Inter', fontSize: 32, color: C.muted, marginTop: 40 }}>{`${agree} of 5 astrology systems agree today.`}</span>
+        <span style={{ fontFamily: 'Inter', fontSize: 32, color: C.muted, marginTop: 40 }}>{`${agree} of 7 traditions agree today.`}</span>
       </div>
     );
   } else if (kind === 'match') {

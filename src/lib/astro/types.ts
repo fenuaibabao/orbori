@@ -67,6 +67,14 @@ export interface Tzolkin {
   label: string;
 }
 
+export interface HawaiianChart {
+  night: number; name: string; family: string; anahulu: string; age: number; month: string; season: 'Hoʻoilo' | 'Kau'; makahiki: boolean;
+}
+export interface IslamicChart {
+  mansion: { index: number; name: string; arabic: string; meaning: string };
+  hijri: { day: number; month: number; monthName: string; year: number; label: string; weekday: string };
+}
+
 export interface Chart {
   input: BirthInput;
   /** Moment used for the calculation (UTC ISO). Noon local when time is unknown. */
@@ -82,4 +90,6 @@ export interface Chart {
   chinese: ChineseZodiac;
   numerology: Numerology;
   tzolkin: Tzolkin;
+  hawaiian: HawaiianChart;
+  islamic: IslamicChart;
 }

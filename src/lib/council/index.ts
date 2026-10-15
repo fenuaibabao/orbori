@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import type { Chart } from '../astro/types';
-import { chineseSignal, hash, mayanSignal, numerologySignal, vedicSignal, westernSignal } from './signals';
+import { chineseSignal, hash, hawaiianSignal, islamicSignal, mayanSignal, numerologySignal, vedicSignal, westernSignal } from './signals';
 import { MOOD, type Advice, type CouncilReading, type Mood, type SystemSignal } from './types';
 
 export * from './types';
@@ -27,9 +27,11 @@ const ADVICE_VERB: Record<Advice, string> = {
 };
 const SHORT: Record<string, string> = {
   western: 'Western', vedic: 'Vedic', chinese: 'The Chinese zodiac', numerology: 'Numerology', mayan: "The Chol Q'ij",
+  hawaiian: 'The Hawaiian moon', islamic: 'The lunar mansions',
 };
 
-const BASE: Record<number, number> = { 1: 1.5, 2: 3.2, 3: 5.3, 4: 7.4, 5: 9.2 };
+/** Score base by how many of the 7 voices share the majority mood. */
+const BASE: Record<number, number> = { 1: 1.2, 2: 2.4, 3: 3.8, 4: 5.4, 5: 7.0, 6: 8.4, 7: 9.4 };
 
 /**
  * Today's Cosmic Council for a natal chart.
@@ -45,6 +47,8 @@ export function cosmicCouncil(chart: Chart, date: string, timeZone: string): Cou
     chineseSignal(chart, date, key),
     numerologySignal(chart, date),
     mayanSignal(chart, date),
+    hawaiianSignal(chart, date, timeZone),
+    islamicSignal(chart, noon, date, timeZone),
   ];
 
   // Majority mood, ties broken by total intensity.
@@ -68,7 +72,7 @@ export function cosmicCouncil(chart: Chart, date: string, timeZone: string): Cou
 
   const dissent = systems.filter((s) => MOOD[s.advice] !== topMood);
   let holdoutText: string | null = null;
-  if (dissent.length === 1) holdoutText = `${SHORT[dissent[0].system]} ${ADVICE_VERB[dissent[0].advice]}. Noted.${top.n >= 4 ? ' Overruled.' : ''}`;
+  if (dissent.length === 1) holdoutText = `${SHORT[dissent[0].system]} ${ADVICE_VERB[dissent[0].advice]}. Noted.${top.n >= 5 ? ' Overruled.' : ''}`;
   else if (dissent.length > 1) holdoutText = dissent.map((s) => `${SHORT[s.system]} ${ADVICE_VERB[s.advice]}`).join('; ') + '.';
 
   const headlines = HEADLINES[majority];

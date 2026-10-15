@@ -14,7 +14,7 @@ export default function Welcome() {
         <p className="font-display text-xl font-semibold">Where the stars agree.</p>
         <p className="font-mono text-xs tracking-[0.12em] text-gold-lite">CONVENE YOUR COSMIC COUNCIL</p>
         <p className="max-w-[270px] text-[15px] leading-relaxed text-muted">
-          Western, Vedic, Chinese, Numerology and Mayan, all in one room, finally talking to each other.
+          Western, Vedic, Chinese, Numerology, Mayan, Hawaiian and Islamic, seven traditions in one room, finally talking to each other.
         </p>
       </div>
 

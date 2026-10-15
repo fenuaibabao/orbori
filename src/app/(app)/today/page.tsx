@@ -89,7 +89,7 @@ export default function Today() {
                     <span className="text-xl text-dim"> /10</span>
                   </p>
                 </div>
-                <p className="mb-2 max-w-[130px] text-right text-[13px] leading-snug">{reading.agreeCount} of 5 systems are on the same page today.</p>
+                <p className="mb-2 max-w-[130px] text-right text-[13px] leading-snug">{reading.agreeCount} of {reading.systems.length} voices are on the same page today.</p>
               </div>
               <div aria-hidden="true" className="grid grid-cols-10 gap-1">
                 {Array.from({ length: 10 }, (_, i) => (
@@ -103,7 +103,7 @@ export default function Today() {
                 </div>
                 {reading.holdoutText && (
                   <div className="flex flex-col gap-1 rounded-[14px] bg-deep p-3">
-                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-mauve-lite">{reading.agreeCount === 4 ? 'THE HOLDOUT' : 'THE HOLDOUTS'}</span>
+                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-mauve-lite">{reading.systems.length - reading.agreeCount === 1 ? 'THE HOLDOUT' : 'THE HOLDOUTS'}</span>
                     <span className="text-sm leading-snug">{reading.holdoutText}</span>
                   </div>
                 )}

@@ -1,4 +1,4 @@
-export type SystemId = 'western' | 'vedic' | 'chinese' | 'numerology' | 'mayan';
+export type SystemId = 'western' | 'vedic' | 'chinese' | 'numerology' | 'mayan' | 'hawaiian' | 'islamic';
 
 /** What a system advises today. */
 export type Advice = 'speak' | 'act' | 'connect' | 'build' | 'slow' | 'release';

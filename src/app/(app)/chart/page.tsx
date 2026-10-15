@@ -6,6 +6,8 @@ import { ChevronIcon, ShareIcon } from '@/components/icons';
 import { Sigil } from '@/components/Sigil';
 import { Tag } from '@/components/ui';
 import type { Chart, Placement } from '@/lib/astro/types';
+import { ANAHULU_LINE, NIGHT_MEANING } from '@/lib/astro/hawaiian-content';
+import { MANSIONS } from '@/lib/astro/islamic';
 import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, NUMBER_LINE, TZOLKIN_LINE, vedicExplain, westernExplain } from '@/lib/content';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed, randomSeed } from '@/lib/identity';
@@ -22,6 +24,8 @@ const DEEPER: Record<string, { slug: string; teaser: string }> = {
   'Chinese zodiac': { slug: 'chinese', teaser: 'Four Pillars, secret animal, elements' },
   Numerology: { slug: 'numerology', teaser: 'Personal Year, name numbers' },
   "Chol Q'ij (Mayan)": { slug: 'mayan', teaser: 'your Mayan cross, trecena' },
+  'Hawaiian moon': { slug: 'hawaiian', teaser: 'your birth night, tonight\'s moon' },
+  'Lunar mansions': { slug: 'islamic', teaser: 'your mansion, Hijri date, Abjad' },
 };
 
 const deg = (p: Placement) => `${Math.floor(p.degree)}°${String(Math.floor((p.degree % 1) * 60)).padStart(2, '0')}′`;
@@ -66,6 +70,16 @@ function groups(c: Chart): Group[] {
     {
       name: "Chol Q'ij (Mayan)", note: 'The K\'iche\' 260-day sacred calendar', rows: [
         { id: 'm', label: 'Nawal', value: c.tzolkin.label, explain: `${c.tzolkin.label}, ${c.tzolkin.english} (Yucatec: ${c.tzolkin.yucatec}). ${TZOLKIN_LINE[c.tzolkin.daySign]} Your number ${c.tzolkin.number} brings ${NUMBER_LINE[c.tzolkin.number]}.` },
+      ],
+    },
+    {
+      name: 'Hawaiian moon', note: 'Kaulana Mahina, the Hawaiian moon calendar', rows: [
+        { id: 'h', label: 'Birth night', value: c.hawaiian.name, explain: `Night ${c.hawaiian.night} of 30, in the ${c.hawaiian.anahulu} (${ANAHULU_LINE[c.hawaiian.anahulu]}), in the ${c.hawaiian.month} moon. ${NIGHT_MEANING[c.hawaiian.night - 1].born}` },
+      ],
+    },
+    {
+      name: 'Lunar mansions', note: 'Manāzil al-qamar, the 28 stations of the Moon', rows: [
+        { id: 'i', label: 'Moon mansion', value: c.islamic.mansion.name, explain: `${c.islamic.mansion.arabic}, ${c.islamic.mansion.meaning}: mansion ${c.islamic.mansion.index + 1} of 28. ${MANSIONS[c.islamic.mansion.index].born} Born ${c.islamic.hijri.label}.` },
       ],
     },
   ];

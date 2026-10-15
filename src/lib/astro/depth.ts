@@ -5,6 +5,8 @@ import { annualPillar, interactions, luckPillars, stars, tenGodsOf } from './baz
 import { currentDasha, vimshottari } from './dasha';
 import { aspects, balance, houseOf, lilith, placidus } from './houses';
 import { mayanDepth } from './mayan-depth';
+import { moonNight } from './hawaiian';
+import { hijriDate, moonMansionAt } from './islamic';
 import { birthdayNumber, personalCycles, ageOn, karmicDebts, pinnaclesAndChallenges } from './numerology-depth';
 import type { Chart, PlanetKey, Placement } from './types';
 import { birthInstant } from './time';
@@ -85,6 +87,8 @@ export function chartDepth(chart: Chart, today: string) {
     })(),
     numerology: { ...personalCycles(input.date, today), birthday: birthdayNumber(input.date), pinnacles: pinnaclesAndChallenges(input.date, chart.numerology.lifePath), age: ageOn(input.date, today), karmicDebts: karmicDebts(input.date) },
     mayan: mayanDepth(input.date, today),
+    hawaiian: { tonight: moonNight(today, input.timeZone) },
+    islamic: { today: { mansion: (({ index, name, arabic, meaning }) => ({ index, name, arabic, meaning }))(moonMansionAt(A.MakeTime(todayDate))), hijri: hijriDate(today, input.timeZone) } },
   };
 }
 

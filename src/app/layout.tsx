@@ -5,7 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Orbori · Where the stars agree',
-  description: 'Western, Vedic, Chinese, Numerology and Mayan astrology in one Cosmic Council.',
+  description: 'Western, Vedic, Chinese, Numerology, Mayan, Hawaiian and Islamic astrology in one Cosmic Council.',
 };
 
 export const viewport: Viewport = {

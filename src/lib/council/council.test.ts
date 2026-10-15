@@ -19,7 +19,7 @@ describe('Cosmic Council', () => {
     const a = cosmicCouncil(chart, '2026-10-14', 'America/Los_Angeles');
     const b = cosmicCouncil(chart, '2026-10-14', 'America/Los_Angeles');
     expect(a).toEqual(b);
-    expect(a.systems).toHaveLength(5);
+    expect(a.systems).toHaveLength(7);
     expect(a.score).toBeGreaterThanOrEqual(1);
     expect(a.score).toBeLessThanOrEqual(10);
     expect(a.systems.filter((s) => s.agrees)).toHaveLength(a.agreeCount);

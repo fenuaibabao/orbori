@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { deg, Meter, Section, What } from '@/components/depth-ui';
 import { BackIcon } from '@/components/icons';
 import { PartnerLink } from '@/components/PartnerLink';
+import { ANAHULU_LINE, MONTH_LINE, NIGHT_MEANING } from '@/lib/astro/hawaiian-content';
+import { NIGHTS } from '@/lib/astro/hawaiian';
+import { abjad, MANSIONS, mansionSign } from '@/lib/astro/islamic';
 import { PlusGate } from '@/components/PlusGate';
 import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
@@ -20,6 +23,7 @@ import { useAppStore } from '@/lib/store';
 
 const TITLES: Record<string, string> = {
   western: 'Western, in depth', vedic: 'Vedic, in depth', chinese: 'Four Pillars (BaZi)', numerology: 'Numerology, in depth', mayan: "Chol Q'ij, in depth",
+  hawaiian: 'Kaulana Mahina, in depth', islamic: 'Lunar mansions and Abjad',
 };
 const ord = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
 const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -44,6 +48,8 @@ export default function Deeper() {
           {system === 'chinese' && <Chinese d={depth} chart={data.chart} />}
           {system === 'numerology' && <Numerology d={depth} chart={data.chart} />}
           {system === 'mayan' && <Mayan d={depth} chart={data.chart} />}
+          {system === 'hawaiian' && <Hawaiian d={depth} chart={data.chart} />}
+          {system === 'islamic' && <Islamic d={depth} chart={data.chart} />}
         </>
       )}
       <Link href="/learn" className="self-start text-sm text-gold-lite">Browse every term in Learn →</Link>
@@ -540,6 +546,88 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
         body="An initiated Aj Q'ij who writes about every day of the Chol Q'ij (the K'iche' sacred calendar), plus workshops and readings."
       />
       <p className="text-xs text-dim"><Tag>Note</Tag> Day-keeping traditions vary between Maya communities.</p>
+    </PlusGate>
+  );
+}
+
+function Hawaiian({ d, chart }: { d: ChartDepth; chart: Chart }) {
+  const h = chart.hawaiian;
+  const t = d.hawaiian.tonight;
+  const born = NIGHT_MEANING[h.night - 1];
+  const tonight = NIGHT_MEANING[t.night - 1];
+  return (
+    <PlusGate>
+      <Section title={`Born on ${h.name}`} learn="kaulana-mahina">
+        <p className="text-sm leading-relaxed text-muted">{born.born}</p>
+        <p className="text-xs text-dim">Night {h.night} of 30 · {h.anahulu}, {ANAHULU_LINE[h.anahulu]} · moon age {h.age} days at sunset</p>
+      </Section>
+      <Section title={`The ${h.month} moon`} learn="malama">
+        <p className="text-sm leading-relaxed text-muted">
+          You were born in <strong className="text-starlight">{h.month}</strong>, {MONTH_LINE[h.month]}, in the {h.season} season ({h.season === 'Hoʻoilo' ? 'the wet, cool half of the year' : 'the dry, warm half of the year'}){h.makahiki ? ', during Makahiki, the season of rest and games' : ''}.
+        </p>
+      </Section>
+      <Section title={`Tonight: ${t.name}`} learn="anahulu">
+        <p className="text-sm leading-relaxed text-muted">{tonight.today}</p>
+        <p className="text-xs text-dim">Night {t.night} of the {t.month} moon · {t.anahulu}{t.makahiki ? ' · Makahiki' : ''}{t.night === h.night ? ' · your birth night' : ''}</p>
+        <ol className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 py-1">
+          {NIGHTS.map((n, i) => (
+            <li key={i} className={`flex min-w-[76px] shrink-0 flex-col items-center rounded-xl border px-1.5 py-2 text-center ${i + 1 === t.night ? 'border-gold bg-night' : i + 1 === h.night ? 'border-mauve bg-deep' : 'border-line bg-deep'}`}>
+              <span className="font-mono text-[11px] font-bold leading-tight">{i + 1}</span>
+              <span className="mt-0.5 text-[10px] leading-tight text-dim">{n}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="text-xs text-dim">Gold: tonight. Rose: your birth night.</p>
+      </Section>
+      <p className="text-xs text-dim"><Tag>Note</Tag> Orbori anchors the nights to the astronomical new moon. Hawaiian practitioners count by observation, and month names vary by island.</p>
+    </PlusGate>
+  );
+}
+
+function Islamic({ d, chart }: { d: ChartDepth; chart: Chart }) {
+  const m = chart.islamic.mansion;
+  const born = MANSIONS[m.index];
+  const t = d.islamic.today;
+  const todayM = MANSIONS[t.mansion.index];
+  const [name, setName] = useState('');
+  const ab = name.trim() ? abjad(name) : null;
+  return (
+    <PlusGate>
+      <Section title={`Moon in ${m.name}`} learn="manazil">
+        <p className="text-sm leading-relaxed text-muted">{born.born}</p>
+        <p className="text-xs text-dim"><span lang="ar" dir="rtl">{m.arabic}</span> · {m.meaning} · mansion {m.index + 1} of 28 · in {mansionSign(m.index)} (sidereal)</p>
+      </Section>
+      <Section title={`Born ${chart.islamic.hijri.label}`} learn="hijri">
+        <p className="text-sm leading-relaxed text-muted">
+          Your birthday in the Hijri calendar, a {chart.islamic.hijri.weekday}{chart.islamic.hijri.day >= 13 && chart.islamic.hijri.day <= 15 ? ', one of the white days, the bright middle of the month' : ''}{chart.islamic.hijri.month === 9 ? ', in Ramadan' : ''}.
+          Today is {t.hijri.label}.
+        </p>
+      </Section>
+      <Section title={`Today: Moon in ${t.mansion.name}`} learn="manazil">
+        <p className="text-sm leading-relaxed text-muted">{todayM.today}</p>
+        <p className="text-xs text-dim"><span lang="ar" dir="rtl">{t.mansion.arabic}</span> · {t.mansion.meaning}{t.mansion.index === m.index ? ' · your birth mansion' : ''}</p>
+      </Section>
+      <Section title="Abjad: the number of your name" learn="abjad">
+        <label htmlFor="arabicname" className="text-sm text-muted">Your name in Arabic script (stays on this device, never saved)</label>
+        <input id="arabicname" dir="rtl" lang="ar" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="محمد"
+          className="h-12 rounded-2xl border border-line-2 bg-deep px-4 text-[17px] placeholder:text-dim" />
+        {name.trim() && !ab && <p className="text-sm text-mauve-lite">Abjad needs Arabic letters. Try typing the name in Arabic.</p>}
+        {ab && (
+          <div className="flex flex-col gap-2 text-sm">
+            <p className="font-mono text-xs text-dim" dir="rtl" lang="ar">{ab.letters.map((l) => `${l.letter} ${l.value}`).join(' + ')}</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[['Number', String(ab.total)], ['Reduced', String(ab.reduced)], ['Burj', `${ab.burj.name} (${ab.burj.sign})`], ['Element', ab.element]].map(([k, v]) => (
+                <div key={k} className="rounded-xl bg-deep p-2.5 text-center"><span className="block text-[10px] uppercase tracking-wide text-muted">{k}</span><span className="font-semibold">{v}</span></div>
+              ))}
+            </div>
+            <p className="text-muted">
+              Your name adds to <strong className="text-starlight">{ab.total}</strong>, which reduces to {ab.reduced}: {LIFE_PATH_LINE[ab.reduced].split('. ')[0]}. Its burj is <strong className="text-starlight">{ab.burj.name}</strong> <span lang="ar" dir="rtl">{ab.burj.arabic}</span>, {ab.burj.sign}, an {ab.element.toLowerCase()} name.
+              The letters are {(['Fire', 'Earth', 'Air', 'Water'] as const).filter((e) => ab.elementCounts[e]).map((e) => `${ab.elementCounts[e]} ${e.toLowerCase()}`).join(', ')}: {ELEMENT_WEST[Object.entries(ab.elementCounts).sort((x, y) => y[1] - x[1])[0][0]]} leads.
+            </p>
+          </div>
+        )}
+      </Section>
+      <p className="text-xs text-dim"><Tag>Note</Tag> Mansion meanings follow the classical almanac tradition (al-Bīrūnī and later), in Orbori&apos;s words. Abjad uses the eastern (Mashriqi) letter values.</p>
     </PlusGate>
   );
 }
