@@ -462,7 +462,7 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
 function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const m = d.mayan;
   const me = chart.tzolkin;
-  const prof = NAWAL_PROFILE[me.daySign];
+  const prof = NAWAL_PROFILE[me.daySign] ?? { gift: '', shadow: '', calling: '' };
   const longDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const shortDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const cell = (label: string, x: { label: string; english: string; yucatec: string }) => (

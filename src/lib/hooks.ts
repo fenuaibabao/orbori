@@ -7,6 +7,8 @@ import type { Rarity } from './rarity';
 import type { Profile } from './store';
 import { localToday } from './store';
 
+/** Bump when the shape of cached results changes, so stale entries are ignored. */
+const CACHE_V = 'v2';
 const cacheGet = <T,>(k: string): T | null => {
   try { const r = sessionStorage.getItem(k); return r ? (JSON.parse(r) as T) : null; } catch { return null; }
 };
@@ -15,7 +17,7 @@ const cacheSet = (k: string, v: unknown) => { try { sessionStorage.setItem(k, JS
 export interface ChartData { chart: Chart; rarity: Rarity }
 
 export async function fetchChart(input: Profile['input']): Promise<ChartData> {
-  const key = 'orbori.chart.' + JSON.stringify(input);
+  const key = `orbori.chart.${CACHE_V}.` + JSON.stringify(input);
   const hit = cacheGet<ChartData>(key);
   if (hit) return hit;
   const res = await fetch('/api/chart', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) });
@@ -41,7 +43,7 @@ export function useToday(profile: Profile | null) {
   useEffect(() => {
     if (!profile) return;
     const { date, timeZone } = localToday();
-    const key = `orbori.today.${date}.${JSON.stringify(profile.input)}`;
+    const key = `orbori.today.${CACHE_V}.${date}.${JSON.stringify(profile.input)}`;
     const hit = cacheGet<CouncilReading>(key);
     if (hit) { setReading(hit); return; }
     fetch('/api/today', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ input: profile.input, date, timeZone }) })
@@ -57,7 +59,7 @@ export function useDepth(profile: Profile | null) {
   useEffect(() => {
     if (!profile) return;
     const { date } = localToday();
-    const key = `orbori.depth.${date}.${JSON.stringify(profile.input)}`;
+    const key = `orbori.depth.${CACHE_V}.${date}.${JSON.stringify(profile.input)}`;
     const hit = cacheGet<ChartDepth>(key);
     if (hit) { setDepth(hit); return; }
     fetch('/api/depth', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ input: profile.input, today: date }) })
