@@ -1,4 +1,6 @@
+import * as A from 'astronomy-engine';
 import { describe, expect, it } from 'vitest';
+import { moonPhase, nextSolarReturn, partOfFortune, progressions, transits } from './western-depth';
 import { computeChart } from '.';
 import { vimshottari } from './dasha';
 import { chartDepth } from './depth';
@@ -89,3 +91,35 @@ describe('Numerology depth', () => {
   });
 });
 const r9 = (n: number) => { while (n > 9) n = String(n).split('').reduce((s, d) => s + +d, 0); return n; };
+
+describe('Western depth', () => {
+  it('Moon phase: full moon of 17 Oct 2024 (11:26 UTC) and new moon of 2 Oct 2024', () => {
+    const full = computeChart({ date: '2024-10-17', time: '13:00', timeZone: 'UTC', latitude: 0, longitude: 0 });
+    const ph = moonPhase(full.western.planets.sun.longitude, full.western.planets.moon.longitude, A.MakeTime(new Date('2024-10-17T13:00:00Z')));
+    expect(ph.name).toBe('Full Moon');
+    expect(Math.abs(ph.elongation - 180)).toBeLessThan(1);
+    expect(ph.illumination).toBe(100);
+    const nw = computeChart({ date: '2024-10-02', time: '20:00', timeZone: 'UTC', latitude: 0, longitude: 0 });
+    expect(moonPhase(nw.western.planets.sun.longitude, nw.western.planets.moon.longitude, A.MakeTime(new Date('2024-10-02T20:00:00Z'))).name).toBe('New Moon');
+  });
+  it('Part of Fortune uses the day formula for a noon birth', () => {
+    const f = partOfFortune(chart.western)!;
+    expect(f.dayChart).toBe(true);
+    const w = chart.western;
+    const expected = ((w.ascendant!.longitude + w.planets.moon.longitude - w.planets.sun.longitude) % 360 + 360) % 360;
+    expect(f.point.longitude).toBeCloseTo(expected, 6);
+  });
+  it('progressed Sun is about 32° past natal for a 32-year-old, and the solar return lands on the birthday', () => {
+    const p = progressions(A.MakeTime(new Date('1994-07-10T19:52:00Z')), new Date('2026-07-10T19:52:00Z'));
+    expect(p.ageYears).toBeCloseTo(32, 0);
+    const diff = ((p.planets[0].longitude - chart.western.planets.sun.longitude) % 360 + 360) % 360;
+    expect(diff).toBeGreaterThan(29); expect(diff).toBeLessThan(33);
+    const sr = nextSolarReturn(chart.western.planets.sun.longitude, new Date('2026-01-01T00:00:00Z'));
+    expect(sr.slice(0, 10)).toMatch(/^2026-07-(09|10|11)$/);
+  });
+  it('transits are sorted by orb and name real bodies', () => {
+    const t = transits(chart.western, new Date('2026-10-15T12:00:00Z'));
+    for (let i = 1; i < t.length; i++) expect(t[i].orb).toBeGreaterThanOrEqual(t[i - 1].orb);
+    expect(t.every((x) => ['Pluto', 'Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Sun'].includes(x.transiting))).toBe(true);
+  });
+});

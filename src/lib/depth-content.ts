@@ -132,3 +132,31 @@ export const LESSON_LINE: Record<number, string> = {
   1: 'initiative and self-confidence', 2: 'patience and cooperation', 3: 'self-expression and optimism', 4: 'discipline and follow-through',
   5: 'adaptability and healthy freedom', 6: 'responsibility and commitment', 7: 'reflection and trust', 8: 'handling money and authority', 9: 'compassion and letting go',
 };
+
+export const MOON_PHASE_LINE: Record<string, string> = {
+  'New Moon': 'Born at the start of the cycle: instinctive, spontaneous, here to begin things, often without knowing why yet.',
+  'Crescent Moon': 'Born as the light grows: eager, striving, pushing against the pull of the past to make something new.',
+  'First Quarter': 'Born at the turning point: a builder and a fighter who acts first and reflects later.',
+  'Gibbous Moon': 'Born as the Moon fills: a refiner and perfectionist, always asking how it could be better.',
+  'Full Moon': 'Born in full light: relationship is the mirror; you see yourself most clearly through others.',
+  'Disseminating Moon': 'Born as the light begins to wane: a teacher and sharer, here to pass on what you learn.',
+  'Last Quarter': 'Born at the second turning point: a reformer who questions the old rules and rewrites them.',
+  'Balsamic Moon': 'Born in the dark before the new cycle: an old soul, visionary and reflective, closing chapters for everyone.',
+};
+
+export const TRANSIT_PLANET: Record<string, { blend: string; easy: string; hard: string }> = {
+  Pluto: { blend: 'is rebuilding this from the ground up, a years-long transformation', easy: 'is quietly empowering this', hard: 'is applying deep pressure here, forcing what is buried to surface' },
+  Neptune: { blend: 'is dissolving the edges here; inspiration and confusion both', easy: 'is softening and inspiring this', hard: 'is fogging this; be careful what you believe right now' },
+  Uranus: { blend: 'is shaking this awake with sudden change', easy: 'is opening a surprising new door here', hard: 'is disrupting this; expect the unexpected' },
+  Saturn: { blend: 'is testing and maturing this, a season of hard-won structure', easy: 'is stabilizing this; steady effort pays', hard: 'is putting limits on this; patience and discipline get you through' },
+  Jupiter: { blend: 'is expanding this; say yes', easy: 'is bringing luck and ease here', hard: 'is overdoing this; big is not always better' },
+  Mars: { blend: 'is firing this up; act, but do not pick fights', easy: 'is giving this energy and courage', hard: 'is making this irritable; count to ten' },
+  Sun: { blend: 'puts a spotlight on this today', easy: 'brightens this today', hard: 'puts this under a bit of strain today' },
+};
+
+export const NATAL_POINT_THEME: Record<string, string> = {
+  ...{ Sun: 'your sense of self', Moon: 'your emotional life', Mercury: 'your mind and communication', Venus: 'your relationships and values', Mars: 'your drive', Jupiter: 'your growth and beliefs', Saturn: 'your responsibilities and structures' },
+  Ascendant: 'how you meet the world', Midheaven: 'your career and public life',
+};
+
+export const FORTUNE_LINE = 'An ancient point where the Sun, Moon and Ascendant combine: where things tend to go right for you with little effort, and where luck feels at home.';

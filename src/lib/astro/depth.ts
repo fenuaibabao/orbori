@@ -9,6 +9,7 @@ import type { Chart, PlanetKey, Placement } from './types';
 import { birthInstant } from './time';
 import { nakshatra } from './vedic';
 import { placement } from './util';
+import { chartRuler, moonPhase, nextSolarReturn, partOfFortune, progressions, transits } from './western-depth';
 
 const NAMES: [PlanetKey, string][] = [
   ['sun', 'Sun'], ['moon', 'Moon'], ['mercury', 'Mercury'], ['venus', 'Venus'], ['mars', 'Mars'], ['jupiter', 'Jupiter'],
@@ -31,6 +32,11 @@ export function chartDepth(chart: Chart, today: string) {
   const core: Placement[] = (['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'] as PlanetKey[]).map((k) => w.planets[k]);
   if (w.ascendant) core.push(w.ascendant);
 
+  const todayDate = new Date(`${today}T12:00:00Z`);
+  const ruler = w.ascendant ? chartRuler(w.ascendant.sign) : null;
+  const rulerPlanet = (k: PlanetKey) => ({ name: NAMES.find(([key]) => key === k)![1], ...w.planets[k], house: houses ? houseOf(w.planets[k].longitude, houses.cusps) : null });
+  const fortune = partOfFortune(w);
+
   // Vedic
   const v = chart.vedic;
   const dashas = vimshottari(v.planets.moon.longitude, instant);
@@ -43,6 +49,12 @@ export function chartDepth(chart: Chart, today: string) {
       planets,
       aspects: aspects(w).slice(0, 14),
       balance: balance(core),
+      moonPhase: moonPhase(w.planets.sun.longitude, w.planets.moon.longitude, time),
+      fortune: fortune ? { ...fortune.point, dayChart: fortune.dayChart, house: houses ? houseOf(fortune.point.longitude, houses.cusps) : null } : null,
+      ruler: ruler ? { traditional: rulerPlanet(ruler.traditional), modern: ruler.modern !== ruler.traditional ? rulerPlanet(ruler.modern) : null } : null,
+      progressed: progressions(time, todayDate),
+      transits: transits(w, todayDate).slice(0, 8),
+      solarReturn: nextSolarReturn(w.planets.sun.longitude, todayDate),
     },
     vedic: {
       sunNakshatra: nakshatra(v.planets.sun.longitude),

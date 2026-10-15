@@ -12,7 +12,7 @@ import { maturityNumber, nameLessons, nameNumbers } from '@/lib/astro/numerology
 import type { Chart } from '@/lib/astro/types';
 import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
-  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, KARMIC_DEBT_LINE, LESSON_LINE, PINNACLE_LINE, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
+  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, FORTUNE_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
 } from '@/lib/depth-content';
 import { useChart, useDepth } from '@/lib/hooks';
@@ -108,6 +108,52 @@ function Western({ d }: { d: ChartDepth; chart: Chart }) {
             </li>
           ))}
         </ul>
+      </Section>
+      <Section title={`Born under a ${w.moonPhase.name}`} learn="moon-phase">
+        <p className="text-sm leading-relaxed text-muted">{MOON_PHASE_LINE[w.moonPhase.name]} The Moon was {w.moonPhase.illumination}% lit, {w.moonPhase.elongation}° past the Sun.</p>
+      </Section>
+
+      {w.ruler && (
+        <Section title={`Chart ruler: ${w.ruler.traditional.name}`} learn="chart-ruler">
+          <p className="text-sm leading-relaxed text-muted">
+            Your Ascendant is ruled by <strong className="text-starlight">{w.ruler.traditional.name}</strong>, in {w.ruler.traditional.sign}{w.ruler.traditional.house ? ` in your ${ord(w.ruler.traditional.house)} house` : ''}: the planet that steers your whole chart, so {PLANET_THEME[w.ruler.traditional.name]} colors everything{w.ruler.traditional.house ? `, played out through ${HOUSE_THEME[w.ruler.traditional.house]}` : ''}.
+            {w.ruler.modern && <> Modern astrologers add <strong className="text-starlight">{w.ruler.modern.name}</strong> in {w.ruler.modern.sign}{w.ruler.modern.house ? ` (${ord(w.ruler.modern.house)} house)` : ''} as co-ruler.</>}
+          </p>
+        </Section>
+      )}
+
+      {w.fortune && (
+        <Section title={`Part of Fortune in ${w.fortune.sign}`} learn="part-of-fortune">
+          <p className="text-sm leading-relaxed text-muted">{FORTUNE_LINE} Yours sits at {w.fortune.sign} {deg(w.fortune.degree)}{w.fortune.house ? `, in your ${ord(w.fortune.house)} house: ${HOUSE_THEME[w.fortune.house]}` : ''}. ({w.fortune.dayChart ? 'Day' : 'Night'} chart formula.)</p>
+        </Section>
+      )}
+
+      <Section title="Your progressed chart" learn="progressions">
+        <p className="text-sm leading-relaxed text-muted">
+          Secondary progressions move your chart one day for each year of life. At {Math.floor(w.progressed.ageYears)}, your progressed Sun is in <strong className="text-starlight">{w.progressed.planets[0].sign}</strong> and your progressed Moon in <strong className="text-starlight">{w.progressed.planets[1].sign}</strong>, the emotional weather of this two-and-a-half-year stretch.
+          {w.progressed.moonNext && <> It moves into {w.progressed.moonNext.sign} around {fmtDate(w.progressed.moonNext.when)}.</>}
+        </p>
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          {w.progressed.planets.map((p) => (
+            <li key={p.name} className="rounded-xl bg-deep p-2.5 text-center"><span className="block text-[10px] uppercase tracking-wide text-muted">{p.name}</span><span className="font-mono text-sm">{p.sign} {deg(p.degree)}</span></li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section title="Transits this week" learn="transits">
+        {w.transits.length === 0 && <p className="text-sm text-muted">No tight transits to your chart right now. A quiet sky.</p>}
+        <ul className="flex flex-col divide-y divide-line">
+          {w.transits.map((t) => (
+            <li key={`${t.transiting}-${t.natal}-${t.type}`} className="flex flex-col gap-0.5 py-2.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-semibold">{t.transiting} {t.type} your {t.natal}</span>
+                <span className="font-mono text-xs text-dim">{t.orb}° {t.applying ? 'applying' : 'separating'}</span>
+              </div>
+              <p className="text-sm text-muted">{t.transiting} {TRANSIT_PLANET[t.transiting][t.nature]}: {NATAL_POINT_THEME[t.natal]}.</p>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-dim">Your next solar return (the Sun back on its birth degree) is {new Date(w.solarReturn).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.</p>
       </Section>
     </PlusGate>
   );
