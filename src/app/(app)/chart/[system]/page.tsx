@@ -8,11 +8,11 @@ import { PartnerLink } from '@/components/PartnerLink';
 import { PlusGate } from '@/components/PlusGate';
 import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
-import { nameNumbers } from '@/lib/astro/numerology-depth';
+import { maturityNumber, nameLessons, nameNumbers } from '@/lib/astro/numerology-depth';
 import type { Chart } from '@/lib/astro/types';
 import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
-  ASPECT_LINE, CROSS_ROLE, DASHA_LINE, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
+  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, KARMIC_DEBT_LINE, LESSON_LINE, PINNACLE_LINE, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
 } from '@/lib/depth-content';
 import { useChart, useDepth } from '@/lib/hooks';
@@ -228,18 +228,43 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const n = d.numerology;
   const [name, setName] = useState('');
   const nn = name.trim() ? nameNumbers(name) : null;
+  const nl = name.trim() ? nameLessons(name) : null;
+  const current = n.pinnacles.findIndex((p) => n.age >= p.from && (p.to === null || n.age <= p.to));
+  const lp = chart.numerology.lifePath;
   return (
     <PlusGate>
-      <Section title={`Life Path ${chart.numerology.lifePath}`} learn="life-path">
-        <p className="text-sm leading-relaxed text-muted">{LIFE_PATH_LINE[chart.numerology.lifePath]}</p>
+      <Section title={`Life Path ${lp}`} learn="life-path">
+        <p className="text-sm leading-relaxed text-muted">{LIFE_PATH_LINE[lp]}</p>
       </Section>
       <Section title={`Personal Year ${n.personalYear}`} learn="personal-year">
         <p className="text-sm leading-relaxed text-muted">{PERSONAL_YEAR_LINE[n.personalYear]}</p>
-        <p className="text-sm text-muted">This month is a Personal Month {n.personalMonth}: {PERSONAL_YEAR_LINE[n.personalMonth].split('.')[0].toLowerCase()}. A new Personal Year starts January 1.</p>
+        <p className="text-sm text-muted">
+          This month is a Personal Month {n.personalMonth}: {PERSONAL_YEAR_LINE[n.personalMonth].split('.')[0].toLowerCase()}.
+          Today is a Personal Day {n.personalDay}: {PERSONAL_YEAR_LINE[n.personalDay].split('.')[0].toLowerCase()}. A new Personal Year starts January 1.
+        </p>
       </Section>
       <Section title={`Birthday number ${n.birthday.day}`} learn="birthday-number">
         <p className="text-sm leading-relaxed text-muted">A gift of the {n.birthday.reduced}: {LIFE_PATH_LINE[n.birthday.reduced].split('. ').slice(1).join('. ') || LIFE_PATH_LINE[n.birthday.reduced]}</p>
       </Section>
+      <Section title="Pinnacles and Challenges" learn="pinnacles">
+        <p className="text-sm text-muted">Four chapters of life, each with its own theme (Pinnacle) and lesson (Challenge). You are {n.age}, in chapter {current + 1}.</p>
+        <ol className="flex flex-col gap-2">
+          {n.pinnacles.map((p, i) => (
+            <li key={i} className={`rounded-xl p-3 ${i === current ? 'border border-gold bg-night' : 'bg-deep'}`}>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-semibold">{i === current ? 'Now · ' : ''}Ages {p.from}–{p.to ?? 'on'}</span>
+                <span className="font-mono text-sm text-gold-lite">Pinnacle {p.pinnacle} · Challenge {p.challenge}</span>
+              </div>
+              <p className="mt-1 text-sm text-muted">{PINNACLE_LINE[p.pinnacle]} {CHALLENGE_LINE[p.challenge]}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+      {n.karmicDebts.length > 0 && (
+        <Section title="Karmic debt" learn="karmic-debt">
+          {n.karmicDebts.map((k) => <p key={k.source} className="text-sm leading-relaxed text-muted"><strong className="text-starlight">{k.source} {k.number}.</strong> {KARMIC_DEBT_LINE[k.number]}</p>)}
+        </Section>
+      )}
       <Section title="Name numbers" learn="name-numbers">
         <label htmlFor="fullname" className="text-sm text-muted">Full birth name (stays on this device, never saved)</label>
         <input id="fullname" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="First Middle Last"
@@ -253,6 +278,21 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
                 <span className="block text-muted">{LIFE_PATH_LINE[nn[k]]}</span>
               </li>
             ))}
+            <li className="rounded-xl bg-deep p-3">
+              <span className="font-semibold">Maturity number: who you grow into</span>
+              <span className="ml-2 font-mono text-gold-lite">{maturityNumber(lp, nn.expression)}</span>
+              <span className="block text-muted">Life Path + Expression. Its themes come forward from your mid-thirties on: {LIFE_PATH_LINE[maturityNumber(lp, nn.expression)].split('. ')[0]}.</span>
+            </li>
+            {nl && (
+              <li className="rounded-xl bg-deep p-3">
+                <span className="font-semibold">Hidden Passion and Karmic Lessons</span>
+                <span className="block text-muted">
+                  Most frequent in your name: <strong className="text-starlight">{nl.hiddenPassion.join(', ')}</strong>, a talent you reach for by instinct.
+                  {nl.lessons.length ? <> Missing: <strong className="text-starlight">{nl.lessons.join(', ')}</strong>, so life keeps teaching {nl.lessons.map((x) => LESSON_LINE[x]).join('; ')}.</> : ' Every number is present: no karmic lessons from your name.'}
+                  {nl.expressionDebt && <> Your Expression carries karmic debt {nl.expressionDebt}: {KARMIC_DEBT_LINE[nl.expressionDebt]}</>}
+                </span>
+              </li>
+            )}
           </ul>
         )}
       </Section>

@@ -4,7 +4,7 @@ import { bazi } from './bazi';
 import { currentDasha, vimshottari } from './dasha';
 import { aspects, balance, houseOf, lilith, placidus } from './houses';
 import { mayanDepth } from './mayan-depth';
-import { birthdayNumber, personalCycles } from './numerology-depth';
+import { birthdayNumber, personalCycles, ageOn, karmicDebts, pinnaclesAndChallenges } from './numerology-depth';
 import type { Chart, PlanetKey, Placement } from './types';
 import { birthInstant } from './time';
 import { nakshatra } from './vedic';
@@ -59,7 +59,7 @@ export function chartDepth(chart: Chart, today: string) {
       },
     },
     bazi: bazi(instant, input.date, input.time),
-    numerology: { ...personalCycles(input.date, today), birthday: birthdayNumber(input.date) },
+    numerology: { ...personalCycles(input.date, today), birthday: birthdayNumber(input.date), pinnacles: pinnaclesAndChallenges(input.date, chart.numerology.lifePath), age: ageOn(input.date, today), karmicDebts: karmicDebts(input.date) },
     mayan: mayanDepth(input.date, today),
   };
 }

@@ -93,3 +93,42 @@ export const CROSS_ROLE = {
   left: 'Left side: your helpers and support',
   right: 'Right side: your challenges and teachers',
 };
+
+export const PINNACLE_LINE: Record<number, string> = {
+  1: 'A period for independence and standing on your own. You learn to lead yourself.',
+  2: 'A period for partnership, patience and diplomacy. Progress comes through others.',
+  3: 'A period for creativity, expression and social life. Say it, make it, share it.',
+  4: 'A period for building. Work, structure and discipline lay the ground for later.',
+  5: 'A period of change, travel and freedom. Expect movement and many doors.',
+  6: 'A period for home, family and responsibility. Love and duty grow together.',
+  7: 'A period for study and inner life. Specialize, reflect, go deep.',
+  8: 'A period for achievement, money and authority. Ambition is rewarded if it stays honest.',
+  9: 'A period of completion and service. Give back, let go, widen the circle.',
+  11: 'A period of inspiration and heightened intuition, with the nerves to match.',
+  22: 'A period for building something larger than yourself, with practical vision.',
+  33: 'A period for teaching and healing through compassion.',
+};
+
+export const CHALLENGE_LINE: Record<number, string> = {
+  0: 'No single lesson: the challenge is choice itself, and using every gift wisely.',
+  1: 'The lesson of self-reliance: standing up for yourself without steamrolling others.',
+  2: 'The lesson of sensitivity: feeling deeply without taking everything personally.',
+  3: 'The lesson of expression: sharing yourself instead of scattering or hiding.',
+  4: 'The lesson of discipline: finishing, organizing and doing the unglamorous work.',
+  5: 'The lesson of freedom: embracing change without becoming reckless.',
+  6: 'The lesson of responsibility: caring for others without controlling them.',
+  7: 'The lesson of trust: opening up and believing in something beyond the provable.',
+  8: 'The lesson of power: handling money and authority without being ruled by them.',
+};
+
+export const KARMIC_DEBT_LINE: Record<number, string> = {
+  13: '13/4: the debt of effort. Work that once was avoided must now be done steadily. Shortcuts fail; persistence frees you.',
+  14: '14/5: the debt of freedom. Excess and restlessness are the trap; moderation and commitment are the way out.',
+  16: '16/7: the debt of the ego. Sudden falls that rebuild you humbler and wiser; love and faith over pride.',
+  19: '19/1: the debt of independence. Learning to accept help and to lead without dominating.',
+};
+
+export const LESSON_LINE: Record<number, string> = {
+  1: 'initiative and self-confidence', 2: 'patience and cooperation', 3: 'self-expression and optimism', 4: 'discipline and follow-through',
+  5: 'adaptability and healthy freedom', 6: 'responsibility and commitment', 7: 'reflection and trust', 8: 'handling money and authority', 9: 'compassion and letting go',
+};

@@ -3,7 +3,7 @@ import { computeChart } from '.';
 import { vimshottari } from './dasha';
 import { chartDepth } from './depth';
 import { mayanDepth } from './mayan-depth';
-import { nameNumbers, personalCycles } from './numerology-depth';
+import { ageOn, karmicDebts, maturityNumber, nameLessons, nameNumbers, personalCycles, pinnaclesAndChallenges } from './numerology-depth';
 
 const chart = computeChart({ date: '1994-07-10', time: '12:52', timeZone: 'America/Los_Angeles', latitude: 37.87, longitude: -122.27 });
 
@@ -62,3 +62,30 @@ describe('Numerology and Mayan depth', () => {
     expect(m.cross.conception.label).toBe('9 E\''); // −8: 4−8 → 9; Ajpu − 8 = E' (12th)
   });
 });
+
+describe('Numerology depth', () => {
+  it('pinnacles and challenges for 1994-07-10 (Life Path 4)', () => {
+    // month 7, day 1 (10→1), year 1994→23→5. P1=8, P2=6, P3=14→5, P4=12→3. C1=|7−1|=6, C2=|1−5|=4, C3=2, C4=2.
+    const p = pinnaclesAndChallenges('1994-07-10', 4);
+    expect(p.map((x) => x.pinnacle)).toEqual([8, 6, 5, 3]);
+    expect(p.map((x) => x.challenge)).toEqual([6, 4, 2, 2]);
+    expect(p[0].to).toBe(32);
+    expect(p[1]).toMatchObject({ from: 33, to: 41 });
+    expect(p[3]).toMatchObject({ from: 51, to: null });
+  });
+  it('karmic debts and lessons', () => {
+    expect(karmicDebts('1990-01-16')).toEqual([{ source: 'Birthday', number: 16 }]);
+    expect(karmicDebts('1994-07-10')).toEqual([{ source: 'Life Path', number: 13 }]); // 7+1+5
+    expect(karmicDebts('1990-03-02')).toEqual([]);
+    const l = nameLessons('abc')!;
+    expect(l.lessons).toEqual([4, 5, 6, 7, 8, 9]);
+    expect(l.hiddenPassion).toEqual([1, 2, 3]);
+    expect(maturityNumber(4, 6)).toBe(1);
+  });
+  it('personal day and age', () => {
+    expect(personalCycles('1994-07-10', '2026-10-15').personalDay).toBe(r9(r9(9 + 10) + 15));
+    expect(ageOn('1994-07-10', '2026-07-09')).toBe(31);
+    expect(ageOn('1994-07-10', '2026-07-10')).toBe(32);
+  });
+});
+const r9 = (n: number) => { while (n > 9) n = String(n).split('').reduce((s, d) => s + +d, 0); return n; };
