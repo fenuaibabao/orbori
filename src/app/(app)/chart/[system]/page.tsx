@@ -12,7 +12,7 @@ import { maturityNumber, nameLessons, nameNumbers } from '@/lib/astro/numerology
 import type { Chart } from '@/lib/astro/types';
 import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
-  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, FORTUNE_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
+  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, DIGNITY_LINE, FORTUNE_LINE, GRAHA_THEME, SADE_SATI_LINE, TITHI_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
 } from '@/lib/depth-content';
 import { useChart, useDepth } from '@/lib/hooks';
@@ -172,6 +172,7 @@ function Vedic({ d, chart }: { d: ChartDepth; chart: Chart }) {
           {v.current.antar && (
             <p className="rounded-xl bg-deep p-3 text-sm">
               <span className="font-semibold">Sub-chapter: {v.current.antar.lord}</span> until {fmtDate(v.current.antar.end)}, layering in {DASHA_LINE[v.current.antar.lord].replace(/^a /, '').replace(/^an /, '').replace(/ chapter of /, ' notes of ')}.
+              {v.current.pratyantar && <> Within it, a <span className="font-semibold">{v.current.pratyantar.lord}</span> sub-period until {fmtDate(v.current.pratyantar.end)} sets the mood of these weeks.</>}
             </p>
           )}
         </section>
@@ -208,6 +209,43 @@ function Vedic({ d, chart }: { d: ChartDepth; chart: Chart }) {
             <li key={k} className="rounded-xl bg-deep p-3"><span className="block text-xs capitalize text-muted">{k === 'lagna' ? 'D9 Lagna' : k}</span><span className="font-mono font-bold">{s}</span></li>
           ))}
         </ul>
+      </Section>
+      <Section title="Panchanga at your birth" learn="panchanga">
+        <p className="text-sm leading-relaxed text-muted">{TITHI_LINE[v.panchanga.tithi.paksha]}</p>
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[['Tithi', v.panchanga.tithi.label], ['Vara', `${v.panchanga.vara.day} · ${v.panchanga.vara.lord}`], ['Yoga', v.panchanga.yoga], ['Karana', v.panchanga.karana]].map(([k, val]) => (
+            <li key={k} className="rounded-xl bg-deep p-2.5 text-center"><span className="block text-[10px] uppercase tracking-wide text-muted">{k}</span><span className="text-sm font-semibold">{val}</span></li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section title="Planetary strength" learn="dignity">
+        <ul className="flex flex-col divide-y divide-line">
+          {v.dignities.map((g) => (
+            <li key={g.name} className="flex flex-col gap-0.5 py-2.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-semibold">{g.name}</span>
+                <span className="font-mono text-sm">{g.sign} {deg(g.degree)}{g.retrograde ? ' ℞' : ''}{g.combust ? ' ☉' : ''}</span>
+              </div>
+              <p className="text-sm text-muted"><strong className="text-starlight">{g.dignity}</strong>: {DIGNITY_LINE[g.dignity]}. Governs {GRAHA_THEME[g.name]}.{g.combust ? ' Combust (too close to the Sun): its signal is dimmed.' : ''}</p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section title="Yogas in your chart" learn="yogas">
+        {v.yogas.length === 0 && <p className="text-sm text-muted">None of the classic planetary combinations Orbori checks appear in your chart. Your strengths come from placements rather than patterns.</p>}
+        <ul className="flex flex-col gap-2">
+          {v.yogas.map((y) => <li key={y.name} className="rounded-xl bg-deep p-3 text-sm"><span className="font-semibold">{y.name}</span><span className="block text-muted">{y.summary}</span></li>)}
+        </ul>
+      </Section>
+
+      <Section title="Saturn and Jupiter now" learn="sade-sati">
+        <p className="text-sm leading-relaxed text-muted">
+          Saturn is transiting sidereal <strong className="text-starlight">{v.saturn.saturnSign}</strong>, the {ord(v.saturn.houseFromMoon)} sign from your Moon, until about {fmtDate(v.saturn.nextSignChange ?? '')}.
+          {v.saturn.sadeSati ? <> {SADE_SATI_LINE[v.saturn.sadeSati]}</> : v.saturn.dhaiya ? <> That is a Dhaiya (small panoti): two and a half years of extra grind in the {ord(v.saturn.houseFromMoon)} house.</> : <> No Sade Sati right now.</>}
+          {' '}Jupiter is in <strong className="text-starlight">{v.saturn.jupiterSign}</strong>, the {ord(v.saturn.jupiterHouseFromMoon)} from your Moon{[2, 5, 7, 9, 11].includes(v.saturn.jupiterHouseFromMoon) ? ', a favorable position' : ''}.
+        </p>
       </Section>
     </PlusGate>
   );

@@ -1,6 +1,8 @@
 import * as A from 'astronomy-engine';
 import { describe, expect, it } from 'vitest';
 import { moonPhase, nextSolarReturn, partOfFortune, progressions, transits } from './western-depth';
+import { dignity, panchanga, pratyantar, saturnTransit } from './vedic-depth';
+import { SIGNS, type Placement, type Sign } from './types';
 import { computeChart } from '.';
 import { vimshottari } from './dasha';
 import { chartDepth } from './depth';
@@ -121,5 +123,42 @@ describe('Western depth', () => {
     const t = transits(chart.western, new Date('2026-10-15T12:00:00Z'));
     for (let i = 1; i < t.length; i++) expect(t[i].orb).toBeGreaterThanOrEqual(t[i - 1].orb);
     expect(t.every((x) => ['Pluto', 'Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Sun'].includes(x.transiting))).toBe(true);
+  });
+});
+
+describe('Vedic depth', () => {
+  it('panchanga: Purnima ends at the full moon, Amavasya at the new moon', () => {
+    const full = computeChart({ date: '2024-10-17', time: '10:00', timeZone: 'UTC', latitude: 0, longitude: 0 });
+    expect(panchanga(full.vedic, 4).tithi.label).toBe('Shukla Purnima');
+    const after = computeChart({ date: '2024-10-17', time: '13:00', timeZone: 'UTC', latitude: 0, longitude: 0 });
+    expect(panchanga(after.vedic, 4).tithi.label).toBe('Krishna Pratipada');
+    const nw = computeChart({ date: '2024-10-02', time: '17:00', timeZone: 'UTC', latitude: 0, longitude: 0 });
+    expect(panchanga(nw.vedic, 3).tithi.label).toBe('Krishna Amavasya');
+    expect(panchanga(nw.vedic, 3).vara).toEqual({ day: 'Wednesday', lord: 'Mercury' });
+  });
+  it('dignities follow the classical tables', () => {
+    const at = (sign: string, degree: number): Placement => ({ longitude: SIGNS.indexOf(sign as Sign) * 30 + degree, sign: sign as Sign, degree, retrograde: false });
+    expect(dignity('Sun', at('Aries', 10))).toBe('Exalted');
+    expect(dignity('Sun', at('Libra', 10))).toBe('Debilitated');
+    expect(dignity('Sun', at('Leo', 10))).toBe('Moolatrikona');
+    expect(dignity('Sun', at('Leo', 25))).toBe('Own sign');
+    expect(dignity('Saturn', at('Leo', 25))).toBe("Enemy's sign");
+    expect(dignity('Venus', at('Capricorn', 5))).toBe("Friend's sign");
+    expect(dignity('Jupiter', at('Capricorn', 5))).toBe('Debilitated');
+  });
+  it('yogas: Budha-Aditya when Sun and Mercury share a sign; pratyantar periods tile the antar', () => {
+    const d = chartDepth(chart, '2026-10-14');
+    const budha = d.vedic.yogas.some((y) => y.name.startsWith('Budha-Aditya'));
+    expect(budha).toBe(chart.vedic.planets.sun.sign === chart.vedic.planets.mercury.sign);
+    const antar = d.vedic.dashas[1].antar[0];
+    const pr = pratyantar(antar);
+    expect(pr).toHaveLength(9);
+    expect(pr[0].start).toBe(antar.start);
+    expect(pr[8].end).toBe(antar.end);
+  });
+  it('Saturn transit reports a house from the Moon and a next sign change', () => {
+    const s = saturnTransit('Leo', new Date('2026-10-15T12:00:00Z'));
+    expect(s.houseFromMoon).toBeGreaterThanOrEqual(1);
+    expect(s.nextSignChange).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

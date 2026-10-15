@@ -9,6 +9,7 @@ import type { Chart, PlanetKey, Placement } from './types';
 import { birthInstant } from './time';
 import { nakshatra } from './vedic';
 import { placement } from './util';
+import { currentPratyantar, dignities, panchanga, saturnTransit, yogas } from './vedic-depth';
 import { chartRuler, moonPhase, nextSolarReturn, partOfFortune, progressions, transits } from './western-depth';
 
 const NAMES: [PlanetKey, string][] = [
@@ -40,6 +41,9 @@ export function chartDepth(chart: Chart, today: string) {
   // Vedic
   const v = chart.vedic;
   const dashas = vimshottari(v.planets.moon.longitude, instant);
+  const current = currentDasha(dashas, today);
+  // Weekday of the local birth date (the vara runs sunrise to sunrise; the civil date is close enough here).
+  const weekday = new Date(`${input.date}T12:00:00Z`).getUTCDay();
   const navamsa = (lon: number) => placement((Math.floor(lon / (30 / 9)) % 12) * 30 + 15).sign;
 
   return {
@@ -60,7 +64,11 @@ export function chartDepth(chart: Chart, today: string) {
       sunNakshatra: nakshatra(v.planets.sun.longitude),
       lagnaNakshatra: v.ascendant ? nakshatra(v.ascendant.longitude) : null,
       dashas,
-      current: currentDasha(dashas, today),
+      current: { ...current, pratyantar: currentPratyantar(current.maha, current.antar, today) },
+      panchanga: panchanga(v, weekday),
+      dignities: dignities(v),
+      yogas: yogas(v),
+      saturn: saturnTransit(v.planets.moon.sign, todayDate),
       navamsa: {
         lagna: v.ascendant ? navamsa(v.ascendant.longitude) : null,
         sun: navamsa(v.planets.sun.longitude),

@@ -160,3 +160,30 @@ export const NATAL_POINT_THEME: Record<string, string> = {
 };
 
 export const FORTUNE_LINE = 'An ancient point where the Sun, Moon and Ascendant combine: where things tend to go right for you with little effort, and where luck feels at home.';
+
+export const DIGNITY_LINE: Record<string, string> = {
+  Exalted: 'at its strongest and happiest; its gifts come easily',
+  Moolatrikona: 'in its root sign, strong and comfortable',
+  'Own sign': 'at home and able to act freely',
+  "Friend's sign": 'among friends, supported and effective',
+  'Neutral sign': 'neither helped nor hindered',
+  "Enemy's sign": 'in uncomfortable territory; its results take extra effort',
+  Debilitated: 'at its weakest, a part of life that asks for humility and work (and often gives unexpected depth)',
+};
+
+export const GRAHA_THEME: Record<string, string> = {
+  Sun: 'vitality, self and father', Moon: 'mind, feelings and mother', Mars: 'energy, courage and siblings', Mercury: 'intellect, speech and trade',
+  Jupiter: 'wisdom, fortune and teachers', Venus: 'love, pleasure and the arts', Saturn: 'discipline, delay and lasting work',
+  Rahu: 'obsession, ambition and the unfamiliar', Ketu: 'detachment, intuition and the past',
+};
+
+export const TITHI_LINE: Record<string, string> = {
+  Shukla: 'Born in the bright half, as the Moon waxes: outward-moving, building, optimistic.',
+  Krishna: 'Born in the dark half, as the Moon wanes: inward-moving, reflective, reducing things to what matters.',
+};
+
+export const SADE_SATI_LINE: Record<string, string> = {
+  'rising (first phase)': 'Saturn is in the sign before your Moon: the first phase of Sade Sati, when pressure builds, mostly around money and family.',
+  'peak (second phase)': 'Saturn is on your Moon: the peak of Sade Sati, the most demanding stretch, where emotional endurance and simple living carry you through.',
+  'setting (third phase)': 'Saturn has passed your Moon: the final phase of Sade Sati, when the lessons settle and results start to arrive.',
+};
