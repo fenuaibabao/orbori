@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { LinkButton, Screen } from '@/components/ui';
 import { accountsEnabled } from '@/lib/supabase/config';
@@ -22,6 +23,9 @@ export default function Welcome() {
         <LinkButton href="/onboarding/birth">Map my cosmos</LinkButton>
         {accountsEnabled && <LinkButton href="/signin" variant="ghost">I already have an account</LinkButton>}
         <p className="mt-1.5 text-center text-xs text-dim">18+ only. Entertainment, not destiny.</p>
+        <p className="text-center text-[11px] text-dim">
+          <Link href="/legal/terms" className="underline-offset-2 hover:underline">Terms</Link> · <Link href="/legal/privacy" className="underline-offset-2 hover:underline">Privacy</Link> · <Link href="/legal/commitments" className="underline-offset-2 hover:underline">Our commitments</Link>
+        </p>
       </div>
     </Screen>
   );

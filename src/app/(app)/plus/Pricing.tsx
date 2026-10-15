@@ -83,7 +83,7 @@ function Inner({ prices }: { prices: PriceInfo[] | null }) {
           cta={plus.plus ? null : cta('yearly', 'Go yearly', true)} />
       </div>
       {error && <p role="alert" className="text-sm text-mauve-lite">{error}</p>}
-      <p className="text-xs text-dim">Cancel any time from your Profile. Prices in US dollars. Orbori is entertainment, not destiny.</p>
+      <p className="text-xs text-dim">Cancel any time from your Profile. Prices in US dollars. Orbori is entertainment, not destiny. By subscribing you agree to the <Link href="/legal/terms" className="text-gold-lite">terms</Link>. A share of Plus revenue goes to the communities behind these traditions: <Link href="/legal/commitments" className="text-gold-lite">our commitments</Link>.</p>
     </div>
   );
 }

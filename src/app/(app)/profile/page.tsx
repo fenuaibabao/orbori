@@ -196,6 +196,9 @@ export default function Profile() {
             Start over
           </button>
         </div>
+        <p className="mt-3 text-center text-[11px] text-dim">
+          <Link href="/legal/terms">Terms</Link> · <Link href="/legal/privacy">Privacy</Link> · <Link href="/legal/commitments">Our commitments</Link>
+        </p>
       </section>
     </div>
   );
