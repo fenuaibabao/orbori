@@ -139,3 +139,42 @@ export const NUMBER_LINE: Record<number, string> = {
   9: 'the feminine and the flow of life', 10: 'community and cooperation', 11: 'healing and resolving division',
   12: 'learning from experience', 13: 'spirit, ancestors and completion',
 };
+
+/** A fuller portrait of each nawal, in Orbori's words, following the K'iche' tradition. */
+export const NAWAL_PROFILE: Record<string, { gift: string; shadow: string; calling: string }> = {
+  Imox: { gift: 'Deep intuition, originality and a feel for the unseen. You sense moods and undercurrents before anyone names them.', shadow: 'Drifting, confusion and losing the thread between dream and daylight. Water needs banks.', calling: 'Healing and counsel, psychology, art that comes from the depths, anything that works with the unconscious.' },
+  "Iq'": { gift: 'Breath, voice and ideas that travel. You clear stale air and carry news between people and worlds.', shadow: 'Restlessness, sharp words and sudden storms of mood. Wind can scatter as easily as it refreshes.', calling: 'Speaking, writing, teaching, music and anything that moves messages or moves people.' },
+  "Aq'ab'al": { gift: 'Fresh starts and early light. You see possibility in the dark and bring hope into rooms that need it.', shadow: 'Not finishing what you begin, and living in the next beginning instead of this one.', calling: 'Starting things: projects, ventures, communities. Work that turns ideas into first steps.' },
+  "K'at": { gift: 'Gathering and connection. You bring people, resources and ideas together and hold them in one net.', shadow: 'Tangles: debts, entanglements and knots of your own making. Learning to untie is the work.', calling: 'Organizing, networking, trade, growing things, and untangling problems others gave up on.' },
+  Kan: { gift: 'Power, wisdom and a strong sense of justice. Energy rises through you and others feel it.', shadow: 'Temper, pride and using strength to win rather than to right. Power without patience burns.', calling: 'Leadership, law and advocacy, energy work, and roles where presence and fairness both matter.' },
+  Kame: { gift: 'Peace with endings and a close bond with the ancestors. You guide people through change without fear.', shadow: 'Holding on to what has died, or treating every ending as a wound rather than a door.', calling: 'Healing, hospice and midwifery of all kinds, ancestry, and work that helps people let go.' },
+  Kej: { gift: 'Strength, steadiness and the four pillars that hold a community up. People lean on you.', shadow: 'Carrying everyone until you drop, and stubbornness that mistakes stiffness for strength.', calling: 'Protecting and providing, leadership, building and defending what a community needs.' },
+  "Q'anil": { gift: 'Fertility and growth. Whatever you tend, plant or nurture tends to flourish.', shadow: 'Spreading seed everywhere and tending nothing. Growth needs choosing.', calling: 'Farming and food, raising children, business that grows, creative work that multiplies.' },
+  Toj: { gift: 'Gratitude and balance. You understand that everything received is owed, and you pay forward gladly.', shadow: 'Guilt, overpaying and carrying debts that are not yours. Balance also means receiving.', calling: 'Ceremony and service, finance and fairness, and any role where trust must be kept.' },
+  "Tz'i": { gift: 'Loyalty, authority and a nose for the truth. You protect the pack and enforce what is fair.', shadow: 'Suspicion, rigid rules and biting before asking. Loyalty can harden into control.', calling: 'Law and justice, security, investigation, guardianship, and faithful partnership.' },
+  "B'atz'": { gift: 'Creativity and continuity. You weave time, art and story; you know the pattern before it is finished.', shadow: 'Losing yourself in the thread, knotting over details, and spinning stories that trap you.', calling: 'The arts, craft, design, writing and music, and keeping tradition alive.' },
+  "E'": { gift: 'Guidance and the long road. You carry travelers and ideas forward and find the path when others are lost.', shadow: 'Wandering without arriving, and leaving before the road has taught its lesson.', calling: 'Travel, guiding, teaching, trade routes of every kind, and leading people somewhere.' },
+  Aj: { gift: 'Home, harmony and steady renewal. You are the pillar the family returns to and the new growth after cutting.', shadow: 'Stiffness, people-pleasing and keeping peace at the cost of truth.', calling: 'Family and community work, housing and hospitality, education, and tending the home fire.' },
+  Ix: { gift: 'Earth power, magic and fierce intuition. You feel the land and read what is hidden.', shadow: 'Secretiveness, vanity and striking before thinking. The jaguar hunts best when patient.', calling: 'Healing and spiritual work, the land and the wild, strategy, and leadership that protects.' },
+  "Tz'ikin": { gift: 'Vision, luck and prosperity. You see from above and carry messages between heaven and earth.', shadow: 'Head in the clouds, chasing the shiny thing, and a quick temper when grounded.', calling: 'Business and prosperity, vision work, art and music, mediation between worlds and people.' },
+  Ajmak: { gift: 'Forgiveness and hard-won wisdom. You know mistakes from the inside and judge nobody for theirs.', shadow: 'Repeating the lesson, careless detours and forgiving everyone except yourself.', calling: 'Counsel and reconciliation, study of the past, and work that gives second chances.' },
+  "No'j": { gift: 'Knowledge, clarity and good counsel. Ideas come easily and you turn them into understanding.', shadow: 'Living in the head, over-thinking, and knowing better than everyone in the room.', calling: 'Science, teaching, strategy, writing, and any work that thinks a problem through to the end.' },
+  Tijax: { gift: 'The healer\'s blade. You cut cleanly through what is false and see what needs removing.', shadow: 'Cutting too deep, bluntness that wounds, and arguments that split what should hold together.', calling: 'Medicine and surgery, healing, justice, editing and any craft that requires a clean, precise cut.' },
+  Kawok: { gift: 'Community, nurture and the storm that clears the air. You bring people together and tend them.', shadow: 'Drama, worry and carrying the whole village\'s weather on your shoulders.', calling: 'Midwifery and caregiving, community organizing, healing circles, and tending the family hearth.' },
+  Ajpu: { gift: 'Light, focus and spiritual strength. Like the sun you illuminate, and like the hunter you aim true.', shadow: 'Burning bright and burning out; wanting to be seen; aiming at the wrong target with great accuracy.', calling: 'Spiritual leadership, athletics, performance, and roles where courage and focus show the way.' },
+};
+
+/** The four Mam (year bearers) of the K'iche' solar year. */
+export const MAM_LINE: Record<string, string> = {
+  "E'": 'A year carried by E\', the road: journeys, new directions and reaching destinations. The year of setting out.',
+  "No'j": 'A year carried by No\'j, knowledge: ideas, learning, planning and wisdom. The year of understanding.',
+  "Iq'": 'A year carried by Iq\', the wind: change, communication and clearing out what is stale. The year of breath.',
+  Kej: 'A year carried by Kej, the deer: strength, stability and the four pillars of community. The year of standing firm.',
+};
+
+export const DIRECTION_LINE: Record<string, string> = {
+  East: 'The east, where the sun rises: red, the color of fire, blood and beginnings. The place of ideas and light.',
+  North: 'The north: white, the color of air, breath and the ancestors. The place of wisdom and clarity.',
+  West: 'The west, where the sun sets: black, the color of night, rest and the inner world. The place of transformation.',
+  South: 'The south: yellow, the color of earth, corn and the body. The place of abundance and growth.',
+};

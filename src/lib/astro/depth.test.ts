@@ -55,7 +55,7 @@ describe('Numerology and Mayan depth', () => {
     expect(nameNumbers('---')).toBeNull();
   });
   it('trecena and cross are consistent with the 260-day count', () => {
-    const m = mayanDepth('2012-12-21'); // 4 Ajpu
+    const m = mayanDepth('2012-12-21', '2026-10-14'); // 4 Ajpu
     expect(m.trecena.dayOfTrecena).toBe(4);
     expect(m.trecena.daySign).toBe('No\'j'); // 3 days before 4 Ajpu is 1 No'j
     expect(m.cross.destiny.label).toBe('12 Q\'anil'); // +8: 4+8 = 12; Ajpu (20th) + 8 = Q'anil (8th)

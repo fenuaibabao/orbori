@@ -60,7 +60,7 @@ export function chartDepth(chart: Chart, today: string) {
     },
     bazi: bazi(instant, input.date, input.time),
     numerology: { ...personalCycles(input.date, today), birthday: birthdayNumber(input.date) },
-    mayan: mayanDepth(input.date),
+    mayan: mayanDepth(input.date, today),
   };
 }
 

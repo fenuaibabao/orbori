@@ -10,7 +10,7 @@ import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
 import { nameNumbers } from '@/lib/astro/numerology-depth';
 import type { Chart } from '@/lib/astro/types';
-import { ANIMAL_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
+import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
   ASPECT_LINE, CROSS_ROLE, DASHA_LINE, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
@@ -262,6 +262,10 @@ function Numerology({ d, chart }: { d: ChartDepth; chart: Chart }) {
 
 function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const m = d.mayan;
+  const me = chart.tzolkin;
+  const prof = NAWAL_PROFILE[me.daySign];
+  const longDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const shortDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const cell = (label: string, x: { label: string; english: string; yucatec: string }) => (
     <div className="flex flex-col items-center gap-0.5 rounded-xl bg-deep p-2.5 text-center">
       <span className="text-[10px] uppercase tracking-wide text-muted">{label}</span>
@@ -269,11 +273,31 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
       <span className="text-[11px] text-dim">{x.english} · {x.yucatec}</span>
     </div>
   );
+  const strip = (days: { date: string; day: { label: string; daySign: string } }[], hi: string) => (
+    <ol className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 py-1">
+      {days.map((x) => (
+        <li key={x.date} className={`flex min-w-[64px] shrink-0 flex-col items-center rounded-xl border px-1.5 py-2 text-center ${x.date === hi ? 'border-gold bg-night' : 'border-line bg-deep'}`}>
+          <span className="font-mono text-[12px] font-bold leading-tight">{x.day.label}</span>
+          <span className="mt-0.5 text-[10px] text-dim">{shortDate(x.date)}</span>
+        </li>
+      ))}
+    </ol>
+  );
   return (
     <PlusGate>
-      <Section title={`Your nawal: ${chart.tzolkin.label}`} learn="tzolkin">
-        <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[chart.tzolkin.daySign]} Your number {chart.tzolkin.number} brings {NUMBER_LINE[chart.tzolkin.number]}.</p>
-        <p className="text-xs text-dim">{chart.tzolkin.english} · Yucatec: {chart.tzolkin.yucatec}</p>
+      <Section title={`Your nawal: ${me.label}`} learn="tzolkin">
+        <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[me.daySign]} Your number {me.number} brings {NUMBER_LINE[me.number]}.</p>
+        <p className="text-xs text-dim">{me.english} · Yucatec: {me.yucatec} · {m.direction.direction}, {m.direction.color.toLowerCase()}</p>
+      </Section>
+      <Section title={`${me.daySign}, in depth`} learn="tzolkin">
+        <dl className="flex flex-col gap-3 text-sm leading-relaxed">
+          <div><dt className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">GIFT</dt><dd className="text-muted">{prof.gift}</dd></div>
+          <div><dt className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">SHADOW</dt><dd className="text-muted">{prof.shadow}</dd></div>
+          <div><dt className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">CALLING</dt><dd className="text-muted">{prof.calling}</dd></div>
+        </dl>
+      </Section>
+      <Section title={`${m.direction.direction}: your direction`} learn="directions">
+        <p className="text-sm leading-relaxed text-muted">{DIRECTION_LINE[m.direction.direction]} In K&apos;iche&apos;, {m.direction.kiche}.</p>
       </Section>
       <Section title="Your Mayan cross" learn="mayan-cross">
         <div className="mx-auto grid w-full max-w-sm grid-cols-3 gap-2">
@@ -281,8 +305,8 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           {cell('Left', m.cross.left)}
           <div className="flex flex-col items-center gap-0.5 rounded-xl border border-gold bg-deep p-2.5 text-center">
             <span className="text-[10px] uppercase tracking-wide text-gold-lite">You</span>
-            <span className="font-mono text-sm font-bold">{chart.tzolkin.label}</span>
-            <span className="text-[11px] text-dim">{chart.tzolkin.english} · {chart.tzolkin.yucatec}</span>
+            <span className="font-mono text-sm font-bold">{me.label}</span>
+            <span className="text-[11px] text-dim">{me.english} · {me.yucatec}</span>
           </div>
           {cell('Right', m.cross.right)}
           <span />{cell('Conception', m.cross.conception)}<span />
@@ -295,6 +319,20 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
         <p className="text-sm leading-relaxed text-muted">
           Day {m.trecena.dayOfTrecena} of 13 in the {m.trecena.daySign} ({m.trecena.english}) trecena. {TZOLKIN_LINE[m.trecena.daySign]}
         </p>
+        {strip(m.trecena.days, chart.input.date)}
+      </Section>
+      <Section title={`Your Mam: ${m.birthMam.mam.label}`} learn="mam">
+        <p className="text-sm leading-relaxed text-muted">
+          You were born in the solar year carried by <strong className="text-starlight">{m.birthMam.mam.label}</strong>, seated {longDate(m.birthMam.seated)}. {MAM_LINE[m.birthMam.mam.daySign]} Its number, {m.birthMam.mam.number}, brings {NUMBER_LINE[m.birthMam.mam.number]}.
+        </p>
+      </Section>
+      <Section title="The count today" learn="wajxaqib-batz">
+        <p className="text-sm leading-relaxed text-muted">
+          Today is <strong className="text-starlight">{m.today.day.label}</strong>, day {m.today.trecena.dayOfTrecena} of the {m.today.trecena.daySign} trecena, in the year of <strong className="text-starlight">{m.today.mam.mam.label}</strong> (seated {longDate(m.today.mam.seated)}).
+          {m.today.tzapinQij && <> These are the Tz&apos;apin Q&apos;ij, the five closing days of the year: a time for rest and reflection, not big beginnings.</>}
+          {' '}The next Wajxaqib&apos; B&apos;atz&apos;, when the Chol Q&apos;ij begins again, is {longDate(m.today.nextWajxaqibBatz)}; the next Mam, {m.today.mam.nextMam.label}, is seated {longDate(m.today.mam.nextSeated)}.
+        </p>
+        {strip(m.today.trecena.days, m.today.date)}
       </Section>
       <PartnerLink
         href="https://thefourpillars.net"
