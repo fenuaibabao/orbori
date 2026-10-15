@@ -187,3 +187,40 @@ export const SADE_SATI_LINE: Record<string, string> = {
   'peak (second phase)': 'Saturn is on your Moon: the peak of Sade Sati, the most demanding stretch, where emotional endurance and simple living carry you through.',
   'setting (third phase)': 'Saturn has passed your Moon: the final phase of Sade Sati, when the lessons settle and results start to arrive.',
 };
+
+export const TEN_GOD_LINE: Record<string, string> = {
+  Friend: 'peers, siblings and allies; self-reliance and competition on equal terms',
+  'Rob Wealth': 'rivals and close friends who share your resources; generosity and the risk of being taken advantage of',
+  'Eating God': 'creativity, enjoyment, food and easy self-expression; talent that flows',
+  'Hurting Officer': 'bold talent, rebellion and sharp speech; brilliance that chafes at rules',
+  'Indirect Wealth': 'windfalls, enterprise and money that comes and goes; father, for some readers',
+  'Direct Wealth': 'steady income, thrift and what you control; the spouse in a man\'s chart',
+  'Seven Killings': 'pressure, discipline, danger and the authority you earn by force of will',
+  'Direct Officer': 'status, duty, rules and recognition; the spouse in a woman\'s chart',
+  'Indirect Resource': 'unconventional learning, intuition and solitude; mother, for some readers',
+  'Direct Resource': 'support, education, protection and mother; what nourishes you',
+};
+
+export const TEN_GOD_GROUP: Record<string, string> = {
+  Companion: 'your own element: identity, friends and competition',
+  Output: 'what you produce: talent, expression and children',
+  Wealth: 'what you control: money, goals and enterprise',
+  Power: 'what controls you: career, authority and pressure',
+  Resource: 'what feeds you: knowledge, support and mother',
+};
+
+export const INTERACTION_LINE: Record<string, string> = {
+  clash: 'Clash: two branches in conflict. Movement, change and friction between the areas those pillars govern.',
+  combination: 'Six Combination: two branches that attract and merge, producing a new element. Harmony and binding between those pillars.',
+  harm: 'Harm: a subtle undermining between branches. Watch for hidden tension in those areas.',
+  'three harmony': 'Three Harmony: a complete triangle of branches forming one strong element. A powerful, unified current in your chart.',
+  'half three harmony': 'Half Three Harmony: two of the three harmony branches, with the central one present. A partial but real alliance.',
+};
+
+export const STAR_LINE: Record<string, string> = {
+  Nobleman: 'The Nobleman star: helpful people appear when you need them, and trouble tends to resolve. The most prized star in BaZi.',
+  'Academic star': 'The Academic star: a gift for study, writing and exams; learning comes naturally.',
+  'Peach Blossom': 'The Peach Blossom star: charm, attraction and social magnetism, for better and occasionally for drama.',
+};
+
+export const LUCK_LINE = 'Luck pillars are ten-year chapters that bring a new stem and branch into your chart. Each is read by its Ten God: the relationship between its stem and your Day Master sets the theme of that decade.';

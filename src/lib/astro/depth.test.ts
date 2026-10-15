@@ -2,6 +2,7 @@ import * as A from 'astronomy-engine';
 import { describe, expect, it } from 'vitest';
 import { moonPhase, nextSolarReturn, partOfFortune, progressions, transits } from './western-depth';
 import { dignity, panchanga, pratyantar, saturnTransit } from './vedic-depth';
+import { tenGod } from './bazi-depth';
 import { SIGNS, type Placement, type Sign } from './types';
 import { computeChart } from '.';
 import { vimshottari } from './dasha';
@@ -160,5 +161,38 @@ describe('Vedic depth', () => {
     const s = saturnTransit('Leo', new Date('2026-10-15T12:00:00Z'));
     expect(s.houseFromMoon).toBeGreaterThanOrEqual(1);
     expect(s.nextSignChange).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('Four Pillars depth', () => {
+  it('Ten Gods from a Yang Wood (Jia) Day Master', () => {
+    expect(tenGod(0, 0).name).toBe('Friend');          // Jia → Jia
+    expect(tenGod(0, 1).name).toBe('Rob Wealth');      // Jia → Yi
+    expect(tenGod(0, 2).name).toBe('Eating God');      // Jia → Bing (Yang Fire)
+    expect(tenGod(0, 3).name).toBe('Hurting Officer'); // Jia → Ding
+    expect(tenGod(0, 4).name).toBe('Indirect Wealth'); // Jia → Wu (Yang Earth)
+    expect(tenGod(0, 5).name).toBe('Direct Wealth');   // Jia → Ji
+    expect(tenGod(0, 6).name).toBe('Seven Killings');  // Jia → Geng (Yang Metal)
+    expect(tenGod(0, 7).name).toBe('Direct Officer');  // Jia → Xin
+    expect(tenGod(0, 8).name).toBe('Indirect Resource'); // Jia → Ren (Yang Water)
+    expect(tenGod(0, 9).name).toBe('Direct Resource'); // Jia → Gui
+  });
+  it('luck pillars start within 10 years and run from the month pillar in order', () => {
+    const d = chartDepth(chart, '2026-10-14');
+    const { forward, backward } = d.bazi.luck;
+    expect(forward.startAge).toBeGreaterThan(0); expect(forward.startAge).toBeLessThan(10);
+    expect(backward.startAge).toBeGreaterThan(0); expect(backward.startAge).toBeLessThan(10);
+    expect(forward.startAge + backward.startAge).toBeGreaterThan(9.5); expect(forward.startAge + backward.startAge).toBeLessThan(10.7); // a solar month is 29–32 days
+    expect(forward.pillars).toHaveLength(8);
+    expect(forward.pillars[0].branch).toBe((d.bazi.month.branch + 1) % 12);
+    expect(backward.pillars[0].branch).toBe((d.bazi.month.branch + 11) % 12);
+    expect(d.bazi.annual.year).toBe(2026);
+    expect(d.bazi.annual.label).toBe('Yang Fire Horse');
+  });
+  it('branch interactions and stars', () => {
+    const d = chartDepth(chart, '2026-10-14');
+    expect(Array.isArray(d.bazi.interactions)).toBe(true);
+    expect(d.bazi.stars.map((s) => s.name)).toEqual(['Nobleman', 'Academic star', 'Peach Blossom']);
+    expect(d.bazi.tenGods.find((t) => t.pillar === 'day')!.stem.tenGod).toBeNull();
   });
 });

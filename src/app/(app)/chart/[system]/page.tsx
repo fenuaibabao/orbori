@@ -12,7 +12,7 @@ import { maturityNumber, nameLessons, nameNumbers } from '@/lib/astro/numerology
 import type { Chart } from '@/lib/astro/types';
 import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
 import {
-  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, DIGNITY_LINE, FORTUNE_LINE, GRAHA_THEME, SADE_SATI_LINE, TITHI_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
+  ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, DIGNITY_LINE, FORTUNE_LINE, GRAHA_THEME, INTERACTION_LINE, LUCK_LINE, STAR_LINE, TEN_GOD_GROUP, TEN_GOD_LINE, SADE_SATI_LINE, TITHI_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
 } from '@/lib/depth-content';
 import { useChart, useDepth } from '@/lib/hooks';
@@ -256,6 +256,11 @@ function Chinese({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const cols: [keyof typeof PILLAR_ROLE, typeof b.year | null][] = [['hour', b.hour], ['day', b.day], ['month', b.month], ['year', b.year]];
   const dm = `${b.dayMaster.polarity} ${b.dayMaster.element}`;
   const yearDiffers = b.year.animal !== chart.chinese.animal;
+  const [sex, setSex] = useState<'male' | 'female'>(() => { try { return (localStorage.getItem('orbori.bazi.sex') as 'male' | 'female') || 'male'; } catch { return 'male'; } });
+  const pickSex = (v: 'male' | 'female') => { setSex(v); try { localStorage.setItem('orbori.bazi.sex', v); } catch { /* ignore */ } };
+  const forward = sex === 'male' ? b.luck.maleForward : b.luck.femaleForward;
+  const luck = forward ? b.luck.forward : b.luck.backward;
+  const age = d.numerology.age;
   return (
     <PlusGate>
       <Section title="Your eight characters" learn="four-pillars">
@@ -298,6 +303,76 @@ function Chinese({ d, chart }: { d: ChartDepth; chart: Chart }) {
         <p className="text-xs text-dim">Counts the {b.hour ? 8 : 6} visible characters. Hidden stems and seasonal strength are not included.</p>
       </Section>
 
+
+      <Section title="The Ten Gods" learn="ten-gods">
+        <p className="text-sm leading-relaxed text-muted">Every character is read by its relationship to your Day Master ({dm}). The visible stems speak loudest; the hidden stems inside each branch add undertones.</p>
+        <ul className="flex flex-col gap-2">
+          {b.tenGods.map((t) => (
+            <li key={t.pillar} className="rounded-xl bg-deep p-3 text-sm">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-semibold capitalize">{t.pillar} pillar</span>
+                <span className="font-mono text-xs text-dim">{t.stem.hanzi} {t.stem.name}{t.stem.tenGod ? ` · ${t.stem.tenGod.hanzi}` : ' · Day Master'}</span>
+              </div>
+              {t.stem.tenGod && <p className="text-muted"><strong className="text-starlight">{t.stem.tenGod.name}</strong>: {TEN_GOD_LINE[t.stem.tenGod.name]}.</p>}
+              <p className="mt-1 text-xs text-dim">Hidden: {t.hidden.map((h) => `${h.hanzi} ${h.name} (${h.tenGod.name})`).join(', ')}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-dim">{Object.entries(TEN_GOD_GROUP).map(([k, v]) => `${k}: ${v}`).join('. ')}.</p>
+      </Section>
+
+      <Section title="Branch interactions" learn="interactions">
+        {b.interactions.length === 0 && <p className="text-sm text-muted">No clashes, combinations or harms between your branches. A settled chart.</p>}
+        <ul className="flex flex-col gap-2">
+          {b.interactions.map((x, i) => (
+            <li key={i} className="rounded-xl bg-deep p-3 text-sm">
+              <span className="font-semibold capitalize">{x.kind}{x.element ? ` → ${x.element}` : ''}</span>
+              <span className="block text-xs text-dim">{x.between.join(' · ')} ({x.pillars.join(' & ')})</span>
+              <span className="block text-muted">{INTERACTION_LINE[x.kind]}</span>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section title="Symbolic stars" learn="stars">
+        <ul className="flex flex-col gap-2">
+          {b.stars.map((st) => (
+            <li key={st.name} className={`rounded-xl p-3 text-sm ${st.present ? 'border border-gold bg-night' : 'bg-deep/60'}`}>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-semibold">{st.name} <span lang="zh" className="font-normal text-dim">{st.hanzi}</span></span>
+                <span className="font-mono text-xs text-dim">{st.present ? `in your ${st.where.join(' & ')} pillar` : `needs ${st.branch}`}</span>
+              </div>
+              {st.present ? <p className="text-muted">{STAR_LINE[st.name]}</p> : <p className="text-dim">Not in your natal chart; it visits in years and luck pillars carrying {st.branch}.</p>}
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section title="Luck pillars" learn="luck-pillars">
+        <p className="text-sm leading-relaxed text-muted">{LUCK_LINE}</p>
+        <div className="flex items-center gap-2 text-xs text-muted">
+          <span>Direction follows sex at birth in BaZi:</span>
+          {(['male', 'female'] as const).map((v) => (
+            <button key={v} type="button" onClick={() => pickSex(v)} className={`min-h-8 rounded-full border px-3 capitalize ${sex === v ? 'border-gold-lite text-gold-lite' : 'border-line-2 text-dim'}`}>{v}</button>
+          ))}
+        </div>
+        <p className="text-xs text-dim">Your first pillar began at age {luck.startAge}, counting {forward ? 'forward' : 'backward'} from your month pillar.</p>
+        <ol className="flex flex-col gap-1.5">
+          {luck.pillars.map((p) => {
+            const now = age >= p.from && age <= p.to;
+            return (
+              <li key={p.from} className={`flex flex-col gap-0.5 rounded-xl px-3 py-2.5 text-sm ${now ? 'border border-gold bg-deep' : 'bg-deep/60'}`}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-semibold">Ages {p.from}–{p.to}{now && <span className="ml-2 font-mono text-[10px] text-gold-lite">NOW</span>}</span>
+                  <span className="font-mono text-xs text-muted"><span lang="zh">{p.hanzi}</span> {p.label}</span>
+                </div>
+                <span className="text-muted"><strong className="text-starlight">{p.tenGod.name}</strong> decade: {TEN_GOD_LINE[p.tenGod.name]}.</span>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="text-sm text-muted">This year ({b.annual.year}) is <span lang="zh">{b.annual.hanzi}</span> {b.annual.label}, a <strong className="text-starlight">{b.annual.tenGod.name}</strong> year for you: {TEN_GOD_LINE[b.annual.tenGod.name]}.</p>
+      </Section>
       <PartnerLink
         href="https://purpleheaven.app"
         eyebrow="GO EVEN DEEPER"

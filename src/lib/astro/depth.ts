@@ -1,6 +1,7 @@
 /** Everything behind "Go deeper" on My Chart, computed on demand. */
 import * as A from 'astronomy-engine';
 import { bazi } from './bazi';
+import { annualPillar, interactions, luckPillars, stars, tenGodsOf } from './bazi-depth';
 import { currentDasha, vimshottari } from './dasha';
 import { aspects, balance, houseOf, lilith, placidus } from './houses';
 import { mayanDepth } from './mayan-depth';
@@ -78,7 +79,10 @@ export function chartDepth(chart: Chart, today: string) {
         jupiter: navamsa(v.planets.jupiter.longitude),
       },
     },
-    bazi: bazi(instant, input.date, input.time),
+    bazi: (() => {
+      const b = bazi(instant, input.date, input.time);
+      return { ...b, tenGods: tenGodsOf(b), interactions: interactions(b), stars: stars(b), luck: luckPillars(b, instant), annual: annualPillar(b, todayDate) };
+    })(),
     numerology: { ...personalCycles(input.date, today), birthday: birthdayNumber(input.date), pinnacles: pinnaclesAndChallenges(input.date, chart.numerology.lifePath), age: ageOn(input.date, today), karmicDebts: karmicDebts(input.date) },
     mayan: mayanDepth(input.date, today),
   };
