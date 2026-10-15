@@ -37,7 +37,8 @@ export async function fetchPrices(): Promise<PriceInfo[] | null> {
       return { plan, amount: (p.unit_amount ?? 0) / 100, currency: p.currency.toUpperCase(), interval: (p.recurring?.interval ?? 'month') as 'month' | 'year' };
     }));
     return list;
-  } catch {
+  } catch (e) {
+    console.error('Stripe prices could not be loaded:', (e as Error).message);
     return null;
   }
 }
