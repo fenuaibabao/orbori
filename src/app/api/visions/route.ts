@@ -9,7 +9,7 @@ import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { parseBirthInput } from '@/lib/validate';
 import { imageCost, PACKS } from '@/lib/credits';
 import { BETA } from '@/lib/beta';
-import { HAIR, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
+import { HAIR, palette, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -118,6 +118,10 @@ export async function POST(req: Request) {
       const dsc = chart.western.ascendant ? ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][(['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'].indexOf(chart.western.ascendant.sign) + 6) % 12] : null;
       if (v) place = { label: v.label, planet: 'Venus' };
       note = `Venus in ${venus}${dsc ? `, ${dsc} on your Descendant` : ''}${v ? `, set in ${v.label} on your Venus ${ANGLE_NAME[v.angle].toLowerCase()} line` : ''}. For fun: love writes its own story.`;
+    }
+    if (!note) {
+      const big3 = [`Sun in ${chart.western.planets.sun.sign}`, `Moon in ${chart.moonSignOptions[0]}`, chart.western.ascendant ? `${chart.western.ascendant.sign} Rising` : null].filter(Boolean).join(', ');
+      note = `Inspired by ${big3}. Colors: ${palette(chart).join(', ')}.`;
     }
     const prompt = visionPrompt(kind, chart, look, place);
 

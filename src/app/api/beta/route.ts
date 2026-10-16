@@ -14,6 +14,8 @@ export async function POST(req: Request) {
   const { code } = (await req.json().catch(() => ({}))) as { code?: string };
   if (code !== betaCode()) return NextResponse.json({ error: 'That tester link isn\'t valid.' }, { status: 400 });
   const { data: row } = await admin.from('subscriptions').select('status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
+  // Testers also get 10 vision credits, once (the ledger id makes it one-time).
+  await admin.from('credit_ledger').upsert({ id: `beta:${user.id}`, user_id: user.id, delta: 10, reason: 'beta tester' }, { onConflict: 'id', ignoreDuplicates: true });
   if (isPlusRow(row) && !(row?.plan === 'gift' && row?.current_period_end)) return NextResponse.json({ ok: true, already: true });
   const { error } = await admin.from('subscriptions').upsert({ user_id: user.id, status: 'active', plan: 'gift', note: 'beta tester', current_period_end: null, updated_at: new Date().toISOString() });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

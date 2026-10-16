@@ -161,7 +161,7 @@ export default function Visions() {
                 <div className="flex items-center justify-between gap-2 px-1">
                   <span className="text-xs font-semibold">{nameOf(v.kind)}</span>
                   <span className="flex gap-2 text-xs">
-                    {v.url && <a href={v.url} download className="text-gold-lite">Save</a>}
+                    {v.url && <a href={`/api/visions/download?id=${v.id}`} download className="text-gold-lite">Save</a>}
                     <button type="button" onClick={() => remove(v.id)} className="text-muted hover:text-starlight">Delete</button>
                   </span>
                 </div>
