@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <Feedback className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] right-3 z-20 rounded-full border border-royal bg-night/95 px-3 py-1.5 text-xs font-semibold text-muted shadow-lg backdrop-blur lg:hidden" />
       {/* Mobile tab bar */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-[#0B0934]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-deep/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
         {TABS.map(({ href, label, Icon }) => {
           const on = path.startsWith(href) || (href === '/profile' && (path.startsWith('/compatibility') || path.startsWith('/learn') || path.startsWith('/journal') || path.startsWith('/play') || path.startsWith('/rewards') || path.startsWith('/recap') || path.startsWith('/plus')));
           return (
