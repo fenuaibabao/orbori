@@ -179,7 +179,7 @@ export default function Profile() {
           )}
           <div className="flex min-h-14 items-center gap-3 border-t border-line px-4 py-3">
             <span className="flex-1 text-[15px]">
-              {plus.plus ? <>Orbori Plus <span className="rounded-full bg-gold px-2 py-0.5 font-mono text-[10px] font-bold text-space">ACTIVE</span></> : 'Orbori Plus'}
+              {plus.plus ? <>Orbori Plus <span className="rounded-full bg-gold px-2 py-0.5 font-mono text-[10px] font-bold text-space">{plus.status === 'owner' ? 'OWNER' : plus.plan === 'gift' ? 'GIFTED' : 'ACTIVE'}</span></> : 'Orbori Plus'}
               <span className="mt-0.5 block text-xs text-dim">
                 {plus.plus
                   ? plus.cancelAtPeriodEnd && plus.periodEnd ? `Ends ${new Date(plus.periodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`
@@ -187,7 +187,8 @@ export default function Profile() {
                   : 'Every system in depth.'}
               </span>
             </span>
-            {plus.plus || plus.status === 'canceled' || plus.status === 'past_due'
+            {plus.status === 'owner' || plus.plan === 'gift' ? <Link href="/admin" className="min-h-11 text-sm font-medium text-gold-lite">{plus.status === 'owner' ? 'Mission control' : 'A gift'}</Link>
+              : plus.plus || plus.status === 'canceled' || plus.status === 'past_due'
               ? <button type="button" onClick={manageBilling} className="min-h-11 text-sm font-medium text-gold-lite">Manage</button>
               : <Link href="/plus" className="min-h-11 text-sm font-medium text-gold-lite">See plans</Link>}
           </div>

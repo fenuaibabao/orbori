@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
+import { NudgeBanner } from '@/components/LinkedPeople';
 import { Sigil } from '@/components/Sigil';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
@@ -67,6 +68,7 @@ export default function Today() {
           <Bar value={progress.levelProgress} />
         </Link>
       </header>
+      <NudgeBanner />
 
       {error && <p role="alert" className="text-mauve-lite">{error}</p>}
       {!reading ? (

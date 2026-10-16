@@ -4,6 +4,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { StoreContext, useStore } from '@/lib/store';
 import { useSync } from '@/lib/sync-provider';
+import { useAuth } from '@/lib/auth';
+import { isOwnerEmail } from '@/lib/owner';
 import { ChartIcon, CosmosIcon, ProfileIcon, SunIcon, VisionsIcon } from './icons';
 import { Logo } from './Logo';
 
@@ -20,6 +22,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const store = useStore();
   const { ready: synced } = useSync();
+  const { user } = useAuth();
+  const owner = isOwnerEmail(user?.email);
   const ready = store.ready && synced;
   const { state } = store;
 
@@ -60,6 +64,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.3 5.8L12 16l-5 3 1.3-5.8L4 9.3l5.6-.7z" /></svg>
             Orbori Plus
           </Link>
+          {owner && (
+            <Link href="/admin" aria-current={path.startsWith('/admin') ? 'page' : undefined}
+              className={`flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 text-[15px] font-medium ${path.startsWith('/admin') ? 'bg-royal text-starlight' : 'text-muted hover:text-starlight'}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></svg>
+              Mission control
+            </Link>
+          )}
         </nav>
       </aside>
 

@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const p = openInvite(String(body?.token ?? ''));
     const them = computeChart(p.input);
-    const inviter = { handle: p.handle, seed: p.seed, nickname: p.nickname ?? null, ...coarse(them) };
+    const inviter = { handle: p.handle, seed: p.seed, nickname: p.nickname ?? null, linkable: Boolean(p.uid), ...coarse(them) };
     if (!body?.input) return NextResponse.json({ inviter });
     const me = computeChart(parseBirthInput(body.input));
     return NextResponse.json({ inviter, me: coarse(me), compat: compatibility(me, them) });

@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './auth';
+import { isOwnerEmail } from './owner';
 import { supabase } from './supabase/client';
 
 export interface PlusState {
@@ -8,7 +9,7 @@ export interface PlusState {
   /** true while a subscription is active (including the paid-up remainder after cancelling) */
   plus: boolean;
   status: string;
-  plan: 'monthly' | 'yearly' | null;
+  plan: 'monthly' | 'yearly' | 'gift' | null;
   periodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   refresh: () => Promise<void>;
@@ -21,21 +22,23 @@ export function usePlus(): PlusState {
   const [s, setS] = useState<Omit<PlusState, 'ready' | 'refresh'>>(NONE);
   const [ready, setReady] = useState(false);
   const userId = user?.id ?? null;
+  const owner = isOwnerEmail(user?.email);
 
   const refresh = useCallback(async () => {
     const sb = supabase();
     if (!sb || !userId) { setS(NONE); setReady(true); return; }
+    if (owner) { setS({ plus: true, status: 'owner', plan: null, periodEnd: null, cancelAtPeriodEnd: false }); setReady(true); return; }
     const { data } = await sb.from('subscriptions').select('status, plan, current_period_end, cancel_at_period_end').eq('user_id', userId).maybeSingle();
     const status = data?.status ?? 'none';
     setS({
       plus: status === 'active' || status === 'trialing',
       status,
-      plan: (data?.plan as 'monthly' | 'yearly' | null) ?? null,
+      plan: (data?.plan as 'monthly' | 'yearly' | 'gift' | null) ?? null,
       periodEnd: data?.current_period_end ?? null,
       cancelAtPeriodEnd: Boolean(data?.cancel_at_period_end),
     });
     setReady(true);
-  }, [userId]);
+  }, [userId, owner]);
 
   useEffect(() => { if (authReady) refresh(); }, [authReady, refresh]);
   useEffect(() => {

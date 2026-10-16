@@ -13,6 +13,8 @@ export interface InvitePayload {
   seed: number;
   /** Nickname the inviter gave the partner, shown back to the partner. */
   nickname?: string;
+  /** Inviter's account id, when they were signed in: lets the accepter link accounts. */
+  uid?: string;
   iat: number;
 }
 

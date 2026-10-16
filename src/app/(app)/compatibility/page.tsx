@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useBirthFields } from '@/components/BirthFields';
 import { Constellation } from '@/components/Constellation';
+import { LinkedPeople } from '@/components/LinkedPeople';
 import { MatchResult } from '@/components/MatchResult';
 import { btnPrimary } from '@/components/ui';
 import type { Compatibility } from '@/lib/compat';
@@ -93,6 +94,8 @@ export default function CompatibilityPage() {
   return (
     <div className="flex flex-col gap-6 lg:max-w-3xl">
       <h1 className="font-display text-[26px] font-bold">Compatibility</h1>
+
+      <LinkedPeople />
 
       <section aria-labelledby="const" className="flex flex-col gap-3.5 rounded-[22px] bg-night p-[18px]">
         <div className="flex items-baseline justify-between">
