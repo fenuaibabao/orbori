@@ -40,7 +40,7 @@ export default function Profile() {
   const { data } = useChart(profile);
   const { date } = localToday();
   const p = useProgress();
-  const list = badges(p, { mythic: data?.rarity.tier === 'Mythic', matches: state.matches.length });
+  const list = badges(p, { mythic: data?.rarity.tier === 'Mythic', matches: state.matches.length, founding: plus.founding });
 
   const editBirth = () => {
     saveDraft({ input: profile.input, cityLabel: profile.cityLabel });

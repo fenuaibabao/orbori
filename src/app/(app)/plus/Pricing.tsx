@@ -7,15 +7,17 @@ import { goToBilling, usePlus } from '@/lib/plus';
 import type { PriceInfo } from '@/lib/stripe';
 
 const FREE = ['Daily Cosmic Council and Convergence Score', 'Your placements across all seven traditions', 'Chart Rarity, streaks, badges and levels', 'Compatibility and invites'];
-const PLUS = ['Everything in Free', 'All seven traditions in depth: houses, aspects, Dasha timeline, Four Pillars, Mayan cross, moon nights, lunar mansions', 'Personal year, name numbers and the Navamsa', 'Early access to AI readings and The Cosmos'];
+const PLUS = ['Everything in Free', 'All seven traditions in depth: houses, aspects, Dasha timeline, Four Pillars, Mayan cross, moon nights, lunar mansions', 'Personal year, name numbers and the Navamsa', 'Your daily AI reading, written from all seven voices', 'Cosmic Visions: 3 a day, up to 20 a month (10 in a Founding year)'];
 
 const money = (p: PriceInfo) => new Intl.NumberFormat('en-US', { style: 'currency', currency: p.currency, minimumFractionDigits: p.amount % 1 ? 2 : 0 }).format(p.amount);
 
-export function Pricing({ prices, beta }: { prices: PriceInfo[] | null; beta: boolean }) {
-  return <Suspense fallback={<div className="min-h-dvh" />}><Inner prices={prices} beta={beta} /></Suspense>;
+type Founding = { left: number; total: number } | null;
+
+export function Pricing({ prices, beta, founding }: { prices: PriceInfo[] | null; beta: boolean; founding: Founding }) {
+  return <Suspense fallback={<div className="min-h-dvh" />}><Inner prices={prices} beta={beta} founding={founding} /></Suspense>;
 }
 
-function Inner({ prices, beta }: { prices: PriceInfo[] | null; beta: boolean }) {
+function Inner({ prices, beta, founding }: { prices: PriceInfo[] | null; beta: boolean; founding: Founding }) {
   const { user } = useAuth();
   const plus = usePlus();
   const params = useSearchParams();
@@ -80,14 +82,34 @@ function Inner({ prices, beta }: { prices: PriceInfo[] | null; beta: boolean }) 
         </div>
       )}
 
+      {founding && founding.left > 0 && yearly && !plus.plus && (
+        <section aria-labelledby="founding" className="flex flex-col gap-3 rounded-[22px] border border-gold bg-royal/30 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="founding" className="font-display text-xl font-bold">The Founding 111</h2>
+            <span className="font-mono text-sm font-bold text-gold-lite">{founding.left} of {founding.total} spots left</span>
+          </div>
+          <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-gold" style={{ width: `${((founding.total - founding.left) / founding.total) * 100}%` }} /></div>
+          <p className="text-sm text-muted">
+            The first {founding.total} people to go yearly get their first year for <strong className="text-starlight">{new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(yearly.amount / 2)}</strong> instead of {money(yearly)}, and a <strong className="text-starlight">Founding Member</strong> badge that stays on your profile forever. Renews at {money(yearly)} a year after that; cancel any time.
+          </p>
+        </section>
+      )}
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card name="Free" price="$0" sub="forever" features={FREE} cta={<Link href="/today" className="flex h-12 w-full items-center justify-center rounded-full border border-royal px-5 font-bold text-starlight">You have this</Link>} />
         <Card name="Plus Monthly" price={monthly ? money(monthly) : '—'} sub="per month" features={PLUS}
           cta={plus.plus ? null : cta('monthly', 'Go monthly', false)} />
-        <Card name="Plus Yearly" highlight badge={saves ? `BEST VALUE · SAVE ${saves}%` : 'BEST VALUE'}
-          price={perMonth && yearly ? new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(perMonth) : '—'}
-          sub={yearly ? `per month, billed ${money(yearly)} a year` : 'per month, billed yearly'} features={PLUS}
-          cta={plus.plus ? null : cta('yearly', 'Go yearly', true)} />
+        {founding && founding.left > 0 && yearly ? (
+          <Card name="Plus Yearly" highlight badge={`FOUNDING 111 · ${founding.left} LEFT`}
+            price={new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(yearly.amount / 2)}
+            sub={`first year (was ${money(yearly)}), then ${money(yearly)} a year`} features={[...PLUS, 'Founding Member badge, forever']}
+            cta={plus.plus ? null : cta('yearly', 'Claim a founding spot', true)} />
+        ) : (
+          <Card name="Plus Yearly" highlight badge={saves ? `BEST VALUE · SAVE ${saves}%` : 'BEST VALUE'}
+            price={perMonth && yearly ? new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(perMonth) : '—'}
+            sub={yearly ? `per month, billed ${money(yearly)} a year` : 'per month, billed yearly'} features={PLUS}
+            cta={plus.plus ? null : cta('yearly', 'Go yearly', true)} />
+        )}
       </div>
       {error && <p role="alert" className="text-sm text-mauve-lite">{error}</p>}
       <p className="text-xs text-dim">Cancel any time from your Profile. Prices in US dollars. Orbori is entertainment, not destiny. By subscribing you agree to the <Link href="/legal/terms" className="text-gold-lite">terms</Link>. A share of Plus revenue goes to the communities behind these traditions: <Link href="/legal/commitments" className="text-gold-lite">our commitments</Link>.</p>

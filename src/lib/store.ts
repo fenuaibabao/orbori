@@ -131,6 +131,13 @@ export function useStore() {
     if (cur.deep && cur.deepOn?.includes(system)) return;
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, deep: true, deepOn: Array.from(new Set([...(cur.deepOn ?? []), system])) } } });
   }, []);
+  /** A Circle won its weekly challenge: +40 XP, once per Circle per week. */
+  const winCircle = useCallback((monday: string, key: string) => {
+    const s = read();
+    const cur = s.activity?.[monday] ?? {};
+    if (cur.circleWins?.includes(key)) return;
+    write({ ...s, activity: { ...s.activity, [monday]: { ...cur, circleWins: [...(cur.circleWins ?? []), key] } } });
+  }, []);
   /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
   const writeJournal = useCallback((date: string, text: string, prompt?: string, reading?: ReadingSnapshot) => {
     const s = read();
@@ -150,7 +157,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm, finishGame, visitDeep };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm, finishGame, visitDeep, winCircle };
 }
 
 /**

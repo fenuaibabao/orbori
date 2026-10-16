@@ -60,6 +60,8 @@ export interface Activity {
   perfect?: string[];
   /** Traditions opened in depth that day (system ids). */
   deepOn?: string[];
+  /** Circles whose weekly challenge was won (recorded on the week's Monday). */
+  circleWins?: string[];
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -155,7 +157,7 @@ export function computeProgress(input: ProgressInput): Progress {
     if (run >= 30 && !hit30) { xp += XP.streak30; hit30 = true; }
     if (checkIns[d].answer === 'nailed' && checkIns[d].score < 5) calledIt++;
   }
-  for (const d of Object.keys(activity)) xp += activityXp(activity[d]);
+  for (const d of Object.keys(activity)) xp += activityXp(activity[d]) + (activity[d].circleWins?.length ?? 0) * XP.challenge;
 
   // Weekly challenges, every week that has any history.
   const weeks = new Set([...days, ...Object.keys(activity)].map(weekStart));
@@ -187,8 +189,9 @@ export function computeProgress(input: ProgressInput): Progress {
 
 export interface Badge { id: string; name: string; how: string; earned: boolean; status: string; icon: string }
 
-export function badges(p: Progress, opts: { mythic: boolean; matches: number }): Badge[] {
+export function badges(p: Progress, opts: { mythic: boolean; matches: number; founding?: number | null }): Badge[] {
   return [
+    ...(opts.founding ? [{ id: 'founding-member', name: 'Founding Member', how: `One of the Founding 111 (#${opts.founding})`, earned: true, status: `#${opts.founding}`, icon: 'M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.3 5.8L12 16l-5 3 1.3-5.8L4 9.3l5.6-.7z' }] : []),
     { id: 'first-light', name: 'First Light', how: 'First check-in', earned: p.checkIns >= 1, status: p.checkIns >= 1 ? 'EARNED' : '0 / 1', icon: 'M3 18h18M7 18a5 5 0 0110 0M12 6v4M5 11l2 2M19 11l-2 2' },
     { id: 'seven-night', name: '7-Night Watch', how: '7-night streak', earned: p.bestStreak >= 7, status: p.bestStreak >= 7 ? 'EARNED' : `${Math.min(p.streak, 7)} / 7`, icon: 'M16 4a8 8 0 100 16a6.5 6.5 0 010-16z' },
     { id: 'called-it', name: 'Called It', how: '"Nailed it" on 5 low-convergence days', earned: p.calledIt >= 5, status: p.calledIt >= 5 ? 'EARNED' : `${p.calledIt} / 5`, icon: 'M12 3a9 9 0 110 18a9 9 0 010-18zM8 12l3 3 5-6' },

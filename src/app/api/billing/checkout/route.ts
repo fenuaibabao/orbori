@@ -1,7 +1,7 @@
 import { isPlusRow } from '@/lib/plus-status';
 import { NextResponse } from 'next/server';
 import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
-import { PRICES, siteUrl, stripe, type Plan } from '@/lib/stripe';
+import { PRICES, siteUrl, stripe, type Plan, FOUNDING, foundingLeft } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
 
@@ -27,13 +27,15 @@ export async function POST(req: Request) {
     await admin.from('subscriptions').upsert({ user_id: user.id, stripe_customer_id: customerId, status: row?.status ?? 'none' });
   }
 
+  // Founding 111: the yearly plan is half price for the first year while spots last.
+  const founding = plan === 'yearly' && ((await foundingLeft()) ?? 0) > 0;
   const session = await s.checkout.sessions.create({
     mode: 'subscription',
     customer: customerId,
     client_reference_id: user.id,
     line_items: [{ price: PRICES[plan], quantity: 1 }],
-    allow_promotion_codes: true,
-    subscription_data: { metadata: { user_id: user.id } },
+    ...(founding ? { discounts: [{ coupon: FOUNDING.coupon }] } : { allow_promotion_codes: true }),
+    subscription_data: { metadata: { user_id: user.id, ...(founding ? { founding: '1' } : {}) } },
     success_url: `${siteUrl(req)}/plus?welcome=1`,
     cancel_url: `${siteUrl(req)}/plus`,
   });

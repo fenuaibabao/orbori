@@ -21,6 +21,13 @@ const BUCKET = 'visions';
 /** With credits, a looser daily ceiling that only stops runaway use. */
 const CREDIT_DAILY = 25;
 
+/** In a discounted Founding year, free visions are 10 a month. */
+async function monthlyCap(admin: NonNullable<ReturnType<typeof supabaseAdmin>>, userId: string, sub: { plan?: string | null } | null) {
+  if (sub?.plan !== 'yearly') return MONTHLY;
+  const { data } = await admin.from('founding_members').select('joined_at').eq('user_id', userId).maybeSingle();
+  return data && Date.now() - Date.parse(data.joined_at) < 365 * 86400000 ? 10 : MONTHLY;
+}
+
 async function balance(admin: NonNullable<ReturnType<typeof supabaseAdmin>>, userId: string) {
   const { data } = await admin.from('credit_ledger').select('delta').eq('user_id', userId);
   return (data ?? []).reduce((s, r) => s + r.delta, 0);
@@ -49,9 +56,11 @@ export async function GET() {
   const usedToday = owner ? rows.filter((r) => r.created_at.startsWith(today)).length : freeToday ?? 0;
   const credits = await balance(admin, user.id);
   let plusOn = owner;
+  let cap = MONTHLY;
   if (!owner) {
     const { data: sub } = await admin.from('subscriptions').select('status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
     plusOn = isPlusRow(sub);
+    cap = await monthlyCap(admin, user.id, sub);
   }
   return NextResponse.json({
     credits,
@@ -60,8 +69,8 @@ export async function GET() {
     enabled,
     items: rows.map((r, i) => ({ id: r.id, kind: r.kind, note: r.note, created_at: r.created_at, url: signed.data?.[i]?.signedUrl ?? null })),
     usedToday,
-    limit: owner ? 50 : plusOn ? Math.max(0, Math.min(DAILY, MONTHLY - (month ?? 0) + usedToday)) : 0,
-    monthLeft: owner || !plusOn ? null : Math.max(0, MONTHLY - (month ?? 0)),
+    limit: owner ? 50 : plusOn ? Math.max(0, Math.min(DAILY, cap - (month ?? 0) + usedToday)) : 0,
+    monthLeft: owner || !plusOn ? null : Math.max(0, cap - (month ?? 0)),
   });
 }
 
@@ -81,7 +90,7 @@ export async function POST(req: Request) {
     const { count: day } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
     const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
     const { count: freeToday } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today}T00:00:00Z`);
-    const allowanceLeft = isPlusRow(sub) && (freeToday ?? 0) < DAILY && (month ?? 0) < MONTHLY;
+    const allowanceLeft = isPlusRow(sub) && (freeToday ?? 0) < DAILY && (month ?? 0) < (await monthlyCap(admin, user.id, sub));
     if (!allowanceLeft) {
       if ((await balance(admin, user.id)) < 1) {
         return NextResponse.json({ error: isPlusRow(sub) ? 'You\'ve used your free visions for now. Grab a pack of credits to keep going.' : 'Visions come with Orbori Plus, or with a pack of credits.', needCredits: true }, { status: 402 });

@@ -9,6 +9,18 @@ export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 const fontFile = (pkg: string, file: string) => readFile(path.join(process.cwd(), 'node_modules', '@fontsource', pkg, 'files', file));
+/** The Orbori mark: the dotless i with three orbs. */
+function Mark({ size, stem = '#F4EFE6' }: { size: number; stem?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120">
+      <rect x="49" y="58" width="22" height="48" rx="11" fill={stem} />
+      <circle cx="45" cy="40" r="12" fill="#A2752C" />
+      <circle cx="75" cy="40" r="12" fill="#A2752C" fillOpacity="0.85" />
+      <circle cx="60" cy="31" r="12" fill="#D4A24C" fillOpacity="0.92" />
+    </svg>
+  );
+}
+
 const clean = (s: string) => s.replace(/[^\p{L}\p{N} .,'’:;()&/·-]/gu, '').slice(0, 220);
 
 /** GET ?id= → the vision as a JPEG with its story printed underneath (and in the file's description). */
@@ -32,8 +44,8 @@ export async function GET(req: Request) {
   const band = await new ImageResponse(
     (
       <div style={{ width: W, height: BAND, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 48px', background: '#060528', color: '#ECE8F4' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'Space Mono', fontSize: 18, letterSpacing: 4, color: '#D4A24C' }}>
-          <span>ORBORI · COSMIC VISIONS</span><span>{date.toUpperCase()}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Space Mono', fontSize: 18, letterSpacing: 4, color: '#D4A24C' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}><Mark size={34} /><span style={{ marginLeft: 8 }}>ORBORI · COSMIC VISIONS</span></div><span>{date.toUpperCase()}</span>
         </div>
         <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: 40, marginTop: 10 }}>{title}</span>
         {note && <span style={{ fontFamily: 'Inter', fontSize: 22, lineHeight: 1.35, color: '#B7B2D8', marginTop: 8 }}>{note}</span>}
@@ -50,8 +62,23 @@ export async function GET(req: Request) {
     },
   ).arrayBuffer();
 
+  // A small stamp in the corner of the picture, so the credit survives a crop of the caption.
+  const SW = Math.round(W * 0.2), SH = Math.round(SW * 0.26);
+  const stamp = await new ImageResponse(
+    (
+      <div style={{ width: SW, height: SH, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: SH / 2, background: 'rgba(6,5,40,0.55)', color: '#ECE8F4', fontFamily: 'Space Mono', fontSize: Math.round(SH * 0.42) }}>
+        <Mark size={Math.round(SH * 0.85)} /><span style={{ marginLeft: 4 }}>orbori.app</span>
+      </div>
+    ),
+    { width: SW, height: SH, fonts: [{ name: 'Space Mono', data: await fontFile('space-mono', 'space-mono-latin-400-normal.woff'), weight: 400 }] },
+  ).arrayBuffer();
+
   const out = await sharp({ create: { width: W, height: H + BAND, channels: 3, background: '#060528' } })
-    .composite([{ input: await img.png().toBuffer(), top: 0, left: 0 }, { input: Buffer.from(band), top: H, left: 0 }])
+    .composite([
+      { input: await img.png().toBuffer(), top: 0, left: 0 },
+      { input: Buffer.from(stamp), top: H - SH - Math.round(W * 0.025), left: W - SW - Math.round(W * 0.025) },
+      { input: Buffer.from(band), top: H, left: 0 },
+    ])
     .jpeg({ quality: 90, mozjpeg: true })
     .withExif({ IFD0: { ImageDescription: `${title}. ${note}`.slice(0, 300), Artist: 'Orbori (orbori.app)', Copyright: 'Made with Orbori' } })
     .toBuffer();

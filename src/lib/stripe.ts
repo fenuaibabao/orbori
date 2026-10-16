@@ -48,3 +48,29 @@ export async function fetchPrices(): Promise<PriceInfo[] | null> {
     return null;
   }
 }
+
+/** Founding 111: half off the first year of the yearly plan for the first 111 subscribers. */
+export const FOUNDING = { coupon: 'founding-111', total: 111, percentOff: 50 } as const;
+
+/** The Founding coupon, created on first use (in test and live mode alike). */
+export async function foundingCoupon(s: Stripe) {
+  try {
+    return await s.coupons.retrieve(FOUNDING.coupon);
+  } catch {
+    return s.coupons.create({ id: FOUNDING.coupon, name: 'Founding 111', percent_off: FOUNDING.percentOff, duration: 'once', max_redemptions: FOUNDING.total });
+  }
+}
+
+/** Spots left in the Founding 111, or null when payments aren't set up. */
+export async function foundingLeft(): Promise<number | null> {
+  const s = stripe();
+  if (!s) return null;
+  try {
+    const c = await foundingCoupon(s);
+    if (!c.valid) return 0;
+    return Math.max(0, (c.max_redemptions ?? FOUNDING.total) - c.times_redeemed);
+  } catch (e) {
+    console.error('Founding coupon:', (e as Error).message);
+    return null;
+  }
+}

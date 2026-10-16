@@ -37,6 +37,10 @@ export async function POST(req: Request) {
     if (userId) {
       const { error } = await admin.from('subscriptions').upsert({ user_id: userId, ...row });
       if (error) throw error;
+      // Founding 111: the badge is forever, whatever happens to the subscription later.
+      if (sub.metadata.founding === '1' && ['active', 'trialing'].includes(sub.status)) {
+        await admin.from('founding_members').upsert({ user_id: userId }, { onConflict: 'user_id', ignoreDuplicates: true });
+      }
     } else {
       const { error } = await admin.from('subscriptions').update(row).eq('stripe_customer_id', customerId);
       if (error) throw error;

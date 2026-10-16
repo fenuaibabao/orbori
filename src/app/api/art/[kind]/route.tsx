@@ -77,7 +77,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
           <div style={{ display: 'flex', marginTop: 1050 }}>
             <SigilArt seed={seed} q={q} size={620} line={t.line} accent={t.accent} weight={3} style={q.get('style') === 'orbs' ? 'orbs' : 'line'} />
           </div>
-          <span style={{ position: 'absolute', bottom: 150, fontFamily: 'Space Mono', fontWeight: 700, fontSize: 28, letterSpacing: 10, color: t.dim }}>ORBORI</span>
+          <svg width="64" height="64" viewBox="0 0 120 120" style={{ position: 'absolute', bottom: 140, left: W / 2 - 32, opacity: 0.8 }}>
+            <rect x="49" y="58" width="22" height="48" rx="11" fill="#ECE8F4" />
+            <circle cx="45" cy="40" r="12" fill={t.line} fillOpacity="0.8" />
+            <circle cx="75" cy="40" r="12" fill={t.line} fillOpacity="0.7" />
+            <circle cx="60" cy="31" r="12" fill={t.line} />
+          </svg>
         </div>
       ),
       { width: W, height: H, fonts },

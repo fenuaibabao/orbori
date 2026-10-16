@@ -13,10 +13,12 @@ export interface PlusState {
   plan: 'monthly' | 'yearly' | 'gift' | null;
   periodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Founding 111 member number, kept forever. */
+  founding: number | null;
   refresh: () => Promise<void>;
 }
 
-const NONE = { plus: false, status: 'none', plan: null, periodEnd: null, cancelAtPeriodEnd: false };
+const NONE = { plus: false, status: 'none', plan: null, periodEnd: null, cancelAtPeriodEnd: false, founding: null };
 
 export function usePlus(): PlusState {
   const { ready: authReady, user } = useAuth();
@@ -28,7 +30,9 @@ export function usePlus(): PlusState {
   const refresh = useCallback(async () => {
     const sb = supabase();
     if (!sb || !userId) { setS(NONE); setReady(true); return; }
-    if (owner) { setS({ plus: true, status: 'owner', plan: null, periodEnd: null, cancelAtPeriodEnd: false }); setReady(true); return; }
+    const { data: fm } = await sb.from('founding_members').select('number').eq('user_id', userId).maybeSingle();
+    const founding = (fm?.number as number | undefined) ?? null;
+    if (owner) { setS({ plus: true, status: 'owner', plan: null, periodEnd: null, cancelAtPeriodEnd: false, founding }); setReady(true); return; }
     const { data } = await sb.from('subscriptions').select('status, plan, current_period_end, cancel_at_period_end').eq('user_id', userId).maybeSingle();
     const status = data?.status ?? 'none';
     setS({
@@ -37,6 +41,7 @@ export function usePlus(): PlusState {
       plan: (data?.plan as 'monthly' | 'yearly' | 'gift' | null) ?? null,
       periodEnd: data?.current_period_end ?? null,
       cancelAtPeriodEnd: Boolean(data?.cancel_at_period_end),
+      founding,
     });
     setReady(true);
   }, [userId, owner]);
