@@ -6,7 +6,7 @@
 import type { CouncilReading } from './council/types';
 
 export const READING_MODEL = 'claude-haiku-5-5';
-export const READING_MAX_TOKENS = 600;
+export const READING_MAX_TOKENS = 4000;
 
 export const SYSTEM_PROMPT = `You write the daily reading for Orbori, an app that sets seven traditions side by side as a "Cosmic Council": Western astrology, Vedic (Jyotish), Chinese Four Pillars, numerology, the K'iche' Maya Chol Q'ij, the Hawaiian moon calendar (Kaulana Mahina) and Islamic-era lunar mansions and Abjad.
 
@@ -59,6 +59,6 @@ export async function writeReading(apiKey: string, reading: CouncilReading, big3
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error?.message ?? `Anthropic error ${res.status}`);
   const text = (data.content ?? []).filter((b: { type: string }) => b.type === 'text').map((b: { text: string }) => b.text).join('').trim();
-  if (!text) throw new Error('Empty reading.');
+  if (!text) throw new Error(`Empty reading (stop: ${data.stop_reason}; blocks: ${(data.content ?? []).map((b: { type: string }) => b.type).join(',') || 'none'}; model: ${data.model})`);
   return text;
 }
