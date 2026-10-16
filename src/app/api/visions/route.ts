@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { computeChart } from '@/lib/astro';
 import { ANGLE_NAME } from '@/lib/astrocarto-content';
-import { bestGetaway } from '@/lib/astrocarto-server';
+import { bestGetaway, venusPlace } from '@/lib/astrocarto-server';
 import { isOwnerEmail } from '@/lib/owner';
 import { isPlusRow } from '@/lib/plus-status';
 import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
@@ -83,6 +83,13 @@ export async function POST(req: Request) {
       if (!g) throw new Error('None of your Venus, Jupiter or Sun lines pass close to a big city. Your map is still worth a look.');
       place = { label: g.label, planet: g.planet };
       note = `${g.label}: ${g.km} km from your ${g.planet} ${ANGLE_NAME[g.angle].toLowerCase()} line.`;
+    }
+    if (kind === 'lovestory') {
+      const v = venusPlace(input, Math.floor(Math.random() * 1000));
+      const venus = chart.western.planets.venus.sign;
+      const dsc = chart.western.ascendant ? ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][(['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'].indexOf(chart.western.ascendant.sign) + 6) % 12] : null;
+      if (v) place = { label: v.label, planet: 'Venus' };
+      note = `Venus in ${venus}${dsc ? `, ${dsc} on your Descendant` : ''}${v ? `, set in ${v.label} on your Venus ${ANGLE_NAME[v.angle].toLowerCase()} line` : ''}. For fun: love writes its own story.`;
     }
     const prompt = visionPrompt(kind, chart, look, place);
 

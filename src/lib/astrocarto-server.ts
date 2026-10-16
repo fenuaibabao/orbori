@@ -38,3 +38,12 @@ export function bestGetaway(input: BirthInput, seed = 0) {
   if (!good.length) return null;
   return good[Math.abs(seed) % Math.min(good.length, 5)];
 }
+
+/** For "Your love story": a big city near the Venus line, setting (relationships) first. */
+export function venusPlace(input: BirthInput, seed = 0) {
+  const { places } = cartoFor(input);
+  const order = { DSC: 0, ASC: 1, MC: 2, IC: 3 } as const;
+  const venus = places.filter((p) => p.planet === 'Venus').sort((a, b) => order[a.angle] - order[b.angle] || a.km - b.km);
+  if (!venus.length) return null;
+  return venus[Math.abs(seed) % Math.min(venus.length, 3)];
+}

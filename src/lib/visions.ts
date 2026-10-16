@@ -6,13 +6,14 @@ import { directionOf, signIndex } from './astro/mayan';
 import type { Chart, Sign } from './astro/types';
 import { SIGNS } from './astro/types';
 
-export type VisionKind = 'outfit' | 'makeup' | 'nails' | 'hair' | 'getaway';
+export type VisionKind = 'outfit' | 'makeup' | 'nails' | 'hair' | 'getaway' | 'lovestory';
 export const VISION_KINDS: { id: VisionKind; name: string; blurb: string; needsLook?: boolean }[] = [
   { id: 'outfit', name: 'Dress like your chart', blurb: 'An outfit built from your Sun, Moon and Rising, your elements and your colors.' },
   { id: 'makeup', name: 'Your cosmic makeup', blurb: 'A makeup look and palette for your Big Three.', needsLook: true },
   { id: 'nails', name: 'Nail art', blurb: 'A set of nails drawn from your signs and your nawal\'s colors.', needsLook: true },
   { id: 'hair', name: 'Hair', blurb: 'A hairstyle for your chart\'s mood.', needsLook: true },
   { id: 'getaway', name: 'Dream getaway', blurb: 'A city on your Venus, Jupiter or Sun line, painted as a travel poster.' },
+  { id: 'lovestory', name: 'Your love story', blurb: 'The scene of love for your chart, from your Venus and your Descendant, set on your Venus line. The setting, not the person.' },
 ];
 
 export const SKIN = ['very fair', 'fair', 'light', 'light medium', 'medium', 'tan', 'medium brown', 'brown', 'deep brown', 'very deep'] as const;
@@ -29,6 +30,15 @@ const SIGN_STYLE: Record<Sign, string> = {
   Libra: 'romantic balance and blush pink', Scorpio: 'deep black and burgundy with mystery', Sagittarius: 'adventurous layers and deep purple',
   Capricorn: 'structured classics and charcoal', Aquarius: 'futuristic silhouettes and electric blue', Pisces: 'flowing sheer fabrics and sea-glass tones',
 };
+/** What each sign brings to romance, for the love story scene. */
+const LOVE_SCENE: Record<Sign, string> = {
+  Aries: 'a spontaneous late-night adventure', Taurus: 'a long candlelit dinner with good wine and flowers', Gemini: 'a lively bookshop and cafe date full of conversation',
+  Cancer: 'cooking together in a warm kitchen', Leo: 'a glamorous rooftop evening with music', Virgo: 'a quiet morning market stroll',
+  Libra: 'an art gallery opening and a dance', Scorpio: 'a moody hidden jazz bar', Sagittarius: 'a road trip at sunset',
+  Capricorn: 'a classic elegant dinner overlooking the city', Aquarius: 'a stargazing night on a rooftop', Pisces: 'a walk along the water under the moon',
+};
+const OPPOSITE = (s: Sign) => SIGNS[(SIGNS.indexOf(s) + 6) % 12];
+
 const CHINESE_COLOR: Record<string, string> = { Wood: 'leaf green', Fire: 'vermilion', Earth: 'ochre', Metal: 'white gold', Water: 'midnight blue' };
 const DIRECTION_COLOR: Record<string, string> = { Red: 'deep red', White: 'ivory white', Black: 'onyx black', Yellow: 'maize yellow' };
 
@@ -55,6 +65,11 @@ export function visionPrompt(kind: VisionKind, chart: Chart, look: Look = {}, pl
       return `A close-up of an adult's hands with ${skin} resting on soft fabric, showing a set of manicured nails with nail art inspired by ${signs.join(', ')} energy (${moods}), using ${colors}. Each nail a little different, celestial details like tiny stars and moons. ${GUARD}`;
     case 'hair':
       return `An editorial hair portrait of an adult with ${skin} and ${look.hair ?? 'natural'} hair, styled for a ${sun} Sun and ${moon} Moon (${moods}), with accessories in ${colors}. Three-quarter view from behind and side so the style is the focus. ${GUARD}`;
+    case 'lovestory': {
+      const venus = chart.western.planets.venus.sign;
+      const dsc = rising ? OPPOSITE(rising) : null;
+      return `A romantic cinematic illustration of ${LOVE_SCENE[venus]}${dsc ? `, with a touch of ${LOVE_SCENE[dsc]}` : ''}, set in ${place?.label ?? 'a beautiful city'} with its real streets and light. Two adults shown only from behind or as soft silhouettes, faces never visible, ordinary modern clothes, gender and appearance left ambiguous. Warm, tender, hopeful mood. Color story: ${colors}. ${GUARD}`;
+    }
     case 'getaway':
       return `A dreamy illustrated travel poster of ${place?.label ?? 'a beautiful city'} at golden hour, with its real landmarks and streets, painterly and luminous, a faint arc of stars across the sky. Color story: ${colors}. ${GUARD}`;
   }
