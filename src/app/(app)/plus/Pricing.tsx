@@ -90,7 +90,7 @@ function Inner({ prices, beta, founding }: { prices: PriceInfo[] | null; beta: b
           </div>
           <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-gold" style={{ width: `${((founding.total - founding.left) / founding.total) * 100}%` }} /></div>
           <p className="text-sm text-muted">
-            The first {founding.total} people to go yearly get their first year for <strong className="text-starlight">{new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(yearly.amount / 2)}</strong> instead of {money(yearly)}, and a <strong className="text-starlight">Founding Member</strong> badge that stays on your profile forever. Renews at {money(yearly)} a year after that; cancel any time.
+            The first {founding.total} people to go yearly get their first year for <strong className="text-starlight">{new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(Math.floor(yearly.amount * 50) / 100)}</strong> instead of {money(yearly)}, and a <strong className="text-starlight">Founding Member</strong> badge that stays on your profile forever. Renews at {money(yearly)} a year after that; cancel any time.
           </p>
         </section>
       )}
@@ -101,7 +101,7 @@ function Inner({ prices, beta, founding }: { prices: PriceInfo[] | null; beta: b
           cta={plus.plus ? null : cta('monthly', 'Go monthly', false)} />
         {founding && founding.left > 0 && yearly ? (
           <Card name="Plus Yearly" highlight badge={`FOUNDING 111 · ${founding.left} LEFT`}
-            price={new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(yearly.amount / 2)}
+            price={new Intl.NumberFormat('en-US', { style: 'currency', currency: yearly.currency }).format(Math.floor(yearly.amount * 50) / 100)}
             sub={`first year (was ${money(yearly)}), then ${money(yearly)} a year`} features={[...PLUS, 'Founding Member badge, forever']}
             cta={plus.plus ? null : cta('yearly', 'Claim a founding spot', true)} />
         ) : (
