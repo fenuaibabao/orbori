@@ -5,8 +5,14 @@ import { useAuth } from '@/lib/auth';
 import { usePlus } from '@/lib/plus';
 import { localToday, type Profile } from '@/lib/store';
 
+/** The reading's closing question, used as the journal prompt. */
+export function closingQuestion(text: string): string | null {
+  const m = text.trim().match(/([^.!?\n]*\?)\s*$/);
+  return m ? m[1].trim() : null;
+}
+
 /** Today's personal reading, written by AI from the Council. Hidden until the AI key is set up. */
-export function AiReading({ profile }: { profile: Profile }) {
+export function AiReading({ profile, onQuestion }: { profile: Profile; onQuestion?: (q: string | null) => void }) {
   const { user, ready: authReady } = useAuth();
   const { plus, ready: plusReady } = usePlus();
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -31,6 +37,8 @@ export function AiReading({ profile }: { profile: Profile }) {
       })
       .catch(() => setErr('Your reading is taking a moment. Refresh in a minute.'));
   }, [enabled, user, plus, profile]);
+
+  useEffect(() => { if (text) onQuestion?.(closingQuestion(text)); }, [text, onQuestion]);
 
   if (!enabled || !authReady || (user && !plusReady)) return null;
 

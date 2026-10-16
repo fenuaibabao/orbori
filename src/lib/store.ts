@@ -23,15 +23,24 @@ export interface Match {
   addedAt: string;
 }
 
+export interface JournalEntry {
+  text: string;
+  /** The prompt shown that day, if any. */
+  prompt?: string;
+  updatedAt: string;
+}
+
 export interface LocalState {
   profile: Profile | null;
   checkIns: Record<string, CheckIn>;
   matches: Match[];
   activity: ActivityLog;
+  /** Private journal, one entry per date. */
+  journal: Record<string, JournalEntry>;
 }
 
 const KEY = 'orbori.v1';
-const EMPTY: LocalState = { profile: null, checkIns: {}, matches: [], activity: {} };
+const EMPTY: LocalState = { profile: null, checkIns: {}, matches: [], activity: {}, journal: {} };
 
 function read(): LocalState {
   try {
@@ -85,6 +94,13 @@ export function useStore() {
     if (!changed) return;
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, ...patch } } });
   }, []);
+  /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
+  const writeJournal = useCallback((date: string, text: string, prompt?: string) => {
+    const s = read();
+    const cur = s.journal?.[date];
+    if (cur && cur.text === text && (prompt === undefined || cur.prompt === prompt)) return;
+    write({ ...s, journal: { ...s.journal, [date]: { text, prompt: prompt ?? cur?.prompt, updatedAt: new Date().toISOString() } } });
+  }, []);
   const addMatch = useCallback((m: Omit<Match, 'id' | 'addedAt'>) => {
     const s = read();
     const match: Match = { ...m, id: Math.random().toString(36).slice(2, 10), addedAt: new Date().toISOString() };
@@ -96,7 +112,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal };
 }
 
 /**

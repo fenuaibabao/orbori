@@ -3,6 +3,7 @@ import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AiReading } from '@/components/AiReading';
+import { JournalCard } from '@/components/Journal';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
 import { NudgeBanner } from '@/components/LinkedPeople';
@@ -29,6 +30,7 @@ export default function Today() {
   const today = state.checkIns[date];
   const [justAnswered, setJustAnswered] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
+  const [aiQuestion, setAiQuestion] = useState<string | null>(null);
 
   const pretty = new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase().replace(',', ' ·');
 
@@ -165,7 +167,8 @@ export default function Today() {
               )}
             </section>
 
-          <AiReading profile={profile} />
+          <AiReading profile={profile} onQuestion={setAiQuestion} />
+          <JournalCard date={date} prompt={aiQuestion} />
 
           {question && (
             <section aria-labelledby="dq" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
@@ -195,6 +198,7 @@ export default function Today() {
               {([
                 ['Check in', !!today, XP.checkIn, null],
                 ['Today\'s question', !!act.question, XP.question, null],
+                ['Write in your journal', !!act.journal, XP.journal, '/journal'],
                 ['Go deeper on a system', !!act.deep, XP.deep, '/chart'],
                 ['Read a Learn term', !!act.learn, XP.learn, '/learn'],
                 ['Share a card', !!act.share, XP.share, null],

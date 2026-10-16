@@ -14,3 +14,11 @@ describe('AI reading prompt', () => {
     expect(p).not.toContain('12:52');
   });
 });
+
+import { closingQuestion } from '@/components/AiReading';
+describe('closing question', () => {
+  it('pulls the last question out of the reading', () => {
+    expect(closingQuestion('Rest well. Tonight, list one thing. What would change if you trusted it?')).toBe('What would change if you trusted it?');
+    expect(closingQuestion('No question here.')).toBeNull();
+  });
+});

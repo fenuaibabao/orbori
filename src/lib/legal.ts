@@ -24,13 +24,14 @@ export const LEGAL: LegalPage[] = [
       { h: 'What we collect', p: [
         'Birth details (date, time if you have it, and birth city) to calculate your charts. Your daily check-ins and the matches you add. If you sign in, your email address. If you subscribe, Stripe handles your payment details; we never see your card number.',
         'Names typed into the name-number and Abjad calculators stay on your device and are never sent to our servers.',
+        'Your journal is private. It is stored on your device and, if you are signed in, in your account so it follows you between devices. It is never shown to linked people, never used for anything else and never sent to the AI.',
       ] },
       { h: 'Where it lives', p: [
         'Without an account, everything is stored in your browser on your device. With an account, it is stored in our database (Supabase, hosted in the United States), protected so that only you can read your rows.',
         'We use Vercel to run the site, Supabase for accounts and storage, Stripe for payments, Resend to send sign-in emails and Anthropic (Claude) to write the daily readings for Plus members. Anthropic receives only the calculated reading for the day and your Sun, Moon and Rising signs, never your name, email or exact birth details, and does not train on it. Each provider only receives what it needs to do its job.',
       ] },
       { h: 'What we do not do', p: ['We do not sell or rent your data. We do not show ads. We do not use your birth details for anything except your own charts and the features you use. Invite links and share cards never include your birth details.'] },
-      { h: 'Deleting your data', p: ['"Start over" in your Profile erases your chart, check-ins and matches from your device and, if you are signed in, from your account. To delete your account and email entirely, write to hello@orbori.app and we will do it within 30 days.'] },
+      { h: 'Deleting your data', p: ['"Start over" in your Profile erases your chart, check-ins, matches and journal from your device and, if you are signed in, from your account. To delete your account and email entirely, write to hello@orbori.app and we will do it within 30 days.'] },
       { h: 'Cookies', p: ['We use only the cookies needed to keep you signed in. No tracking cookies.'] },
       { h: 'Children', p: ['Orbori is for adults. We do not knowingly collect data from anyone under 18.'] },
       { h: 'Contact', p: ['Questions about your data: hello@orbori.app.'] },

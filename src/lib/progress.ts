@@ -18,7 +18,7 @@ export const XP = {
   /** A real person linked to you. */
   linked: 25,
   challenge: 40,
-  deep: 5, learn: 5, share: 5, nudge: 5, question: 10, sync: 10,
+  deep: 5, learn: 5, share: 5, nudge: 5, question: 10, sync: 10, journal: 10,
 } as const;
 export const DAILY_ACTIVITY_CAP = 40;
 const MATCH_XP_LIMIT = 5;
@@ -33,6 +33,8 @@ export interface Activity {
   question?: string;
   /** Checked in on a day a linked person also checked in. */
   sync?: boolean;
+  /** Wrote in the journal. */
+  journal?: boolean;
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -42,7 +44,7 @@ const fromDay = (n: number) => new Date(n * dayMs).toISOString().slice(0, 10);
 
 export function activityXp(a: Activity | undefined): number {
   if (!a) return 0;
-  const raw = (a.deep ? XP.deep : 0) + (a.learn ? XP.learn : 0) + (a.share ? XP.share : 0) + (a.nudge ? XP.nudge : 0) + (a.question ? XP.question : 0) + (a.sync ? XP.sync : 0);
+  const raw = (a.deep ? XP.deep : 0) + (a.learn ? XP.learn : 0) + (a.share ? XP.share : 0) + (a.nudge ? XP.nudge : 0) + (a.question ? XP.question : 0) + (a.sync ? XP.sync : 0) + (a.journal ? XP.journal : 0);
   return Math.min(DAILY_ACTIVITY_CAP, raw);
 }
 

@@ -16,7 +16,7 @@ How to write:
 - Second person, warm, plain English, no jargon without a two-word gloss. 130 to 180 words. Three short paragraphs, no headings, no lists, no emoji.
 - Paragraph 1: the day's main thread, where most voices agree, and one concrete thing to do with it.
 - Paragraph 2: the holdout or tension, framed as useful nuance, not doom.
-- Paragraph 3: one small, specific suggestion for this evening, and a reflective question.
+- Paragraph 3: one small, specific suggestion for this evening, then end with ONE journaling question: plain words, about their actual day, answerable in a few sentences (for example "What is one thing you finished today, and what are you glad you waited on?"). No riddles or abstract phrasing.
 
 Respect and honesty:
 - Name each tradition correctly and treat it as a living practice with its own keepers, not a costume. Never claim to speak for a tradition, a people or a teacher, and never present the reading as sacred instruction.
