@@ -71,17 +71,17 @@ export default function ConvergencePage() {
     </header>
   );
 
-  if (!authReady) return <div className="flex flex-col gap-5 lg:max-w-3xl">{header}<div className="h-72 animate-pulse rounded-3xl bg-night" /></div>;
+  if (!authReady) return <div className="flex flex-col gap-5 lg:max-w-xl">{header}<div className="h-72 animate-pulse rounded-3xl bg-night" /></div>;
   if (!user) {
-    return <div className="flex flex-col gap-5 lg:max-w-3xl">{header}
+    return <div className="flex flex-col gap-5 lg:max-w-xl">{header}
       <div className="rounded-3xl bg-night p-5 text-sm text-muted">Sign in to see your Convergence Calendar. <Link href="/profile" className="font-semibold text-gold-lite">Go to Me →</Link></div></div>;
   }
-  if (error) return <div className="flex flex-col gap-5 lg:max-w-3xl">{header}<p role="alert" className="text-mauve-lite">{error === 'signin' ? 'Sign in to see your forecast.' : error}</p></div>;
-  if (!data) return <div className="flex flex-col gap-5 lg:max-w-3xl">{header}<div className="h-72 animate-pulse rounded-3xl bg-night" aria-label="Reading the year ahead" /><p className="text-center text-xs text-dim">Reading the year ahead…</p></div>;
+  if (error) return <div className="flex flex-col gap-5 lg:max-w-xl">{header}<p role="alert" className="text-mauve-lite">{error === 'signin' ? 'Sign in to see your forecast.' : error}</p></div>;
+  if (!data) return <div className="flex flex-col gap-5 lg:max-w-xl">{header}<div className="h-72 animate-pulse rounded-3xl bg-night" aria-label="Reading the year ahead" /><p className="text-center text-xs text-dim">Reading the year ahead…</p></div>;
 
   if (!data.access) {
     return (
-      <div className="flex flex-col gap-5 lg:max-w-3xl">{header}
+      <div className="flex flex-col gap-5 lg:max-w-xl">{header}
         <div className="relative">
           <div aria-hidden="true" className="pointer-events-none select-none opacity-50 blur-[5px]">
             <div className="rounded-3xl border border-gold-lite bg-night p-5 text-center"><Orbs v={null} /><p className="mt-2 font-display text-xl font-bold">Tue · Mar 7</p></div>
@@ -107,7 +107,7 @@ export default function ConvergencePage() {
   const next = data.next;
 
   return (
-    <div className="flex flex-col gap-5 lg:max-w-3xl">
+    <div className="flex flex-col gap-5 lg:max-w-xl">
       <div className="flex items-start justify-between gap-3">{header}</div>
       <button type="button" onClick={() => setSheet('add')} className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold text-sm font-bold text-space sm:self-start sm:px-6">＋ Add all to my calendar</button>
 
