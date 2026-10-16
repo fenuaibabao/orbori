@@ -1,6 +1,7 @@
 'use client';
+import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { BadgeShelf } from '@/components/BadgeShelf';
 import { ChevronIcon, ShareIcon } from '@/components/icons';
 import { Sigil } from '@/components/Sigil';
@@ -11,9 +12,9 @@ import { MANSIONS } from '@/lib/astro/islamic';
 import { ANIMAL_LINE, ELEMENT_LINE, LIFE_PATH_LINE, NAKSHATRA_LINE, NUMBER_LINE, TZOLKIN_LINE, vedicExplain, westernExplain } from '@/lib/content';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed, randomSeed } from '@/lib/identity';
-import { badges, computeProgress, XP } from '@/lib/progress';
+import { badges } from '@/lib/progress';
 import { formatOneIn, formatPct, rarityFootnote } from '@/lib/rarity-format';
-import { localToday, useAppStore } from '@/lib/store';
+import { useAppStore } from '@/lib/store';
 
 interface Row { id: string; label: string; value: string; explain: string }
 interface Group { name: string; note: string; rows: Row[] }
@@ -90,8 +91,7 @@ export default function MyChart() {
   const profile = state.profile;
   const { data, error } = useChart(profile);
   const [open, setOpen] = useState<string | null>('w-sun');
-  const { date } = localToday();
-  const progress = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
+  const progress = useProgress();
 
   if (error) return <p role="alert" className="text-mauve-lite">{error}</p>;
   if (!data) return <div className="h-96 animate-pulse rounded-3xl bg-night" aria-label="Loading your chart" />;

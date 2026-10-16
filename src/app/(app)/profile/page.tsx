@@ -1,7 +1,8 @@
 'use client';
+import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { BadgeItem } from '@/components/BadgeShelf';
 import { ShareIcon } from '@/components/icons';
 import { big3, cardUrl, shareCard } from '@/lib/share';
@@ -9,7 +10,7 @@ import { Sigil } from '@/components/Sigil';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { badges, computeProgress, LEVELS, XP } from '@/lib/progress';
+import { badges, LEVELS, XP } from '@/lib/progress';
 import { formatOneIn, formatPct } from '@/lib/rarity-format';
 import { localToday, saveDraft, useAppStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
@@ -19,7 +20,7 @@ import { clearAccount } from '@/lib/sync';
 
 export default function Profile() {
   const router = useRouter();
-  const { state, reset } = useAppStore();
+  const { state, reset, record } = useAppStore();
   const profile = state.profile;
   const auth = useAuth();
   const plus = usePlus();
@@ -38,7 +39,7 @@ export default function Profile() {
   };
   const { data } = useChart(profile);
   const { date } = localToday();
-  const p = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
+  const p = useProgress();
   const list = badges(p, { mythic: data?.rarity.tier === 'Mythic', matches: state.matches.length });
 
   const editBirth = () => {
@@ -66,6 +67,7 @@ export default function Profile() {
     });
     const r = await shareCard(url, `Now a ${p.level} on Orbori.`, 'orbori-orbit.png');
     setShareStatus(r === 'downloaded' ? 'Saved to your downloads.' : r === 'shared' ? 'Shared.' : '');
+    if (r !== 'cancelled') record(date, { share: true });
   };
 
   return (
@@ -106,7 +108,7 @@ export default function Profile() {
           </div>
           <p className="text-xs text-dim">
             {p.nextLevel ? `${(p.nextLevel.xp - p.xp).toLocaleString('en-US')} XP to ${p.nextLevel.name}. ` : ''}
-            Check in nightly (+{XP.checkIn}), streaks (+{XP.streak7} at 7, +{XP.streak30} at 30), matches (+{XP.match}), Circle challenges (+{XP.challenge}).
+            Check in nightly (+{XP.checkIn}), answer the daily question (+{XP.question}), go deeper, learn, share and nudge (+5 each), get in sync with a linked person (+{XP.sync}), streaks (+{XP.streak7} at 7, +{XP.streak30} at 30), linked people (+{XP.linked} each) and weekly challenges (+{XP.challenge} each). Miss a night and your streak slips back one; miss two in a row and it resets.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -118,8 +120,21 @@ export default function Profile() {
             <span className="text-[11px] text-muted">{data ? (data.rarity.pct <= 0.5 ? `rarest ${formatPct(data.rarity.pct)}` : `1 in ${formatOneIn(data.rarity.oneIn)}`) : 'rarity'}</span>
           </Link>
           <div className="flex flex-1 flex-col gap-0.5 rounded-[14px] bg-deep px-2 py-2.5 text-center">
-            <span className="font-mono text-[17px] font-bold text-dim">0</span><span className="text-[11px] text-muted">Streak Shields · soon</span>
+            <span className="font-mono text-[17px] font-bold text-gold-lite">{p.thisWeek.filter((c) => c.done).length}/{p.thisWeek.length}</span><span className="text-[11px] text-muted">challenges this week</span>
           </div>
+        </div>
+        <div>
+          <p className="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-gold-lite">THIS WEEK&apos;S CHALLENGES · +{XP.challenge} XP EACH</p>
+          <ul className="flex flex-col gap-1.5">
+            {p.thisWeek.map((c) => (
+              <li key={c.id} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${c.done ? 'border border-gold bg-deep' : 'bg-deep'}`}>
+                <span aria-hidden="true" className={c.done ? 'text-gold-lite' : 'text-dim'}>{c.done ? '✦' : '○'}</span>
+                <span className="flex-1 text-sm"><span className="font-semibold">{c.name}</span> <span className="text-muted">{c.how}</span></span>
+                <span className="font-mono text-xs text-muted">{c.progress}/{c.goal}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 text-[11px] text-dim">New challenges every Monday.</p>
         </div>
         <div>
           <p className="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-gold-lite">BADGES · {list.filter((b) => b.earned).length} OF {list.length}</p>

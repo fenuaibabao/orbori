@@ -61,3 +61,6 @@ create policy "own matches" on public.matches
 drop policy if exists "read own subscription" on public.subscriptions;
 create policy "read own subscription" on public.subscriptions
   for select using (auth.uid() = user_id);
+
+-- 003: per-day activity (XP actions, daily questions), stored with the profile.
+alter table public.profiles add column if not exists activity jsonb not null default '{}'::jsonb;

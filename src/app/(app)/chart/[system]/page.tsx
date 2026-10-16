@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { deg, Meter, Section, What } from '@/components/depth-ui';
 import { BackIcon } from '@/components/icons';
 import { PartnerLink } from '@/components/PartnerLink';
@@ -19,7 +19,7 @@ import {
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
 } from '@/lib/depth-content';
 import { useChart, useDepth } from '@/lib/hooks';
-import { useAppStore } from '@/lib/store';
+import { localToday, useAppStore } from '@/lib/store';
 
 const TITLES: Record<string, string> = {
   western: 'Western, in depth', vedic: 'Vedic, in depth', chinese: 'Four Pillars (BaZi)', numerology: 'Numerology, in depth', mayan: "Chol Q'ij, in depth",
@@ -30,8 +30,9 @@ const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en
 
 export default function Deeper() {
   const { system } = useParams<{ system: string }>();
-  const { state } = useAppStore();
+  const { state, record } = useAppStore();
   const { depth, error } = useDepth(state.profile);
+  useEffect(() => { if (depth) record(localToday().date, { deep: true }); }, [depth, record]);
   const { data } = useChart(state.profile);
 
   return (

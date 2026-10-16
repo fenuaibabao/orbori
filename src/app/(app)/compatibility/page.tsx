@@ -131,7 +131,7 @@ export default function CompatibilityPage() {
           {form.fields}
           {error && <p role="alert" className="text-sm text-mauve-lite">{error}</p>}
           <button type="submit" disabled={busy} className={btnPrimary}>{busy ? 'Reading the stars…' : 'Run the numbers'}</button>
-          <p className="text-center text-xs text-muted">Each new match adds a star to your Constellation · <span className="font-mono text-gold-lite">+{XP.match} XP</span></p>
+          <p className="text-center text-xs text-muted">Each new match adds a star to your Constellation · <span className="font-mono text-gold-lite">+{XP.match} XP</span> (first five), <span className="font-mono text-gold-lite">+{XP.linked}</span> when they link with you</p>
         </form>
       )}
 

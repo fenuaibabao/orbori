@@ -5,7 +5,7 @@
  */
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { BirthInput } from './astro/types';
-import type { Answer, CheckIn } from './progress';
+import type { Activity, ActivityLog, Answer, CheckIn } from './progress';
 
 export interface Profile {
   input: BirthInput;
@@ -27,10 +27,11 @@ export interface LocalState {
   profile: Profile | null;
   checkIns: Record<string, CheckIn>;
   matches: Match[];
+  activity: ActivityLog;
 }
 
 const KEY = 'orbori.v1';
-const EMPTY: LocalState = { profile: null, checkIns: {}, matches: [] };
+const EMPTY: LocalState = { profile: null, checkIns: {}, matches: [], activity: {} };
 
 function read(): LocalState {
   try {
@@ -76,6 +77,14 @@ export function useStore() {
     write({ ...s, checkIns: { ...s.checkIns, [date]: { answer, score } } });
   }, []);
   const reset = useCallback(() => write(EMPTY), []);
+  /** Record something done today (XP, challenges). No-op when already recorded. */
+  const record = useCallback((date: string, patch: Partial<Activity>) => {
+    const s = read();
+    const cur = s.activity?.[date] ?? {};
+    const changed = (Object.keys(patch) as (keyof Activity)[]).some((k) => cur[k] !== patch[k] && !(k !== 'question' && cur[k]));
+    if (!changed) return;
+    write({ ...s, activity: { ...s.activity, [date]: { ...cur, ...patch } } });
+  }, []);
   const addMatch = useCallback((m: Omit<Match, 'id' | 'addedAt'>) => {
     const s = read();
     const match: Match = { ...m, id: Math.random().toString(36).slice(2, 10), addedAt: new Date().toISOString() };
@@ -87,7 +96,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record };
 }
 
 /**

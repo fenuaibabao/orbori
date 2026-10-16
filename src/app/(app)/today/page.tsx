@@ -1,6 +1,7 @@
 'use client';
+import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
 import { NudgeBanner } from '@/components/LinkedPeople';
@@ -8,19 +9,22 @@ import { Sigil } from '@/components/Sigil';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { computeProgress, XP, type Answer } from '@/lib/progress';
+import { XP, type Answer } from '@/lib/progress';
+import { dailyQuestion } from '@/lib/questions';
+import { useLinks } from '@/lib/use-links';
 import { big3, cardUrl, shareCard } from '@/lib/share';
 import { localToday, useAppStore } from '@/lib/store';
 
 const ANSWERS: [Answer, string][] = [['nailed', 'Nailed it'], ['kinda', 'Kinda'], ['nope', 'Nope']];
 
 export default function Today() {
-  const { state, checkIn } = useAppStore();
+  const { state, checkIn, record } = useAppStore();
+  const { links } = useLinks();
   const profile = state.profile;
   const { reading, error } = useToday(profile);
   const { data } = useChart(profile);
   const { date } = localToday();
-  const progress = useMemo(() => computeProgress(state.checkIns, date, state.matches.length * XP.match), [state.checkIns, date, state.matches.length]);
+  const progress = useProgress();
   const today = state.checkIns[date];
   const [justAnswered, setJustAnswered] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
@@ -42,9 +46,18 @@ export default function Today() {
     });
     const r = await shareCard(url, `My Convergence Score today: ${reading.score.toFixed(1)}/10`, 'orbori-today.png');
     setShareStatus(r === 'downloaded' ? 'Saved to your downloads.' : r === 'shared' ? 'Shared.' : '');
+    if (r !== 'cancelled') record(date, { share: true });
   };
 
   const segments = reading ? Math.round(reading.score) : 0;
+  const act = state.activity?.[date] ?? {};
+  const question = useMemo(() => (reading ? dailyQuestion(date, reading.systems) : null), [reading, date]);
+  const answered = act.question?.split(':')[1] ?? null;
+
+  // In sync: you and a linked person both checked in today.
+  useEffect(() => {
+    if (today && links?.some((l) => l.today.checkedIn)) record(date, { sync: true });
+  }, [today, links, date, record]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -120,7 +133,7 @@ export default function Today() {
             <section aria-labelledby="land" className="flex flex-col gap-3.5 rounded-3xl border border-royal bg-night p-5 order-last lg:order-none lg:self-start">
               <div>
                 <h2 id="land" className="font-display text-xl font-bold">Did it land?</h2>
-                <p className="mt-1 text-[13px] text-muted">One tap tonight. It trains your Council and keeps your streak alive.</p>
+                <p className="mt-1 text-[13px] text-muted">One tap tonight. It trains your Council and keeps your streak alive.{progress.knockedBack ? ' You missed last night, so your streak slipped back one. Check in to keep it going.' : ''}</p>
               </div>
               <div className="flex gap-2">
                 {ANSWERS.map(([a, label]) => (
@@ -134,7 +147,7 @@ export default function Today() {
                 <div role="status" className={`${justAnswered ? 'anim-pop' : ''} flex flex-col gap-3 rounded-[18px] border border-gold bg-deep p-4`}>
                   <div className="flex gap-2">
                     <div className="flex-1 rounded-xl bg-night p-2.5 text-center">
-                      <p className="font-mono text-xl font-bold text-gold-lite">+10 XP</p>
+                      <p className="font-mono text-xl font-bold text-gold-lite">+{progress.todayXp} XP today</p>
                       <p className="mt-0.5 text-[11px] text-muted">
                         {progress.nextLevel ? `${progress.level}, ${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} to ${progress.nextLevel.name}` : progress.level}
                       </p>
@@ -145,11 +158,52 @@ export default function Today() {
                     </div>
                   </div>
                   <p className="text-sm leading-snug text-muted">
-                    Thanks for reporting back. Your Circle&apos;s crowd stats arrive with The Cosmos.
+                    Thanks for reporting back. Answer today&apos;s question below for +{XP.question} more.
                   </p>
                 </div>
               )}
             </section>
+
+          {question && (
+            <section aria-labelledby="dq" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 id="dq" className="font-display text-lg font-bold">Today&apos;s question</h2>
+                <span className="font-mono text-[11px] text-gold-lite">+{XP.question} XP</span>
+              </div>
+              <p className="text-[15px] leading-relaxed">{question.prompt}</p>
+              <div className="flex gap-2">
+                {question.options.map((o) => (
+                  <button key={o.id} type="button" onClick={() => record(date, { question: `${question.system}:${o.id}` })} aria-pressed={answered === o.id}
+                    className={`min-h-11 flex-1 rounded-full border text-sm font-semibold ${answered === o.id ? 'border-gold-lite bg-royal' : 'border-royal hover:border-gold-lite'}`}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+              {answered && <p role="status" className="text-xs text-gold-lite">Noted. Your answers build a record of how well each voice reads you.</p>}
+            </section>
+          )}
+
+          <section aria-labelledby="xp" className="flex flex-col gap-2.5 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
+            <div className="flex items-baseline justify-between">
+              <h2 id="xp" className="font-display text-lg font-bold">Today&apos;s XP</h2>
+              <span className="font-mono text-sm font-bold text-gold-lite">{progress.todayXp} / {XP.checkIn + 40}</span>
+            </div>
+            <ul className="grid grid-cols-2 gap-1.5 text-sm sm:grid-cols-4">
+              {([
+                ['Check in', !!today, XP.checkIn, null],
+                ['Today\'s question', !!act.question, XP.question, null],
+                ['Go deeper on a system', !!act.deep, XP.deep, '/chart'],
+                ['Read a Learn term', !!act.learn, XP.learn, '/learn'],
+                ['Share a card', !!act.share, XP.share, null],
+                ['Nudge a linked person', !!act.nudge, XP.nudge, '/compatibility'],
+                ['In sync with a linked person', !!act.sync, XP.sync, '/compatibility'],
+              ] as [string, boolean, number, string | null][]).map(([label, done, xp, href]) => {
+                const inner = <><span aria-hidden="true" className={done ? 'text-gold-lite' : 'text-dim'}>{done ? '✦' : '○'}</span> <span className={done ? '' : 'text-muted'}>{label}</span> <span className="font-mono text-[11px] text-dim">+{xp}</span></>;
+                return <li key={label} className="rounded-xl bg-deep px-3 py-2">{href && !done ? <Link href={href}>{inner}</Link> : inner}</li>;
+              })}
+            </ul>
+            <p className="text-xs text-dim">Extras cap at 40 XP a day. Weekly challenges on your <Link href="/profile" className="text-gold-lite">Profile</Link> add +{XP.challenge} each.</p>
+          </section>
 
           <section aria-labelledby="systems" className="flex flex-col gap-3 lg:col-span-3 lg:mt-2">
             <h2 id="systems" className="font-display text-xl font-bold">What each system says</h2>

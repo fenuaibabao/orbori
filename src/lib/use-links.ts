@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './auth';
-import { localToday } from './store';
+import { localToday, readState, replaceState } from './store';
 
 export interface LinkedPerson {
   id: string; userId: string; handle: string; seed: number; since: string;
@@ -30,7 +30,11 @@ export function useLinks() {
   const nudge = useCallback(async (to: string) => {
     const { date } = localToday();
     const r = await fetch('/api/links/nudge', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ to, date }) });
-    if (r.ok) setLinks((ls) => ls?.map((l) => (l.userId === to ? { ...l, nudgedByMe: true } : l)) ?? null);
+    if (r.ok) {
+      setLinks((ls) => ls?.map((l) => (l.userId === to ? { ...l, nudgedByMe: true } : l)) ?? null);
+      const s = readState();
+      replaceState({ ...s, activity: { ...s.activity, [date]: { ...(s.activity?.[date] ?? {}), nudge: true } } });
+    }
     return r.ok;
   }, []);
   const unlink = useCallback(async (id: string) => {
