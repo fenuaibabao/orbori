@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { deg, Meter, Section, What } from '@/components/depth-ui';
 import { BackIcon } from '@/components/icons';
 import { PartnerLink } from '@/components/PartnerLink';
+import { CholQijLibrary } from '@/components/CholQijLibrary';
 import { ANAHULU_LINE, MONTH_LINE, NIGHT_MEANING } from '@/lib/astro/hawaiian-content';
 import { NIGHTS } from '@/lib/astro/hawaiian';
 import { abjad, MANSIONS, mansionSign } from '@/lib/astro/islamic';
@@ -13,7 +14,7 @@ import { Tag } from '@/components/ui';
 import type { ChartDepth } from '@/lib/astro/depth';
 import { maturityNumber, nameLessons, nameNumbers } from '@/lib/astro/numerology-depth';
 import type { Chart } from '@/lib/astro/types';
-import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TZOLKIN_LINE } from '@/lib/content';
+import { ANIMAL_LINE, DIRECTION_LINE, LIFE_PATH_LINE, MAM_LINE, NAKSHATRA_LINE, NAWAL_PROFILE, NUMBER_LINE, TONE_PROFILE, TZOLKIN_LINE } from '@/lib/content';
 import {
   ASPECT_LINE, CHALLENGE_LINE, CROSS_ROLE, DASHA_LINE, DIGNITY_LINE, FORTUNE_LINE, GRAHA_THEME, INTERACTION_LINE, LUCK_LINE, STAR_LINE, TEN_GOD_GROUP, TEN_GOD_LINE, SADE_SATI_LINE, TITHI_LINE, KARMIC_DEBT_LINE, LESSON_LINE, MOON_PHASE_LINE, NATAL_POINT_THEME, PINNACLE_LINE, TRANSIT_PLANET, DAY_MASTER_LINE, ELEMENT_WEST, HOUSE_THEME, MISSING_ELEMENT, MODE_WEST,
   NAME_NUMBER_ROLE, PERSONAL_YEAR_LINE, PILLAR_ROLE, PLANET_THEME,
@@ -472,28 +473,30 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
   const prof = NAWAL_PROFILE[me.daySign] ?? { gift: '', shadow: '', calling: '' };
   const longDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const shortDate = (x: string) => new Date(`${x}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const cell = (label: string, x: { label: string; english: string; yucatec: string }) => (
-    <div className="flex flex-col items-center gap-0.5 rounded-xl bg-deep p-2.5 text-center">
-      <span className="text-[10px] uppercase tracking-wide text-muted">{label}</span>
+  const cell = (label: string, x: { label: string; english: string }, hi = false) => (
+    <div className={`flex flex-col items-center gap-0.5 rounded-xl p-2.5 text-center ${hi ? 'border border-gold bg-deep' : 'bg-deep'}`}>
+      <span className={`text-[10px] uppercase tracking-wide ${hi ? 'text-gold-lite' : 'text-muted'}`}>{label}</span>
       <span className="font-mono text-sm font-bold">{x.label}</span>
-      <span className="text-[11px] text-dim">{x.english} · {x.yucatec}</span>
+      <span className="text-[11px] text-dim">{x.english}</span>
     </div>
   );
-  const strip = (days: { date: string; day: { label: string; daySign: string } }[], hi: string) => (
-    <ol className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 py-1">
+  const strip = (days: { date: string; day: { label: string; daySign: string; number: number } }[], hi: string) => (
+    <ol className="grid grid-cols-3 gap-1.5 sm:grid-cols-5 md:grid-cols-7">
       {days.map((x) => (
-        <li key={x.date} className={`flex min-w-[64px] shrink-0 flex-col items-center rounded-xl border px-1.5 py-2 text-center ${x.date === hi ? 'border-gold bg-night' : 'border-line bg-deep'}`}>
+        <li key={x.date} className={`flex flex-col items-center rounded-xl border px-1.5 py-2 text-center ${x.date === hi ? 'border-gold bg-night' : 'border-line bg-deep'}`}>
           <span className="font-mono text-[12px] font-bold leading-tight">{x.day.label}</span>
+          <span className="text-[10px] leading-tight text-muted">{TONE_PROFILE[x.day.number].kiche} · {NUMBER_LINE[x.day.number]}</span>
           <span className="mt-0.5 text-[10px] text-dim">{shortDate(x.date)}</span>
         </li>
       ))}
     </ol>
   );
   return (
+    <>
     <PlusGate>
       <Section title={`Your nawal: ${me.label}`} learn="tzolkin">
         <p className="text-sm leading-relaxed text-muted">{TZOLKIN_LINE[me.daySign]} Your number {me.number} brings {NUMBER_LINE[me.number]}.</p>
-        <p className="text-xs text-dim">{me.english} · Yucatec: {me.yucatec} · {m.direction.direction}, {m.direction.color.toLowerCase()}</p>
+        <p className="text-xs text-dim">{me.english} · {m.direction.direction}, {m.direction.color.toLowerCase()}</p>
       </Section>
       <Section title={`${me.daySign}, in depth`} learn="tzolkin">
         <dl className="flex flex-col gap-3 text-sm leading-relaxed">
@@ -512,7 +515,7 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           <div className="flex flex-col items-center gap-0.5 rounded-xl border border-gold bg-deep p-2.5 text-center">
             <span className="text-[10px] uppercase tracking-wide text-gold-lite">You</span>
             <span className="font-mono text-sm font-bold">{me.label}</span>
-            <span className="text-[11px] text-dim">{me.english} · {me.yucatec}</span>
+            <span className="text-[11px] text-dim">{me.english}</span>
           </div>
           {cell('Right', m.cross.right)}
           <span />{cell('Conception', m.cross.conception)}<span />
@@ -520,6 +523,22 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
         <ul className="flex flex-col gap-1 text-sm text-muted">
           {(Object.keys(CROSS_ROLE) as (keyof typeof CROSS_ROLE)[]).map((k) => <li key={k}>{CROSS_ROLE[k]}: <strong className="text-starlight">{m.cross[k].label}</strong></li>)}
         </ul>
+      </Section>
+      <Section title="Your nine-sign chart" learn="nine-signs">
+        <p className="text-sm leading-relaxed text-muted">The cross grows into nine signs: four more counted 6 days either side of your conception and destiny. Read across, each row colors a season of life.</p>
+        <div className="flex flex-col gap-2">
+          {m.nine.map((row, r) => (
+            <div key={r} className="flex flex-col gap-1.5">
+              <p className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">{['ROOTS · BIRTH TO ABOUT 13', 'HEART · ABOUT 13 TO 35', 'DESTINY · ABOUT 35 TO 52'][r]}</p>
+              <div className="grid grid-cols-3 gap-2">
+                {row.map((x, c) => <div key={c}>{cell(r === 1 ? ['Left', 'You', 'Right'][c] : c === 1 ? (r === 0 ? 'Conception' : 'Destiny') : r === 0 ? 'Early helper' : 'Later helper', x, r === 1 && c === 1)}</div>)}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-sm leading-relaxed text-muted">
+          After 52, your chart moves on 13 days to <strong className="text-starlight">{m.fiftyTwo.label}</strong> ({m.fiftyTwo.english}). {TZOLKIN_LINE[m.fiftyTwo.daySign]}
+        </p>
       </Section>
       <Section title={`Born in the ${m.trecena.daySign} trecena`} learn="trecena">
         <p className="text-sm leading-relaxed text-muted">
@@ -550,6 +569,8 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
       />
       <p className="text-xs text-dim"><Tag>Note</Tag> Day-keeping traditions vary between Maya communities.</p>
     </PlusGate>
+    <CholQijLibrary birth={me} />
+    </>
   );
 }
 

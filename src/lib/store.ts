@@ -115,6 +115,13 @@ export function useStore() {
     const cur = s.activity?.[date] ?? {};
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, learn: true, terms: [...(cur.terms ?? []), id] } } });
   }, []);
+  /** A minigame finished: the first finish of each game each day earns XP. */
+  const finishGame = useCallback((date: string, id: string) => {
+    const s = read();
+    const cur = s.activity?.[date] ?? {};
+    if (cur.games?.includes(id)) return;
+    write({ ...s, activity: { ...s.activity, [date]: { ...cur, games: [...(cur.games ?? []), id] } } });
+  }, []);
   /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
   const writeJournal = useCallback((date: string, text: string, prompt?: string, reading?: ReadingSnapshot) => {
     const s = read();
@@ -134,7 +141,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm, finishGame };
 }
 
 /**

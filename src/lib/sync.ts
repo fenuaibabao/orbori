@@ -97,7 +97,8 @@ function mergeActivity(a: LocalState['activity'], b: LocalState['activity']): Lo
   const out: LocalState['activity'] = { ...a };
   for (const [d, v] of Object.entries(b)) {
     const terms = Array.from(new Set([...(out[d]?.terms ?? []), ...(v.terms ?? [])]));
-    out[d] = { ...(out[d] ?? {}), ...v, ...(terms.length ? { terms } : {}) };
+    const games = Array.from(new Set([...(out[d]?.games ?? []), ...(v.games ?? [])]));
+    out[d] = { ...(out[d] ?? {}), ...v, ...(terms.length ? { terms } : {}), ...(games.length ? { games } : {}) };
   }
   return out;
 }

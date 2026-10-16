@@ -70,7 +70,7 @@ function groups(c: Chart): Group[] {
     },
     {
       name: "Chol Q'ij (Mayan)", note: 'The K\'iche\' 260-day sacred calendar', rows: [
-        { id: 'm', label: 'Nawal', value: c.tzolkin.label, explain: `${c.tzolkin.label}, ${c.tzolkin.english} (Yucatec: ${c.tzolkin.yucatec}). ${TZOLKIN_LINE[c.tzolkin.daySign]} Your number ${c.tzolkin.number} brings ${NUMBER_LINE[c.tzolkin.number]}.` },
+        { id: 'm', label: 'Nawal', value: c.tzolkin.label, explain: `${c.tzolkin.label}, ${c.tzolkin.english}. ${TZOLKIN_LINE[c.tzolkin.daySign]} Your number ${c.tzolkin.number} brings ${NUMBER_LINE[c.tzolkin.number]}.` },
       ],
     },
     {

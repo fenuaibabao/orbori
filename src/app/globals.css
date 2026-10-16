@@ -66,3 +66,17 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 @media (prefers-reduced-motion: reduce) {
   .anim-spin, .anim-spin-slow, .anim-rise, .anim-fade, .anim-pop { animation: none; }
 }
+
+/* Level-reward themes (Seer and up). Utilities read these variables, so the whole app recolors. */
+html[data-theme="dawn"] {
+  --color-space: #1a0b24; --color-deep: #220f2e; --color-night: #2b1437; --color-night-2: #361a44;
+  --color-royal: #7a3a63; --color-line: #3a1f48; --color-line-2: #4b2a5a;
+  --color-gold: #b8743f; --color-gold-lite: #f0a46a; --color-mauve: #a87c8a; --color-mauve-lite: #e0b3c0;
+  --color-muted: #d3b9cc; --color-dim: #b89aae;
+}
+html[data-theme="moonlit"] {
+  --color-space: #050b16; --color-deep: #0a1424; --color-night: #101c30; --color-night-2: #16253d;
+  --color-royal: #2f5277; --color-line: #1b2b44; --color-line-2: #263a58;
+  --color-gold: #7f93ad; --color-gold-lite: #c9d6e6; --color-mauve: #6f8fa0; --color-mauve-lite: #a9c6d4;
+  --color-muted: #b4c0d2; --color-dim: #91a0b6;
+}

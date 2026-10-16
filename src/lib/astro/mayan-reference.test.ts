@@ -55,3 +55,18 @@ describe("Mam (year bearer) matches Mark Elmy's solar count", () => {
     expect(directionOf(signIndex("Iq'")).direction).toBe('North');
   });
 });
+
+import { tzolkin as tz, dateFromJdn as fromJdn, jdn as toJdn } from './mayan';
+describe('nine-sign chart', () => {
+  it('matches the published example for a 13 Kawok birth', () => {
+    let d = '2026-01-01';
+    while (tz(d).label !== '13 Kawok') d = fromJdn(toJdn(d) + 1);
+    const m = mayanDepth(d, '2026-10-15');
+    expect(m.nine.map((row) => row.map((x) => x.label))).toEqual([
+      ['12 Kan', "5 B'atz'", "11 No'j"],
+      ['7 Aj', '13 Kawok', '6 Kan'],
+      ['2 Imox', '8 Kej', '1 Aj'],
+    ]);
+    expect(m.fiftyTwo.label).toBe("13 E'");
+  });
+});

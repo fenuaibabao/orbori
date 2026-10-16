@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { BadgeItem } from '@/components/BadgeShelf';
 import { ShareIcon } from '@/components/icons';
 import { big3, cardUrl, shareCard } from '@/lib/share';
-import { Sigil } from '@/components/Sigil';
+import { MySigil } from '@/components/Rewards';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
@@ -73,7 +73,7 @@ export default function Profile() {
   return (
     <div className="flex flex-col gap-5 lg:max-w-2xl">
       <header className="flex items-center gap-3.5">
-        <Sigil seed={profile.seed} size={56} label="Your sigil" />
+        <MySigil seed={profile.seed} size={56} />
         <div className="flex-1">
           <h1 className="font-display text-[22px] font-bold">{handleFromSeed(profile.seed)}</h1>
           {data && (
@@ -108,7 +108,7 @@ export default function Profile() {
           </div>
           <p className="text-xs text-dim">
             {p.nextLevel ? `${(p.nextLevel.xp - p.xp).toLocaleString('en-US')} XP to ${p.nextLevel.name}. ` : ''}
-            Check in nightly (+{XP.checkIn}), answer the daily question (+{XP.question}), go deeper, learn, share and nudge (+5 each), write in your journal (+{XP.journal}), get in sync with a linked person (+{XP.sync}), streaks (+{XP.streak7} at 7, +{XP.streak30} at 30), linked people (+{XP.linked} each) and weekly challenges (+{XP.challenge} each). Miss a night and your streak slips back one; miss two in a row and it resets.
+            Check in nightly (+{XP.checkIn}), answer the daily question (+{XP.question}), go deeper, learn, share and nudge (+5 each), write in your journal (+{XP.journal}), play a minigame (+{XP.game} each), get in sync with a linked person (+{XP.sync}), streaks (+{XP.streak7} at 7, +{XP.streak30} at 30), linked people (+{XP.linked} each) and weekly challenges (+{XP.challenge} each). Miss a night and your streak slips back one; miss two in a row and it resets.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -160,6 +160,18 @@ export default function Profile() {
               <span className="mt-0.5 block text-xs text-dim">
                 {state.matches.length ? `${state.matches.length} ${state.matches.length === 1 ? 'match' : 'matches'}` : 'Add your first match'} · +25 XP each
               </span>
+            </span>
+            <span className="text-dim">›</span>
+          </Link>
+          <Link href="/rewards" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
+            <span className="flex-1 text-[15px]">Rewards
+              <span className="mt-0.5 block text-xs text-dim">What every level unlocks</span>
+            </span>
+            <span className="text-dim">›</span>
+          </Link>
+          <Link href="/play" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
+            <span className="flex-1 text-[15px]">Play
+              <span className="mt-0.5 block text-xs text-dim">Term Quest and Nawal Pairs</span>
             </span>
             <span className="text-dim">›</span>
           </Link>

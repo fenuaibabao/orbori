@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './auth';
 import { isOwnerEmail } from './owner';
+import { isPlusRow } from './plus-status';
 import { supabase } from './supabase/client';
 
 export interface PlusState {
@@ -31,7 +32,7 @@ export function usePlus(): PlusState {
     const { data } = await sb.from('subscriptions').select('status, plan, current_period_end, cancel_at_period_end').eq('user_id', userId).maybeSingle();
     const status = data?.status ?? 'none';
     setS({
-      plus: status === 'active' || status === 'trialing',
+      plus: isPlusRow(data),
       status,
       plan: (data?.plan as 'monthly' | 'yearly' | 'gift' | null) ?? null,
       periodEnd: data?.current_period_end ?? null,

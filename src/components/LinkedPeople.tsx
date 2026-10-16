@@ -29,7 +29,7 @@ export function LinkedPeople() {
             <div className="flex items-center gap-3">
               <Sigil seed={l.seed} size={40} label={`${l.handle} sigil`} />
               <div className="flex-1">
-                <p className="font-semibold">{l.handle}</p>
+                <p className="font-semibold">{l.handle}{l.level && <span className="ml-2 rounded-full border border-gold px-2 py-0.5 align-middle font-mono text-[10px] tracking-[0.06em] text-gold-lite">{l.level.toUpperCase()}</span>}</p>
                 <p className="font-mono text-[11px] text-dim">{l.big3} · match {l.compat.toFixed(1)}</p>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { READING_MODEL, writeReading } from '@/lib/ai-reading';
 import { computeChart } from '@/lib/astro';
 import { cosmicCouncil } from '@/lib/council';
 import { isOwnerEmail } from '@/lib/owner';
+import { isPlusRow } from '@/lib/plus-status';
 import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { parseBirthInput } from '@/lib/validate';
 
@@ -36,8 +37,8 @@ export async function POST(req: Request) {
     if (Math.abs(Date.parse(`${date}T12:00:00Z`) - Date.now()) > 36 * 3600 * 1000) throw new Error('Readings are for today only.');
 
     if (!isOwnerEmail(user.email)) {
-      const { data: sub } = await admin.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle();
-      if (!sub || !['active', 'trialing'].includes(sub.status)) return NextResponse.json({ error: 'plus' }, { status: 402 });
+      const { data: sub } = await admin.from('subscriptions').select('status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
+      if (!isPlusRow(sub)) return NextResponse.json({ error: 'plus' }, { status: 402 });
     }
 
     const { data: saved } = await admin.from('readings').select('body').eq('user_id', user.id).eq('date', date).maybeSingle();

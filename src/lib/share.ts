@@ -1,5 +1,6 @@
 'use client';
 import type { Chart } from './astro/types';
+import { readPrefs } from './prefs';
 
 export const big3 = (chart: Chart) =>
   [`Sun ${chart.western.planets.sun.sign}`, `Moon ${chart.moonSignOptions[0]}`, chart.western.ascendant ? `Rising ${chart.western.ascendant.sign}` : null]
@@ -8,6 +9,9 @@ export const big3 = (chart: Chart) =>
 
 export function cardUrl(kind: 'rarity' | 'score' | 'match' | 'level', params: Record<string, string | number>) {
   const q = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]));
+  // Card design chosen on the Rewards page (only selectable once unlocked).
+  const style = readPrefs().card;
+  if (style !== 'classic') q.set('style', style);
   return `/api/card/${kind}?${q}`;
 }
 

@@ -6,6 +6,8 @@ import { coarse } from './coarse';
 import { compatibility } from './compat';
 import { cosmicCouncil } from './council';
 import { handleFromSeed } from './identity';
+import { LEVELS } from './progress';
+import { serverProgress } from './server-progress';
 
 interface ProfileRow { user_id: string; input: BirthInput; seed: number }
 
@@ -29,6 +31,10 @@ export async function linkSummaries(admin: SupabaseClient, me: string, date: str
   const checked = new Set((checkIns ?? []).map((c) => c.user_id));
   const nudgedMe = new Set((nudgesIn ?? []).map((n) => n.from_user));
   const nudgedByMe = new Set((nudgesOut ?? []).map((n) => n.to_user));
+  // Oracle and up show their level to the people they're linked with (a level reward).
+  const levels = new Map(await Promise.all(ids.slice(1).map(async (id) => {
+    try { const p = await serverProgress(admin, id, date); return [id, p.levelIndex >= 3 ? LEVELS[p.levelIndex].name : null] as const; } catch { return [id, null] as const; }
+  })));
   return links.flatMap((l) => {
     const other = l.a === me ? l.b : l.a;
     const p = byId.get(other);
@@ -38,7 +44,7 @@ export async function linkSummaries(admin: SupabaseClient, me: string, date: str
     const agree = myCouncil.systems.filter((s, i) => s.advice === council.systems[i].advice).length;
     const sameMajority = myCouncil.majority === council.majority;
     return [{
-      id: l.id, userId: other, handle: handleFromSeed(p.seed), seed: p.seed, since: l.created_at,
+      id: l.id, userId: other, handle: handleFromSeed(p.seed), seed: p.seed, since: l.created_at, level: levels.get(other) ?? null,
       ...coarse(chart),
       compat: compatibility(myChart, chart).score,
       today: { agree, total: myCouncil.systems.length, sameMajority, theirHeadline: council.headline, theirScore: council.score, checkedIn: checked.has(other) },

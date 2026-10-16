@@ -1,7 +1,7 @@
 /**
  * Chol Q'ij depth: the trecena (13-day period) you were born in, the Mayan cross,
  * the Mam (year bearer) of your birth year and of this year, your nawal's direction,
- * and the next Wajxaqib' B'atz'. Mark Elmy does not publish a cross method; the
+ * the nine-sign chart and 52-year sign, and the next Wajxaqib' B'atz'. Mark Elmy does not publish a cross method; the
  * cross here is the widely used K'iche' form (conception and destiny 8 days
  * before/after, the two sides 6 days before/after), and day-keepers may read it differently.
  */
@@ -25,6 +25,14 @@ export function mayanDepth(birthDate: string, today: string) {
       left: shift(t.number, idx, -6),
       right: shift(t.number, idx, 6),
     },
+    /** The nine-sign chart: three rows of three, read as childhood, adulthood and elder years. */
+    nine: [
+      [shift(t.number, idx, -14), shift(t.number, idx, -8), shift(t.number, idx, -2)],
+      [shift(t.number, idx, -6), t, shift(t.number, idx, 6)],
+      [shift(t.number, idx, 2), shift(t.number, idx, 8), shift(t.number, idx, 14)],
+    ],
+    /** The 52-year sign: the chart moved on by 13 days. */
+    fiftyTwo: shift(t.number, idx, 13),
     birthMam: yearBearer(birthDate),
     today: {
       date: today,

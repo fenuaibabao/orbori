@@ -19,8 +19,10 @@ export const XP = {
   linked: 25,
   challenge: 40,
   deep: 5, learn: 5, share: 5, nudge: 5, question: 10, sync: 10, journal: 10,
+  /** Each different minigame finished that day. */
+  game: 10,
 } as const;
-export const DAILY_ACTIVITY_CAP = 40;
+export const DAILY_ACTIVITY_CAP = 60;
 const MATCH_XP_LIMIT = 5;
 
 /** What someone did on a given day besides checking in. */
@@ -37,6 +39,8 @@ export interface Activity {
   journal?: boolean;
   /** Learn terms opened for the first time that day (ids). */
   terms?: string[];
+  /** Minigames finished that day (ids). */
+  games?: string[];
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -50,7 +54,7 @@ const fromDay = (n: number) => new Date(n * dayMs).toISOString().slice(0, 10);
 
 export function activityXp(a: Activity | undefined): number {
   if (!a) return 0;
-  const raw = (a.deep ? XP.deep : 0) + (a.learn ? XP.learn : 0) + (a.share ? XP.share : 0) + (a.nudge ? XP.nudge : 0) + (a.question ? XP.question : 0) + (a.sync ? XP.sync : 0) + (a.journal ? XP.journal : 0);
+  const raw = (a.deep ? XP.deep : 0) + (a.learn ? XP.learn : 0) + (a.share ? XP.share : 0) + (a.nudge ? XP.nudge : 0) + (a.question ? XP.question : 0) + (a.sync ? XP.sync : 0) + (a.journal ? XP.journal : 0) + (a.games?.length ?? 0) * XP.game;
   return Math.min(DAILY_ACTIVITY_CAP, raw);
 }
 
@@ -171,6 +175,7 @@ export function badges(p: Progress, opts: { mythic: boolean; matches: number }):
     { id: 'called-it', name: 'Called It', how: '"Nailed it" on 5 low-convergence days', earned: p.calledIt >= 5, status: p.calledIt >= 5 ? 'EARNED' : `${p.calledIt} / 5`, icon: 'M12 3a9 9 0 110 18a9 9 0 010-18zM8 12l3 3 5-6' },
     { id: 'constellation', name: 'Constellation Maker', how: '5 compatibility matches', earned: opts.matches >= 5, status: opts.matches >= 5 ? 'EARNED' : `${opts.matches} / 5`, icon: 'M5 18l5-11 9 6-14 5z' },
     { id: 'thirty-night', name: '30-Night Orbit', how: '30-night streak', earned: p.bestStreak >= 30, status: p.bestStreak >= 30 ? 'EARNED' : `${Math.min(p.streak, 30)} / 30`, icon: 'M12 4a8 8 0 110 16a8 8 0 010-16zM12 1v6' },
+    { id: 'founding-celestial', name: 'Founding Celestial', how: 'Reach Celestial, the top level', earned: p.levelIndex >= 4, status: p.levelIndex >= 4 ? 'EARNED' : 'CELESTIAL', icon: 'M12 2l1.8 5.5H19l-4.6 3.4 1.8 5.6L12 13l-4.2 3.5 1.8-5.6L5 7.5h5.2z' },
     { id: 'mythic', name: 'Mythic Chart', how: 'Mythic chart rarity', earned: opts.mythic, status: opts.mythic ? 'EARNED' : 'MYTHIC ONLY', icon: 'M12 3l2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6z' },
   ];
 }

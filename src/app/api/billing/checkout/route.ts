@@ -1,3 +1,4 @@
+import { isPlusRow } from '@/lib/plus-status';
 import { NextResponse } from 'next/server';
 import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { PRICES, siteUrl, stripe, type Plan } from '@/lib/stripe';
@@ -16,8 +17,9 @@ export async function POST(req: Request) {
   if (plan !== 'monthly' && plan !== 'yearly') return NextResponse.json({ error: 'Pick a plan.' }, { status: 400 });
 
   // One Stripe customer per account, remembered in the subscriptions row.
-  const { data: row } = await admin.from('subscriptions').select('stripe_customer_id, status').eq('user_id', user.id).maybeSingle();
-  if (row?.status === 'active' || row?.status === 'trialing') return NextResponse.json({ error: 'You already have Plus.' }, { status: 400 });
+  const { data: row } = await admin.from('subscriptions').select('stripe_customer_id, status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
+  // A free month (gift) can be upgraded to a paid plan; a paid plan can't be bought twice.
+  if (isPlusRow(row) && row?.plan !== 'gift') return NextResponse.json({ error: 'You already have Plus.' }, { status: 400 });
   let customerId = row?.stripe_customer_id as string | null | undefined;
   if (!customerId) {
     const c = await s.customers.create({ email: user.email ?? undefined, metadata: { user_id: user.id } });

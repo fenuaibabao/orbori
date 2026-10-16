@@ -77,6 +77,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
   const handle = clean(q.get('handle'), 30) || 'A Cosmic Stranger';
   const seed = Number(q.get('seed')) || 1;
   const big3 = clean(q.get('big3'), 60).toUpperCase();
+  const style = q.get('style') === 'eclipse' || q.get('style') === 'leaf' ? q.get('style') : 'classic';
 
   let body: React.ReactNode;
   let cta = 'Find yours at orbori';
@@ -193,7 +194,15 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
 
   return new ImageResponse(
     (
-      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '120px 96px 110px', background: C.space, color: C.star, fontFamily: 'Inter', position: 'relative' }}>
+      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '120px 96px 110px', background: style === 'eclipse' ? '#020112' : C.space, color: C.star, fontFamily: 'Inter', position: 'relative' }}>
+        {style === 'eclipse' && (
+          <div style={{ position: 'absolute', left: 90, top: 330, width: 900, height: 900, borderRadius: 450, border: `4px solid ${C.goldLite}`, boxShadow: `0 0 120px 30px rgba(212,162,76,0.35)`, background: '#05031c' }} />
+        )}
+        {style === 'leaf' && (
+          <div style={{ position: 'absolute', left: 36, top: 36, width: W - 72, height: H - 72, borderRadius: 36, border: `6px solid ${C.goldLite}`, display: 'flex' }}>
+            <div style={{ position: 'absolute', left: 14, top: 14, width: W - 72 - 40, height: H - 72 - 40, borderRadius: 26, border: `2px solid ${C.gold}` }} />
+          </div>
+        )}
         {[[8, 6, C.goldLite], [86, 9, C.mauve], [70, 20, C.star], [12, 38, C.mauve], [92, 52, C.goldLite], [6, 70, C.star], [80, 80, C.mauve], [30, 94, C.goldLite]].map(([x, y, c], i) => (
           <div key={i} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 6, height: 6, borderRadius: 3, background: c as string }} />
         ))}

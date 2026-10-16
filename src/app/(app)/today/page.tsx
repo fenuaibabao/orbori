@@ -7,11 +7,11 @@ import { JournalCard } from '@/components/Journal';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
 import { NudgeBanner } from '@/components/LinkedPeople';
-import { Sigil } from '@/components/Sigil';
+import { MySigil } from '@/components/Rewards';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { XP, type Answer } from '@/lib/progress';
+import { DAILY_ACTIVITY_CAP, XP, type Answer } from '@/lib/progress';
 import { dailyQuestion } from '@/lib/questions';
 import { useLinks } from '@/lib/use-links';
 import { big3, cardUrl, shareCard } from '@/lib/share';
@@ -73,10 +73,10 @@ export default function Today() {
               className="flex h-9 items-center gap-1.5 rounded-full border border-royal bg-night pl-2 pr-3">
               <FlameIcon /><span className="font-mono text-sm font-bold">{progress.streak}</span>
             </Link>
-            <Link href="/chart" aria-label="My chart" className="rounded-full"><Sigil seed={profile.seed} size={40} /></Link>
+            <Link href="/chart" aria-label="My chart" className="rounded-full"><MySigil seed={profile.seed} size={40} /></Link>
           </div>
         </div>
-        <Link href="/profile" aria-label="Level progress" className="flex flex-col gap-1.5 lg:w-80 lg:self-end">
+        <Link href="/rewards" aria-label="Level progress and rewards" className="flex flex-col gap-1.5 lg:w-80 lg:self-end">
           <div className="flex justify-between gap-4 font-mono text-[11px] tracking-[0.06em]">
             <span><span className="text-muted lg:hidden">{pretty} · </span><span className="text-gold-lite">{progress.level.toUpperCase()}</span></span>
             <span className="text-muted">{progress.xp.toLocaleString('en-US')}{progress.nextLevel ? ` / ${progress.nextLevel.xp.toLocaleString('en-US')} XP` : ' XP'}</span>
@@ -195,13 +195,14 @@ export default function Today() {
           <section aria-labelledby="xp" className="flex flex-col gap-2.5 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
             <div className="flex items-baseline justify-between">
               <h2 id="xp" className="font-display text-lg font-bold">Today&apos;s XP</h2>
-              <span className="font-mono text-sm font-bold text-gold-lite">{progress.todayXp} / {XP.checkIn + 40}</span>
+              <span className="font-mono text-sm font-bold text-gold-lite">{progress.todayXp} / {XP.checkIn + DAILY_ACTIVITY_CAP}</span>
             </div>
             <ul className="grid grid-cols-2 gap-1.5 text-sm sm:grid-cols-4">
               {([
                 ['Check in', !!today, XP.checkIn, null],
                 ['Today\'s question', !!act.question, XP.question, null],
                 ['Write in your journal', !!act.journal, XP.journal, '/journal'],
+                ['Play a minigame', !!act.games?.length, XP.game, '/play'],
                 ['Go deeper on a system', !!act.deep, XP.deep, '/chart'],
                 ['Learn a new term', !!act.learn, XP.learn, '/learn#next'],
                 ['Share a card', !!act.share, XP.share, null],
@@ -212,7 +213,7 @@ export default function Today() {
                 return <li key={label} className="rounded-xl bg-deep px-3 py-2">{href && !done ? <Link href={href}>{inner}</Link> : inner}</li>;
               })}
             </ul>
-            <p className="text-xs text-dim">Extras cap at 40 XP a day. Weekly challenges on your <Link href="/profile" className="text-gold-lite">Profile</Link> add +{XP.challenge} each.</p>
+            <p className="text-xs text-dim">Extras cap at {DAILY_ACTIVITY_CAP} XP a day. Weekly challenges on your <Link href="/profile" className="text-gold-lite">Profile</Link> add +{XP.challenge} each.</p>
           </section>
 
           <section aria-labelledby="systems" className="flex flex-col gap-3 lg:col-span-3 lg:mt-2">
