@@ -68,6 +68,8 @@ export interface Activity {
   installed?: boolean;
   /** Turned on notifications (counts once, ever). */
   notified?: boolean;
+  /** Opened Orbori on a Convergence day (all 7 voices agreed). */
+  converged?: boolean;
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -125,6 +127,8 @@ export interface Progress {
   /** True when yesterday was missed and the streak was knocked back a night. */
   knockedBack: boolean;
   thisWeek: Challenge[];
+  /** Convergence days seen. */
+  converged: number;
 }
 
 export interface ProgressInput {
@@ -193,6 +197,7 @@ export function computeProgress(input: ProgressInput): Progress {
     todayXp: (checkIns[today] ? XP.checkIn : 0) + activityXp(activity[today]),
     knockedBack: since === 2 && run > 1,
     thisWeek: weekChallenges(checkIns, activity, weekStart(today)),
+    converged: Object.values(activity).filter((a) => a.converged).length,
   };
 }
 
@@ -207,6 +212,7 @@ export function badges(p: Progress, opts: { mythic: boolean; matches: number; fo
     { id: 'constellation', name: 'Constellation Maker', how: '5 compatibility matches', earned: opts.matches >= 5, status: opts.matches >= 5 ? 'EARNED' : `${opts.matches} / 5`, icon: 'M5 18l5-11 9 6-14 5z' },
     { id: 'thirty-night', name: '30-Night Orbit', how: '30-night streak', earned: p.bestStreak >= 30, status: p.bestStreak >= 30 ? 'EARNED' : `${Math.min(p.streak, 30)} / 30`, icon: 'M12 4a8 8 0 110 16a8 8 0 010-16zM12 1v6' },
     { id: 'founding-celestial', name: 'Founding Celestial', how: 'Reach Celestial, the top level', earned: p.levelIndex >= 4, status: p.levelIndex >= 4 ? 'EARNED' : 'CELESTIAL', icon: 'M12 2l1.8 5.5H19l-4.6 3.4 1.8 5.6L12 13l-4.2 3.5 1.8-5.6L5 7.5h5.2z' },
+    { id: 'converged', name: 'Converged', how: 'Be here on a Convergence day, when all 7 voices agree', earned: p.converged >= 1, status: p.converged >= 1 ? (p.converged > 1 ? `×${p.converged}` : 'EARNED') : 'RARE', icon: 'M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3M12 9a3 3 0 110 6a3 3 0 010-6z' },
     { id: 'mythic', name: 'Mythic Chart', how: 'Mythic chart rarity', earned: opts.mythic, status: opts.mythic ? 'EARNED' : 'MYTHIC ONLY', icon: 'M12 3l2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6z' },
   ];
 }

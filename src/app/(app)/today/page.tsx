@@ -58,6 +58,11 @@ export default function Today() {
   const question = useMemo(() => (reading ? dailyQuestion(date, reading.systems) : null), [reading, date]);
   const answered = act.question?.split(':')[1] ?? null;
 
+  // A Convergence day (all 7 agree) earns the Converged badge just for being here.
+  useEffect(() => {
+    if (reading?.agreeCount === 7 && !act.converged) record(date, { converged: true });
+  }, [reading?.agreeCount, act.converged, date, record]);
+
   // In sync: you and a linked person both checked in today.
   useEffect(() => {
     if (today && links?.some((l) => l.today.checkedIn)) record(date, { sync: true });
@@ -92,6 +97,15 @@ export default function Today() {
         <div className="h-64 animate-pulse rounded-3xl bg-night" aria-label="Loading today's reading" />
       ) : (
         <>
+          {reading.agreeCount === 7 && (
+            <section aria-label="Full Convergence" className="relative overflow-hidden rounded-3xl border-[1.5px] border-gold-lite bg-[radial-gradient(circle_at_50%_-10%,#6a4fc0_0%,#2a2380_35%,#0d0a35_80%)] px-5 py-6 text-center shadow-[0_0_30px_rgba(212,162,76,0.25)]">
+              <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-gold-lite">✦ FULL CONVERGENCE ✦</p>
+              <div aria-hidden="true" className="mt-3 flex justify-center gap-1.5">
+                {Array.from({ length: 7 }, (_, i) => <span key={i} className="h-4 w-4 rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffe2a6,#d4a24c_55%,#a2752c)] shadow-[0_0_10px_rgba(212,162,76,0.6)]" />)}
+              </div>
+              <p className="mx-auto mt-3 max-w-md text-sm text-muted">Every voice on the Council says the same thing today. No holdouts. It happens about as often as a blue moon, and you were here for it: <span className="font-semibold text-gold-lite">Converged badge earned.</span></p>
+            </section>
+          )}
           <section aria-labelledby="council" className="flex flex-col gap-1">
             <div className="lg:hidden"><Eyebrow>TODAY&apos;S COSMIC COUNCIL</Eyebrow></div>
             <h1 id="council" className="font-display text-[28px] font-bold leading-[1.15] lg:text-[40px]">{reading.headline}</h1>
@@ -108,7 +122,10 @@ export default function Today() {
                     <span className="text-xl text-dim"> /10</span>
                   </p>
                 </div>
-                <p className="mb-2 max-w-[130px] text-right text-[13px] leading-snug">{reading.agreeCount} of {reading.systems.length} voices are on the same page today.</p>
+                <div className="mb-2 flex max-w-[140px] flex-col items-end gap-1.5 text-right">
+                  {reading.agreeCount >= 6 && <span className="rounded-full border border-gold px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.1em] text-gold-lite">{reading.agreeCount === 7 ? '✦ CONVERGENCE' : '✦ ALIGNMENT'}</span>}
+                  <p className="text-[13px] leading-snug">{reading.agreeCount} of {reading.systems.length} voices are on the same page today.</p>
+                </div>
               </div>
               <div aria-hidden="true" className="grid grid-cols-10 gap-1">
                 {Array.from({ length: 10 }, (_, i) => (
@@ -132,6 +149,7 @@ export default function Today() {
                 <ShareIcon className="text-gold-lite" />Share today&apos;s score
               </button>
               {shareStatus && <p aria-live="polite" className="-mt-2 text-center text-sm text-gold-lite">{shareStatus}</p>}
+              <Link href="/convergence" className="-mt-1 text-center text-[13px] font-semibold text-gold-lite">See your glowing days ahead ✦</Link>
             </section>
 
             <section aria-labelledby="land" className="flex flex-col gap-3.5 rounded-3xl border border-royal bg-night p-5 order-last lg:order-none lg:self-start">

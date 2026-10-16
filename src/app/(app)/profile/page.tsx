@@ -164,6 +164,12 @@ export default function Profile() {
             </span>
             <span className="text-dim">›</span>
           </Link>
+          <Link href="/convergence" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
+            <span className="flex-1 text-[15px]">Convergence Calendar
+              <span className="mt-0.5 block text-xs text-dim">The days all seven voices agree, a year ahead</span>
+            </span>
+            <span className="text-dim">›</span>
+          </Link>
           <Link href="/rewards" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
             <span className="flex-1 text-[15px]">Rewards
               <span className="mt-0.5 block text-xs text-dim">What every level unlocks</span>
