@@ -7,6 +7,7 @@ import { BadgeItem } from '@/components/BadgeShelf';
 import { ShareIcon } from '@/components/icons';
 import { big3, cardUrl, shareCard } from '@/lib/share';
 import { MySigil } from '@/components/Rewards';
+import { NightlyReminder } from '@/components/NightlyReminder';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
@@ -189,6 +190,8 @@ export default function Profile() {
           </Link>
         </div>
       </section>
+
+      <NightlyReminder />
 
       <section>
         <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">ACCOUNT</p>
