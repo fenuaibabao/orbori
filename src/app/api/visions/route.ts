@@ -13,8 +13,11 @@ export const runtime = 'nodejs';
 export const maxDuration = 120;
 
 const DAILY = 3;
+/** Per calendar month, so heavy use can't outrun what Plus costs. */
+const MONTHLY = 20;
 const BUCKET = 'visions';
-const MODEL = () => process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+const MODEL = () => process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2';
+const FALLBACK = 'gpt-image-1.5';
 
 async function who() {
   const admin = supabaseAdmin();
@@ -31,11 +34,15 @@ export async function GET() {
   const rows = data ?? [];
   const signed = rows.length ? await admin.storage.from(BUCKET).createSignedUrls(rows.map((r) => r.path), 7 * 86400) : { data: [] };
   const today = new Date().toISOString().slice(0, 10);
+  const owner = isOwnerEmail(user.email);
+  const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
+  const usedToday = rows.filter((r) => r.created_at.startsWith(today)).length;
   return NextResponse.json({
     enabled,
     items: rows.map((r, i) => ({ id: r.id, kind: r.kind, note: r.note, created_at: r.created_at, url: signed.data?.[i]?.signedUrl ?? null })),
-    usedToday: rows.filter((r) => r.created_at.startsWith(today)).length,
-    limit: isOwnerEmail(user.email) ? 50 : DAILY,
+    usedToday,
+    limit: owner ? 50 : Math.max(0, Math.min(DAILY, MONTHLY - (month ?? 0) + usedToday)),
+    monthLeft: owner ? null : Math.max(0, MONTHLY - (month ?? 0)),
   });
 }
 
@@ -54,6 +61,10 @@ export async function POST(req: Request) {
   const today = new Date().toISOString().slice(0, 10);
   const { count } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
   if ((count ?? 0) >= (owner ? 50 : DAILY)) return NextResponse.json({ error: `That's today's ${DAILY} visions. More tomorrow.` }, { status: 429 });
+  if (!owner) {
+    const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
+    if ((month ?? 0) >= MONTHLY) return NextResponse.json({ error: `That's this month's ${MONTHLY} visions. More on the 1st.` }, { status: 429 });
+  }
 
   try {
     const body = await req.json();
@@ -75,12 +86,19 @@ export async function POST(req: Request) {
     }
     const prompt = visionPrompt(kind, chart, look, place);
 
-    const res = await fetch('https://api.openai.com/v1/images/generations', {
+    const call = (model: string) => fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: MODEL(), prompt, size: '1024x1536', quality: 'medium', n: 1, user: createHash('sha256').update(user.id).digest('hex').slice(0, 16) }),
+      body: JSON.stringify({ model, prompt, size: '1024x1536', quality: 'medium', n: 1, user: createHash('sha256').update(user.id).digest('hex').slice(0, 16) }),
     });
-    const out = await res.json().catch(() => ({}));
+    let res = await call(MODEL());
+    let out = await res.json().catch(() => ({}));
+    // If the newest model isn't available on this account yet, use the previous one.
+    if (!res.ok && res.status !== 429 && out?.error?.code !== 'moderation_blocked' && /model|verif|access/i.test(out?.error?.message ?? '')) {
+      console.error('[visions] falling back:', out?.error?.message);
+      res = await call(FALLBACK);
+      out = await res.json().catch(() => ({}));
+    }
     if (!res.ok) {
       console.error('[visions]', out?.error);
       const msg = out?.error?.code === 'moderation_blocked' ? 'That vision was blocked by the image safety filter. Try another.' : out?.error?.message ?? `Image error ${res.status}`;

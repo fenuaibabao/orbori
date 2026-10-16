@@ -17,7 +17,7 @@ export default function Visions() {
   const { user } = useAuth();
   const plus = usePlus();
   const p = useProgress();
-  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number } | null>(null);
+  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number; monthLeft?: number | null } | null>(null);
   const [busy, setBusy] = useState<VisionKind | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -71,7 +71,7 @@ export default function Visions() {
       <section aria-labelledby="ai" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="ai" className="font-display text-xl font-bold">Visions <span className="ml-1 font-mono text-[11px] font-normal text-gold-lite">PLUS</span></h2>
-          {canMake && <span className="font-mono text-[11px] text-muted">{left} of {info!.limit} left today</span>}
+          {canMake && <span className="font-mono text-[11px] text-muted">{left} left today{info!.monthLeft != null ? ` · ${info!.monthLeft} this month` : ''}</span>}
         </div>
         {!info?.enabled ? <p className="rounded-2xl bg-night p-4 text-sm text-muted">Visions are being switched on. Check back soon.</p>
           : !user ? <p className="rounded-2xl bg-night p-4 text-sm">Sign in to make visions. <Link href={`/signin?next=${encodeURIComponent('/visions')}`} className="font-semibold text-gold-lite">Sign in ›</Link></p>
