@@ -11,7 +11,7 @@ import type { JournalEntry, LocalState, Match, Profile } from './store';
 
 interface ProfileRow { input: Profile['input']; city_label: string; seed: number; created_at: string; activity: LocalState['activity'] | null }
 interface CheckInRow { date: string; answer: CheckIn['answer']; score: number }
-interface JournalRow { date: string; text: string; prompt: string | null; updated_at: string }
+interface JournalRow { date: string; text: string; prompt: string | null; reading: JournalEntry['reading'] | null; updated_at: string }
 interface MatchRow { id: string; nickname: string; input: Match['input']; city_label: string; seed: number; added_at: string }
 
 export async function pullState(sb: SupabaseClient, userId: string): Promise<LocalState> {
@@ -19,14 +19,14 @@ export async function pullState(sb: SupabaseClient, userId: string): Promise<Loc
     sb.from('profiles').select('input, city_label, seed, created_at, activity').eq('user_id', userId).maybeSingle<ProfileRow>(),
     sb.from('check_ins').select('date, answer, score').eq('user_id', userId).returns<CheckInRow[]>(),
     sb.from('matches').select('id, nickname, input, city_label, seed, added_at').eq('user_id', userId).returns<MatchRow[]>(),
-    sb.from('journal_entries').select('date, text, prompt, updated_at').eq('user_id', userId).returns<JournalRow[]>(),
+    sb.from('journal_entries').select('date, text, prompt, reading, updated_at').eq('user_id', userId).returns<JournalRow[]>(),
   ]);
   if (p.error) throw p.error;
   if (c.error) throw c.error;
   if (m.error) throw m.error;
   const journal: Record<string, JournalEntry> = {};
   // A missing table (migration not run yet) shouldn't block sign-in.
-  for (const r of j.error ? [] : j.data ?? []) journal[r.date] = { text: r.text, prompt: r.prompt ?? undefined, updatedAt: r.updated_at };
+  for (const r of j.error ? [] : j.data ?? []) journal[r.date] = { text: r.text, prompt: r.prompt ?? undefined, reading: r.reading ?? undefined, updatedAt: r.updated_at };
   const checkIns: Record<string, CheckIn> = {};
   for (const r of c.data ?? []) checkIns[r.date] = { answer: r.answer, score: Number(r.score) };
   return {
@@ -61,7 +61,7 @@ export async function pushState(sb: SupabaseClient, userId: string, s: LocalStat
   }
   const journalRows = Object.entries(s.journal ?? {})
     .filter(([d, e]) => pushedJournal.get(`${userId}:${d}`) !== e.updatedAt)
-    .map(([date, e]) => ({ user_id: userId, date, text: e.text, prompt: e.prompt ?? null, updated_at: e.updatedAt }));
+    .map(([date, e]) => ({ user_id: userId, date, text: e.text, prompt: e.prompt ?? null, reading: e.reading ?? null, updated_at: e.updatedAt }));
   if (journalRows.length) {
     const { error } = await sb.from('journal_entries').upsert(journalRows);
     if (error) throw error;

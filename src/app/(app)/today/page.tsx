@@ -2,7 +2,7 @@
 import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { AiReading } from '@/components/AiReading';
+import { AiReading, closingQuestion } from '@/components/AiReading';
 import { JournalCard } from '@/components/Journal';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
@@ -30,7 +30,7 @@ export default function Today() {
   const today = state.checkIns[date];
   const [justAnswered, setJustAnswered] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
-  const [aiQuestion, setAiQuestion] = useState<string | null>(null);
+  const [aiText, setAiText] = useState<string | null>(null);
 
   const pretty = new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase().replace(',', ' ·');
 
@@ -167,8 +167,11 @@ export default function Today() {
               )}
             </section>
 
-          <AiReading profile={profile} onQuestion={setAiQuestion} />
-          <JournalCard date={date} prompt={aiQuestion} />
+          <AiReading profile={profile} onText={setAiText} />
+          <JournalCard date={date} prompt={aiText ? closingQuestion(aiText) : null} reading={{
+            headline: reading.headline, score: reading.score, agreeCount: reading.agreeCount, voices: reading.systems.length,
+            agreeText: reading.agreeText, holdoutText: reading.holdoutText, ai: aiText ?? undefined,
+          }} />
 
           {question && (
             <section aria-labelledby="dq" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5 lg:col-span-3">

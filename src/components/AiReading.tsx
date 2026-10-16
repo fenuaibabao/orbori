@@ -12,7 +12,7 @@ export function closingQuestion(text: string): string | null {
 }
 
 /** Today's personal reading, written by AI from the Council. Hidden until the AI key is set up. */
-export function AiReading({ profile, onQuestion }: { profile: Profile; onQuestion?: (q: string | null) => void }) {
+export function AiReading({ profile, onText }: { profile: Profile; onText?: (text: string) => void }) {
   const { user, ready: authReady } = useAuth();
   const { plus, ready: plusReady } = usePlus();
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -38,7 +38,7 @@ export function AiReading({ profile, onQuestion }: { profile: Profile; onQuestio
       .catch(() => setErr('Your reading is taking a moment. Refresh in a minute.'));
   }, [enabled, user, plus, profile]);
 
-  useEffect(() => { if (text) onQuestion?.(closingQuestion(text)); }, [text, onQuestion]);
+  useEffect(() => { if (text) onText?.(text); }, [text, onText]);
 
   if (!enabled || !authReady || (user && !plusReady)) return null;
 

@@ -23,10 +23,23 @@ export interface Match {
   addedAt: string;
 }
 
+/** The day's reading, kept with a journal entry so you can look back at both together. */
+export interface ReadingSnapshot {
+  headline: string;
+  score: number;
+  agreeCount: number;
+  voices: number;
+  agreeText?: string;
+  holdoutText?: string | null;
+  /** The AI-written reading, when there was one. */
+  ai?: string;
+}
+
 export interface JournalEntry {
   text: string;
   /** The prompt shown that day, if any. */
   prompt?: string;
+  reading?: ReadingSnapshot;
   updatedAt: string;
 }
 
@@ -95,11 +108,12 @@ export function useStore() {
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, ...patch } } });
   }, []);
   /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
-  const writeJournal = useCallback((date: string, text: string, prompt?: string) => {
+  const writeJournal = useCallback((date: string, text: string, prompt?: string, reading?: ReadingSnapshot) => {
     const s = read();
     const cur = s.journal?.[date];
-    if (cur && cur.text === text && (prompt === undefined || cur.prompt === prompt)) return;
-    write({ ...s, journal: { ...s.journal, [date]: { text, prompt: prompt ?? cur?.prompt, updatedAt: new Date().toISOString() } } });
+    const nextReading = reading ? { ...cur?.reading, ...reading, ai: reading.ai ?? cur?.reading?.ai } : cur?.reading;
+    if (cur && cur.text === text && (prompt === undefined || cur.prompt === prompt) && JSON.stringify(nextReading) === JSON.stringify(cur.reading)) return;
+    write({ ...s, journal: { ...s.journal, [date]: { text, prompt: prompt ?? cur?.prompt, reading: nextReading, updatedAt: new Date().toISOString() } } });
   }, []);
   const addMatch = useCallback((m: Omit<Match, 'id' | 'addedAt'>) => {
     const s = read();

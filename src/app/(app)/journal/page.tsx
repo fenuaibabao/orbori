@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { JournalEditor } from '@/components/Journal';
+import { JournalEditor, SavedReading } from '@/components/Journal';
 import { localToday, useAppStore } from '@/lib/store';
 
 const pretty = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -29,6 +29,7 @@ export default function Journal() {
       <section aria-labelledby="today-entry" className="flex flex-col gap-3 rounded-3xl border border-gold bg-night p-5">
         <h2 id="today-entry" className="font-mono text-[11px] tracking-[0.08em] text-gold-lite">TODAY · {pretty(today).toUpperCase()}</h2>
         {state.journal?.[today]?.prompt && <p className="text-[15px] leading-relaxed text-muted">{state.journal[today].prompt}</p>}
+        {state.journal?.[today]?.reading && <SavedReading reading={state.journal[today].reading!} />}
         <JournalEditor date={today} rows={6} />
       </section>
 
@@ -49,6 +50,7 @@ export default function Journal() {
                 {editing === d ? 'Done' : 'Edit'}
               </button>
             </div>
+            {e.reading && <SavedReading reading={e.reading} />}
             {e.prompt && <p className="text-sm italic text-dim">{e.prompt}</p>}
             {editing === d ? <JournalEditor date={d} autoFocus /> : <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{e.text}</p>}
           </article>
