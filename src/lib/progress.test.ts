@@ -57,3 +57,12 @@ describe('seen Learn terms', () => {
     expect([...s].sort()).toEqual(['dasha', 'nawal', 'tithi']);
   });
 });
+
+describe('one-time XP', () => {
+  it('counts Home Screen and notifications once each, ever', async () => {
+    const { computeProgress } = await import('./progress');
+    const base = computeProgress({ checkIns: {}, activity: {}, today: '2026-10-16' } as never).xp;
+    const p = computeProgress({ checkIns: {}, today: '2026-10-16', activity: { '2026-10-14': { installed: true }, '2026-10-15': { installed: true, notified: true } } } as never);
+    expect(p.xp - base).toBe(50);
+  });
+});

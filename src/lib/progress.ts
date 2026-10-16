@@ -36,6 +36,8 @@ export const XP = {
   deep: 5, learn: 5, share: 5, nudge: 5, question: 10, sync: 10, journal: 10,
   /** Each different minigame finished that day. */
   game: 10,
+  /** One time only: opening Orbori from the Home Screen, and turning on notifications. */
+  install: 25, notify: 25,
 } as const;
 export const DAILY_ACTIVITY_CAP = 60;
 const MATCH_XP_LIMIT = 5;
@@ -62,6 +64,10 @@ export interface Activity {
   deepOn?: string[];
   /** Circles whose weekly challenge was won (recorded on the week's Monday). */
   circleWins?: string[];
+  /** First opened from the Home Screen (counts once, ever). */
+  installed?: boolean;
+  /** Turned on notifications (counts once, ever). */
+  notified?: boolean;
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -158,6 +164,9 @@ export function computeProgress(input: ProgressInput): Progress {
     if (checkIns[d].answer === 'nailed' && checkIns[d].score < 5) calledIt++;
   }
   for (const d of Object.keys(activity)) xp += activityXp(activity[d]) + (activity[d].circleWins?.length ?? 0) * XP.challenge;
+  const acts = Object.values(activity);
+  if (acts.some((a) => a.installed)) xp += XP.install;
+  if (acts.some((a) => a.notified)) xp += XP.notify;
 
   // Weekly challenges, every week that has any history.
   const weeks = new Set([...days, ...Object.keys(activity)].map(weekStart));

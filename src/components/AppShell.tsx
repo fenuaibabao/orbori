@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { StoreContext, useStore } from '@/lib/store';
+import { StoreContext, localToday, useStore } from '@/lib/store';
 import { useSync } from '@/lib/sync-provider';
 import { useAuth } from '@/lib/auth';
 import { isOwnerEmail } from '@/lib/owner';
@@ -36,6 +36,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (ready && !state.profile) router.replace('/welcome');
   }, [ready, state.profile, router]);
+
+  // +25 XP, once ever, the first time Orbori is opened from the Home Screen.
+  useEffect(() => {
+    if (!ready || !state.profile) return;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone;
+    if (standalone && !Object.values(state.activity ?? {}).some((a) => a.installed)) store.record(localToday().date, { installed: true });
+  }, [ready, state.profile, state.activity, store]);
 
   if (!ready || !state.profile) return <div className="min-h-dvh" />;
 

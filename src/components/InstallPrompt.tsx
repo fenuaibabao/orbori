@@ -36,7 +36,7 @@ export function InstallPrompt() {
   }, []);
 
   if (!mode) return null;
-  const hide = () => { set(HIDE_KEY, String(Date.now() + 21 * 86400000)); setMode(null); };
+  const hide = () => { set(HIDE_KEY, String(Date.now() + 37 * 86400000)); setMode(null); };
   const install = async () => {
     if (!deferred) return;
     await deferred.prompt();
@@ -51,7 +51,7 @@ export function InstallPrompt() {
       <div className="flex items-start gap-3">
         <img src="/icon-192.png" alt="" width={44} height={44} className="rounded-[12px]" />
         <div className="flex-1">
-          <p className="font-bold">Put Orbori on your Home Screen</p>
+          <p className="font-bold">Put Orbori on your Home Screen <span className="ml-1 whitespace-nowrap rounded-full bg-royal px-2 py-0.5 font-mono text-[11px] text-gold-lite">+25 XP</span></p>
           <p className="mt-0.5 text-sm text-muted">Opens full screen like a real app, one tap from your nightly check-in.{mode === 'android' ? ' Long-press the icon to jump straight to your journal or games.' : ''}</p>
         </div>
         <button type="button" onClick={hide} aria-label="Not now" className="-mr-1 -mt-1 flex h-9 w-9 items-center justify-center rounded-full text-dim">✕</button>
