@@ -27,7 +27,7 @@ export const LEGAL: LegalPage[] = [
       ] },
       { h: 'Where it lives', p: [
         'Without an account, everything is stored in your browser on your device. With an account, it is stored in our database (Supabase, hosted in the United States), protected so that only you can read your rows.',
-        'We use Vercel to run the site, Supabase for accounts and storage, Stripe for payments and Resend to send sign-in emails. Each only receives what it needs to do its job.',
+        'We use Vercel to run the site, Supabase for accounts and storage, Stripe for payments, Resend to send sign-in emails and Anthropic (Claude) to write the daily readings for Plus members. Anthropic receives only the calculated reading for the day and your Sun, Moon and Rising signs, never your name, email or exact birth details, and does not train on it. Each provider only receives what it needs to do its job.',
       ] },
       { h: 'What we do not do', p: ['We do not sell or rent your data. We do not show ads. We do not use your birth details for anything except your own charts and the features you use. Invite links and share cards never include your birth details.'] },
       { h: 'Deleting your data', p: ['"Start over" in your Profile erases your chart, check-ins and matches from your device and, if you are signed in, from your account. To delete your account and email entirely, write to hello@orbori.app and we will do it within 30 days.'] },

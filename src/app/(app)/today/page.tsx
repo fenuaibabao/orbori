@@ -2,6 +2,7 @@
 import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { AiReading } from '@/components/AiReading';
 import { FlameIcon, ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
 import { NudgeBanner } from '@/components/LinkedPeople';
@@ -163,6 +164,8 @@ export default function Today() {
                 </div>
               )}
             </section>
+
+          <AiReading profile={profile} />
 
           {question && (
             <section aria-labelledby="dq" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
