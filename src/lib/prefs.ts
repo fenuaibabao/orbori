@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react';
 import type { CardStyle, FlameId, ThemeId } from './rewards';
 
 const KEY = 'orbori.prefs';
-export interface Prefs { theme: ThemeId; card: CardStyle; flame: FlameId; icon: 'night' | 'gold'; seenLevel: number }
-const DEFAULTS: Prefs = { theme: 'night', card: 'classic', flame: 'gold', icon: 'night', seenLevel: 0 };
+export interface SigilDesign { sides: number; inner: boolean; ring: boolean; line: string; accent: string }
+export interface Prefs {
+  theme: ThemeId; card: CardStyle; flame: FlameId; icon: 'night' | 'gold'; seenLevel: number;
+  /** Celestial looks */
+  sigilMotion: boolean; sigil: SigilDesign | null; celestialNo: number | null; revealed: boolean;
+}
+const DEFAULTS: Prefs = { theme: 'night', card: 'classic', flame: 'gold', icon: 'night', seenLevel: 0, sigilMotion: false, sigil: null, celestialNo: null, revealed: false };
 
 export function readPrefs(): Prefs {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return DEFAULTS; }

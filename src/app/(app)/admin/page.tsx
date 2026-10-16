@@ -1,4 +1,5 @@
 'use client';
+import { QuestionReview } from '@/components/QuestionReview';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { isOwnerEmail } from '@/lib/owner';
@@ -86,6 +87,7 @@ export default function Admin() {
         </div>
         {note && <p aria-live="polite" className="text-sm text-muted">{note}</p>}
       </section>
+      <QuestionReview />
       <p className="text-xs text-dim">Payments live in the <a href="https://dashboard.stripe.com" className="text-gold-lite">Stripe dashboard</a>; accounts and data in <a href="https://supabase.com/dashboard" className="text-gold-lite">Supabase</a>.</p>
     </div>
   );

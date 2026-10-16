@@ -12,10 +12,10 @@ export async function GET(req: Request) {
   const admin = supabaseAdmin();
   if (!admin) return NextResponse.json({ error: 'Accounts are not configured.' }, { status: 503 });
   const code = new URL(req.url).searchParams.get('code') ?? '';
-  const { data: g } = await admin.from('plus_gifts').select('from_user, redeemed_at').eq('code', code).maybeSingle();
+  const { data: g } = await admin.from('plus_gifts').select('from_user, redeemed_at, days').eq('code', code).maybeSingle();
   if (!g) return NextResponse.json({ valid: false });
   const { data: p } = await admin.from('profiles').select('seed').eq('user_id', g.from_user).maybeSingle();
-  return NextResponse.json({ valid: !g.redeemed_at, from: p ? handleFromSeed(p.seed) : 'A friend' });
+  return NextResponse.json({ valid: !g.redeemed_at, from: p ? handleFromSeed(p.seed) : 'A friend', days: g.days ?? 7 });
 }
 
 /** POST → your gift link (Oracle and up, one a year). Returns the existing one if it's this year's. */
@@ -26,7 +26,7 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
   const p = await serverProgress(admin, user.id, new Date().toISOString().slice(0, 10));
   if (p.levelIndex < 3) return NextResponse.json({ error: 'Gifting unlocks at Oracle.' }, { status: 403 });
-  const { data: last } = await admin.from('plus_gifts').select('code, created_at, redeemed_at').eq('from_user', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+  const { data: last } = await admin.from('plus_gifts').select('code, created_at, redeemed_at').eq('from_user', user.id).eq('days', 7).order('created_at', { ascending: false }).limit(1).maybeSingle();
   if (last && Date.now() - Date.parse(last.created_at) < YEAR) return NextResponse.json({ code: last.code, redeemed: !!last.redeemed_at, next: new Date(Date.parse(last.created_at) + YEAR).toISOString() });
   const code = randomBytes(8).toString('base64url');
   const { error } = await admin.from('plus_gifts').insert({ code, from_user: user.id });

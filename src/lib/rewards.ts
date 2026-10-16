@@ -24,6 +24,7 @@ export const THEMES = [
   { id: 'night', name: 'Night', swatch: ['#060528', '#343e9f', '#d4a24c'], level: 0 },
   { id: 'dawn', name: 'Dawn', swatch: ['#1a0b24', '#7a3a63', '#f0a46a'], level: 1 },
   { id: 'moonlit', name: 'Moonlit', swatch: ['#050b16', '#2f5277', '#c9d6e6'], level: 1 },
+  { id: 'aurora', name: 'Aurora', swatch: ['#03140f', '#1f6f5c', '#9ef0c8'], level: 4 },
 ] as const;
 export type ThemeId = (typeof THEMES)[number]['id'];
 
@@ -31,6 +32,7 @@ export const CARD_STYLES = [
   { id: 'classic', name: 'Classic', level: 0 },
   { id: 'eclipse', name: 'Eclipse', level: 2 },
   { id: 'leaf', name: 'Gold Leaf', level: 2 },
+  { id: 'foil', name: 'Celestial Foil', level: 4 },
 ] as const;
 export type CardStyle = (typeof CARD_STYLES)[number]['id'];
 

@@ -44,21 +44,37 @@ export function readingPrompt(r: CouncilReading, big3: string, name?: string): s
   ].filter((l) => l !== null).join('\n');
 }
 
-/** Calls the Messages API. Returns the reading text. */
-export async function writeReading(apiKey: string, reading: CouncilReading, big3: string): Promise<string> {
+/** One call to the Messages API; returns the text. */
+export async function askClaude(apiKey: string, system: string, user: string, maxTokens = READING_MAX_TOKENS): Promise<string> {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || READING_MODEL,
-      max_tokens: READING_MAX_TOKENS,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: readingPrompt(reading, big3) }],
-    }),
+    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || READING_MODEL, max_tokens: maxTokens, system, messages: [{ role: 'user', content: user }] }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error?.message ?? `Anthropic error ${res.status}`);
   const text = (data.content ?? []).filter((b: { type: string }) => b.type === 'text').map((b: { text: string }) => b.text).join('').trim();
-  if (!text) throw new Error(`Empty reading (stop: ${data.stop_reason}; blocks: ${(data.content ?? []).map((b: { type: string }) => b.type).join(',') || 'none'}; model: ${data.model})`);
+  if (!text) throw new Error(`Empty reply (stop: ${data.stop_reason}; blocks: ${(data.content ?? []).map((b: { type: string }) => b.type).join(',') || 'none'}; model: ${data.model})`);
   return text;
 }
+
+/** The daily reading. */
+export const writeReading = (apiKey: string, reading: CouncilReading, big3: string) => askClaude(apiKey, SYSTEM_PROMPT, readingPrompt(reading, big3));
+
+const RESPECT = `Respect and honesty:
+- Name each tradition correctly and treat it as a living practice with its own keepers. Never claim to speak for a tradition, a people or a teacher.
+- Speak in tendencies and invitations, never certainties or predictions about events, other people's feelings or intentions.
+- Never give medical, legal or financial advice. If the question touches health, safety, self-harm, abuse or a crisis, say kindly that this deserves a real person (a doctor, counselor or someone they trust), and do not read the stars on it.
+- Plain, warm English. No emoji, headings or lists.`;
+
+/** Celestial reward: ask the Council one personal question a week. */
+export const ASK_SYSTEM = `You are the voice of Orbori's Cosmic Council: seven traditions (Western astrology, Jyotish, the Four Pillars, numerology, the K'iche' Chol Q'ij, the Hawaiian Kaulana Mahina, and the lunar mansions and Abjad) answering one personal question from someone who has used Orbori for months.
+Answer from today's Council data only; do not invent placements. Let two or three voices speak where they have something to say, note where they disagree, and end with one concrete, gentle suggestion. 140 to 200 words.
+${RESPECT}
+Output only the answer.`;
+
+/** Celestial reward (opt-in): a monthly reflection on the person's own journal. */
+export const REFLECT_SYSTEM = `You write a private monthly reflection for one person, from their own journal entries in Orbori, set beside the daily headline the Council gave each day.
+Notice themes, shifts and what they seem to care about. Reflect, do not diagnose, label or judge. Quote at most a few words of theirs. Point to one or two days where the Council and their own words lined up or diverged. End with one question for the month ahead. 200 to 280 words, three or four short paragraphs.
+${RESPECT}
+Output only the reflection.`;

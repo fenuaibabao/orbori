@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { activityXp, XP } from '@/lib/progress';
+import { activityXp, LEVELS, XP } from '@/lib/progress';
 import { isUnlocked } from '@/lib/rewards';
 import { localToday, useAppStore } from '@/lib/store';
 import { useProgress } from '@/lib/use-progress';
@@ -45,7 +45,7 @@ export default function YearRecap() {
     return (
       <div className="flex flex-col gap-4 lg:max-w-3xl">
         <h1 className="font-display text-[26px] font-bold">Your year in the stars</h1>
-        <p className="text-muted">Your yearly recap unlocks at Oracle (2,000 XP). You&apos;re {(2000 - p.xp).toLocaleString('en-US')} XP away.</p>
+        <p className="text-muted">Your yearly recap unlocks at Oracle ({LEVELS[3].xp.toLocaleString('en-US')} XP). You&apos;re {(LEVELS[3].xp - p.xp).toLocaleString('en-US')} XP away.</p>
         <Link href="/rewards" className="self-start text-sm font-semibold text-gold-lite">See all rewards ›</Link>
       </div>
     );

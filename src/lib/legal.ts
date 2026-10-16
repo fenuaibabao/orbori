@@ -24,7 +24,7 @@ export const LEGAL: LegalPage[] = [
       { h: 'What we collect', p: [
         'Birth details (date, time if you have it, and birth city) to calculate your charts. Your daily check-ins and the matches you add. If you sign in, your email address. If you subscribe, Stripe handles your payment details; we never see your card number.',
         'Names typed into the name-number and Abjad calculators stay on your device and are never sent to our servers.',
-        'Your journal is private. It is stored on your device and, if you are signed in, in your account so it follows you between devices. It is never shown to linked people, never used for anything else and never sent to the AI.',
+        'Your journal is private. It is stored on your device and, if you are signed in, in your account so it follows you between devices. It is never shown to linked people and never used for anything else. It is never sent to the AI, with one exception you control: Celestials can ask for a monthly reflection, which sends that month\'s entries to Anthropic once, only when you tick the box and press the button.',
       ] },
       { h: 'Where it lives', p: [
         'Without an account, everything is stored in your browser on your device. With an account, it is stored in our database (Supabase, hosted in the United States), protected so that only you can read your rows.',

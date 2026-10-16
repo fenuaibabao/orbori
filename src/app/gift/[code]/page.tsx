@@ -15,7 +15,7 @@ export default function Gift() {
   const { ready, user } = useAuth();
   const store = useStore();
   const { ready: synced } = useSync();
-  const [info, setInfo] = useState<{ valid: boolean; from?: string } | null>(null);
+  const [info, setInfo] = useState<{ valid: boolean; from?: string; days?: number } | null>(null);
   const [state, setState] = useState<'idle' | 'opening' | 'done' | 'error'>('idle');
   const [msg, setMsg] = useState('');
 
@@ -43,13 +43,13 @@ export default function Gift() {
       ) : state === 'done' ? (
         <>
           <h1 className="font-display text-[26px] font-bold leading-tight">Plus is yours until {msg}.</h1>
-          <p className="max-w-[300px] text-[15px] leading-relaxed text-muted">Every tradition in depth and your daily AI reading. Enjoy the week.</p>
+          <p className="max-w-[300px] text-[15px] leading-relaxed text-muted">Every tradition in depth and your daily AI reading. Enjoy.</p>
           <button type="button" onClick={() => router.push(hasChart ? '/today' : '/onboarding/birth')} className={btnPrimary}>{hasChart ? 'Open Orbori' : 'Map my cosmos'}</button>
         </>
       ) : (
         <>
-          <h1 className="font-display text-[26px] font-bold leading-tight">{info.from} sent you a week of Orbori Plus.</h1>
-          <p className="max-w-[300px] text-[15px] leading-relaxed text-muted">Seven traditions, one Cosmic Council, every system in depth. {user ? 'Open it to start your seven days.' : 'Sign in with your email to open it.'}</p>
+          <h1 className="font-display text-[26px] font-bold leading-tight">{info.from} sent you {info.days === 30 ? 'a month' : 'a week'} of Orbori Plus.</h1>
+          <p className="max-w-[300px] text-[15px] leading-relaxed text-muted">Seven traditions, one Cosmic Council, every system in depth. {user ? 'Open it to start your free Plus.' : 'Sign in with your email to open it.'}</p>
           {user
             ? <button type="button" onClick={open} disabled={state === 'opening'} className={btnPrimary}>{state === 'opening' ? 'Opening…' : 'Open my gift'}</button>
             : <Link href={`/signin?next=${encodeURIComponent(`/gift/${code}`)}`} className={btnPrimary}>Sign in to open</Link>}

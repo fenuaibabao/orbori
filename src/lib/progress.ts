@@ -6,10 +6,25 @@ export interface CheckIn { answer: Answer; score: number }
 export const LEVELS = [
   { name: 'Stargazer', xp: 0 },
   { name: 'Seer', xp: 250 },
-  { name: 'Mystic', xp: 800 },
-  { name: 'Oracle', xp: 2000 },
-  { name: 'Celestial', xp: 4500 },
+  { name: 'Mystic', xp: 1200 },
+  { name: 'Oracle', xp: 5000 },
+  { name: 'Celestial', xp: 12000 },
 ] as const;
+
+/** Star ranks: the quiet second ladder past Celestial (the secret track). */
+export const STAR_RANKS = [
+  { name: 'Comet', xp: 15000 },
+  { name: 'Nebula', xp: 19000 },
+  { name: 'Pulsar', xp: 24000 },
+  { name: 'Supernova', xp: 30000 },
+  { name: 'Galaxy', xp: 40000 },
+] as const;
+export function starRank(xp: number) {
+  let cur: (typeof STAR_RANKS)[number] | null = null;
+  for (const r of STAR_RANKS) if (xp >= r.xp) cur = r;
+  const next = STAR_RANKS.find((r) => r.xp > xp) ?? null;
+  return { rank: cur?.name ?? null, next };
+}
 
 export const XP = {
   checkIn: 10, streak7: 50, streak30: 150,
@@ -41,6 +56,10 @@ export interface Activity {
   terms?: string[];
   /** Minigames finished that day (ids). */
   games?: string[];
+  /** Minigames finished with a perfect result that day (ids). */
+  perfect?: string[];
+  /** Traditions opened in depth that day (system ids). */
+  deepOn?: string[];
 }
 export type ActivityLog = Record<string, Activity>;
 

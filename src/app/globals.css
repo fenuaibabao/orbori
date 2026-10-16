@@ -80,3 +80,12 @@ html[data-theme="moonlit"] {
   --color-gold: #7f93ad; --color-gold-lite: #c9d6e6; --color-mauve: #6f8fa0; --color-mauve-lite: #a9c6d4;
   --color-muted: #b4c0d2; --color-dim: #91a0b6;
 }
+html[data-theme="aurora"] {
+  --color-space: #03140f; --color-deep: #061d17; --color-night: #0a2820; --color-night-2: #0f332a;
+  --color-royal: #1f6f5c; --color-line: #12382e; --color-line-2: #1a4a3d;
+  --color-gold: #4fbf95; --color-gold-lite: #9ef0c8; --color-mauve: #8a7bd1; --color-mauve-lite: #c3b8f5;
+  --color-muted: #b3d6c8; --color-dim: #8fb5a6;
+}
+@keyframes orbori-glow { 0%, 100% { filter: drop-shadow(0 0 2px var(--color-gold-lite)); } 50% { filter: drop-shadow(0 0 8px var(--color-gold-lite)); } }
+.anim-sigil { animation: orbori-spin 40s linear infinite, orbori-glow 4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .anim-sigil { animation: none; } }

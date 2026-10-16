@@ -39,20 +39,21 @@ export function RewardEffects() {
         <p className="font-semibold">You&apos;re a {LEVELS[levelIndex].name} now.</p>
         <p className="text-muted">{fresh.length} new {fresh.length === 1 ? 'reward' : 'rewards'} unlocked.</p>
       </div>
-      <Link href="/rewards" onClick={() => setPrefs({ seenLevel: levelIndex })} className="flex min-h-10 items-center rounded-full bg-gold px-4 text-sm font-bold text-space">See</Link>
+      <Link href={levelIndex >= 4 && !prefs.revealed ? '/beyond' : '/rewards'} onClick={() => setPrefs({ seenLevel: levelIndex })} className="flex min-h-10 items-center rounded-full bg-gold px-4 text-sm font-bold text-space">See</Link>
       <button type="button" aria-label="Dismiss" onClick={() => setPrefs({ seenLevel: levelIndex })} className="flex h-10 w-10 items-center justify-center rounded-full text-muted hover:text-starlight">✕</button>
     </div>
   );
 }
 
-/** Your own sigil, with the gold ring once you're a Seer and a double ring at Celestial. */
+/** Your own sigil: gold ring from Seer, double ring at Celestial, and the Celestial looks (motion, your own design). */
 export function MySigil({ seed, size }: { seed: number; size: number }) {
   const { levelIndex } = useProgress();
+  const prefs = usePrefs();
   const ring = isUnlocked(levelIndex, 'sigil-ring');
   const top = levelIndex >= 4;
   return (
     <span className={`inline-flex rounded-full ${ring ? 'ring-2 ring-gold-lite ring-offset-2 ring-offset-space' : ''} ${top ? 'outline outline-1 outline-offset-[6px] outline-gold' : ''}`}>
-      <Sigil seed={seed} size={size} />
+      <Sigil seed={seed} size={size} custom={top ? prefs.sigil : null} className={top && prefs.sigilMotion ? 'anim-sigil' : ''} label="Your sigil" />
     </span>
   );
 }

@@ -31,9 +31,9 @@ const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en
 
 export default function Deeper() {
   const { system } = useParams<{ system: string }>();
-  const { state, record } = useAppStore();
+  const { state, visitDeep } = useAppStore();
   const { depth, error } = useDepth(state.profile);
-  useEffect(() => { if (depth) record(localToday().date, { deep: true }); }, [depth, record]);
+  useEffect(() => { if (depth) visitDeep(localToday().date, system); }, [depth, visitDeep, system]);
   const { data } = useChart(state.profile);
 
   return (

@@ -47,7 +47,7 @@ export default function Play() {
   const hardOpen = isUnlocked(p.levelIndex, 'hard-mode');
   const open = (g: GameId | 'quest-hard') => { setRound((r) => r + 1); setGame(g); };
   const exit = () => setGame(null);
-  const done = (id: GameId) => () => finishGame(date, id);
+  const done = (id: GameId, perfect = false) => () => finishGame(date, id, perfect);
 
   if (game) {
     const meta = GAMES.find((g) => g.id === (game === 'quest-hard' ? 'quest' : game))!;
@@ -59,14 +59,14 @@ export default function Play() {
           <h1 className="font-display text-2xl font-bold">{meta.name}{game === 'quest-hard' ? ' · Hard' : ''}</h1>
         </div>
         <div key={round} className="rounded-3xl bg-night p-5">
-          {game === 'western' && <QuizGame rounds={toRounds(westernRounds())} onExit={exit} onFinish={(s) => { done('western')(); saveBest('western', s, false); }} />}
-          {game === 'numerology' && <QuizGame rounds={toRounds(numerologyRounds())} onExit={exit} onFinish={(s) => { done('numerology')(); saveBest('numerology', s, false); }} />}
-          {game === 'hawaiian' && <QuizGame rounds={toRounds(hawaiianRounds())} onExit={exit} onFinish={(s) => { done('hawaiian')(); saveBest('hawaiian', s, false); }} />}
-          {game === 'islamic' && <QuizGame rounds={toRounds(islamicRounds())} onExit={exit} onFinish={(s) => { done('islamic')(); saveBest('islamic', s, false); }} />}
-          {game === 'vedic' && <PairsGame pairs={shuffle(GRAHA_PAIRS).slice(0, 6)} hint="Match each Sanskrit graha to its planet." onExit={exit} onFinish={(m) => { done('vedic')(); saveBest('vedic', m, true); }} />}
-          {game === 'pairs' && <PairsGame pairs={nawalPairs()} hint="Match each K'iche' nawal to its meaning." onExit={exit} onFinish={(m) => { done('pairs')(); saveBest('pairs', m, true); }} />}
-          {game === 'chinese' && <GreatRace onExit={exit} onFinish={(m) => { done('chinese')(); saveBest('chinese', m, true); }} />}
-          {(game === 'quest' || game === 'quest-hard') && <TermQuest hard={game === 'quest-hard'} onExit={exit} onFinish={(s) => { done('quest')(); saveBest('quest', s, false); }} />}
+          {game === 'western' && <QuizGame rounds={toRounds(westernRounds())} onExit={exit} onFinish={(s, t) => { done('western', s === t)(); saveBest('western', s, false); }} />}
+          {game === 'numerology' && <QuizGame rounds={toRounds(numerologyRounds())} onExit={exit} onFinish={(s, t) => { done('numerology', s === t)(); saveBest('numerology', s, false); }} />}
+          {game === 'hawaiian' && <QuizGame rounds={toRounds(hawaiianRounds())} onExit={exit} onFinish={(s, t) => { done('hawaiian', s === t)(); saveBest('hawaiian', s, false); }} />}
+          {game === 'islamic' && <QuizGame rounds={toRounds(islamicRounds())} onExit={exit} onFinish={(s, t) => { done('islamic', s === t)(); saveBest('islamic', s, false); }} />}
+          {game === 'vedic' && <PairsGame pairs={shuffle(GRAHA_PAIRS).slice(0, 6)} hint="Match each Sanskrit graha to its planet." onExit={exit} onFinish={(m) => { done('vedic', m <= 8)(); saveBest('vedic', m, true); }} />}
+          {game === 'pairs' && <PairsGame pairs={nawalPairs()} hint="Match each K'iche' nawal to its meaning." onExit={exit} onFinish={(m) => { done('pairs', m <= 8)(); saveBest('pairs', m, true); }} />}
+          {game === 'chinese' && <GreatRace onExit={exit} onFinish={(m) => { done('chinese', m === 0)(); saveBest('chinese', m, true); }} />}
+          {(game === 'quest' || game === 'quest-hard') && <TermQuest hard={game === 'quest-hard'} onExit={exit} onFinish={(s, t) => { done('quest', s === t)(); saveBest('quest', s, false); }} />}
         </div>
       </div>
     );

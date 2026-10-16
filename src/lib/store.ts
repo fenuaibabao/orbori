@@ -116,11 +116,20 @@ export function useStore() {
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, learn: true, terms: [...(cur.terms ?? []), id] } } });
   }, []);
   /** A minigame finished: the first finish of each game each day earns XP. */
-  const finishGame = useCallback((date: string, id: string) => {
+  const finishGame = useCallback((date: string, id: string, perfect = false) => {
     const s = read();
     const cur = s.activity?.[date] ?? {};
-    if (cur.games?.includes(id)) return;
-    write({ ...s, activity: { ...s.activity, [date]: { ...cur, games: [...(cur.games ?? []), id] } } });
+    const games = cur.games?.includes(id) ? cur.games : [...(cur.games ?? []), id];
+    const perf = perfect && !cur.perfect?.includes(id) ? [...(cur.perfect ?? []), id] : cur.perfect;
+    if (games === cur.games && perf === cur.perfect) return;
+    write({ ...s, activity: { ...s.activity, [date]: { ...cur, games, ...(perf ? { perfect: perf } : {}) } } });
+  }, []);
+  /** Opened a tradition in depth (Go deeper XP, and the Seven Paths). */
+  const visitDeep = useCallback((date: string, system: string) => {
+    const s = read();
+    const cur = s.activity?.[date] ?? {};
+    if (cur.deep && cur.deepOn?.includes(system)) return;
+    write({ ...s, activity: { ...s.activity, [date]: { ...cur, deep: true, deepOn: Array.from(new Set([...(cur.deepOn ?? []), system])) } } });
   }, []);
   /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
   const writeJournal = useCallback((date: string, text: string, prompt?: string, reading?: ReadingSnapshot) => {
@@ -141,7 +150,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm, finishGame };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm, finishGame, visitDeep };
 }
 
 /**

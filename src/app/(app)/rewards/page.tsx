@@ -145,6 +145,13 @@ export default function Rewards() {
           <div className="mt-2"><Bar value={p.levelProgress} /></div>
         </div>
       </header>
+      {p.levelIndex >= 4 && (
+        <Link href="/beyond" className="flex min-h-14 items-center gap-3 rounded-3xl border border-gold bg-royal/40 px-5 py-3">
+          <span aria-hidden="true" className="text-xl text-gold-lite">✦</span>
+          <span className="flex-1"><span className="block font-display text-lg font-bold">Beyond Celestial</span><span className="text-sm text-muted">The sky keeps going.</span></span>
+          <span className="text-gold-lite">›</span>
+        </Link>
+      )}
       <p className="-mt-2 text-sm text-dim">Every level unlocks something, for everyone. Earn XP by checking in, journaling, learning, playing and connecting.</p>
 
       {LEVELS.slice(1).map((lv, i) => {

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { activityXp, XP, type Answer } from '@/lib/progress';
+import { activityXp, LEVELS, XP, type Answer } from '@/lib/progress';
 import { isUnlocked } from '@/lib/rewards';
 import { localToday, useAppStore } from '@/lib/store';
 import { useProgress } from '@/lib/use-progress';
@@ -35,7 +35,7 @@ export default function Recap() {
     return (
       <div className="flex flex-col gap-4 lg:max-w-3xl">
         <h1 className="font-display text-[26px] font-bold">Week in the stars</h1>
-        <p className="text-muted">Your weekly recap unlocks at Mystic (800 XP). You&apos;re {(800 - p.xp).toLocaleString('en-US')} XP away.</p>
+        <p className="text-muted">Your weekly recap unlocks at Mystic ({LEVELS[2].xp.toLocaleString('en-US')} XP). You&apos;re {(LEVELS[2].xp - p.xp).toLocaleString('en-US')} XP away.</p>
         <Link href="/rewards" className="self-start text-sm font-semibold text-gold-lite">See all rewards ›</Link>
       </div>
     );

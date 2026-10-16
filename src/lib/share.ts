@@ -12,6 +12,8 @@ export function cardUrl(kind: 'rarity' | 'score' | 'match' | 'level', params: Re
   // Card design chosen on the Rewards page (only selectable once unlocked).
   const style = readPrefs().card;
   if (style !== 'classic') q.set('style', style);
+  const no = readPrefs().celestialNo;
+  if (style === 'foil' && no) q.set('no', String(no));
   return `/api/card/${kind}?${q}`;
 }
 

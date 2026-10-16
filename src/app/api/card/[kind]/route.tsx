@@ -77,7 +77,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
   const handle = clean(q.get('handle'), 30) || 'A Cosmic Stranger';
   const seed = Number(q.get('seed')) || 1;
   const big3 = clean(q.get('big3'), 60).toUpperCase();
-  const style = q.get('style') === 'eclipse' || q.get('style') === 'leaf' ? q.get('style') : 'classic';
+  const style = ['eclipse', 'leaf', 'foil'].includes(q.get('style') ?? '') ? q.get('style') : 'classic';
+  const celestialNo = clean(q.get('no'), 6);
 
   let body: React.ReactNode;
   let cta = 'Find yours at orbori';
@@ -197,6 +198,14 @@ export async function GET(req: Request, ctx: { params: Promise<{ kind: string }>
       <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '120px 96px 110px', background: style === 'eclipse' ? '#020112' : C.space, color: C.star, fontFamily: 'Inter', position: 'relative' }}>
         {style === 'eclipse' && (
           <div style={{ position: 'absolute', left: 90, top: 330, width: 900, height: 900, borderRadius: 450, border: `4px solid ${C.goldLite}`, boxShadow: `0 0 120px 30px rgba(212,162,76,0.35)`, background: '#05031c' }} />
+        )}
+        {style === 'foil' && (
+          <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, display: 'flex' }}>
+            <div style={{ position: 'absolute', left: 30, top: 30, width: W - 60, height: H - 60, borderRadius: 40, border: '8px solid transparent', backgroundImage: 'linear-gradient(135deg, #f6d38b, #b9f3e4, #c8b6ff, #f6a7c1, #f6d38b)', display: 'flex' }}>
+              <div style={{ position: 'absolute', left: 8, top: 8, width: W - 60 - 32, height: H - 60 - 32, borderRadius: 30, background: C.space }} />
+            </div>
+            {celestialNo && <span style={{ position: 'absolute', right: 80, top: 70, fontFamily: 'Space Mono', fontWeight: 700, fontSize: 30, letterSpacing: 4, color: '#f6d38b' }}>{`CELESTIAL #${celestialNo}`}</span>}
+          </div>
         )}
         {style === 'leaf' && (
           <div style={{ position: 'absolute', left: 36, top: 36, width: W - 72, height: H - 72, borderRadius: 36, border: `6px solid ${C.goldLite}`, display: 'flex' }}>

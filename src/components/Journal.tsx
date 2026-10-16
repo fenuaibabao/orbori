@@ -64,7 +64,12 @@ export function JournalCard({ date, prompt, reading }: { date: string; prompt?: 
   useEffect(() => {
     if (entry?.text.trim() && reading?.ai && !entry.reading?.ai) writeJournal(date, entry.text, undefined, reading);
   }, [entry, reading, date, writeJournal]);
-  const shown = state.journal?.[date]?.prompt ?? prompt ?? 'What stood out about today?';
+  const [community, setCommunity] = useState<{ question: string; by: string } | null>(null);
+  const [useCommunity, setUseCommunity] = useState(false);
+  useEffect(() => {
+    fetch(`/api/community-question?date=${date}`).then((r) => r.json()).then((d) => d.question && setCommunity(d)).catch(() => {});
+  }, [date]);
+  const shown = state.journal?.[date]?.prompt ?? (useCommunity && community ? community.question : prompt) ?? 'What stood out about today?';
   return (
     <section aria-labelledby="journal" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5 lg:col-span-3">
       <div className="flex items-baseline justify-between gap-3">
@@ -72,6 +77,11 @@ export function JournalCard({ date, prompt, reading }: { date: string; prompt?: 
         <span className={`font-mono text-[11px] ${done ? 'text-gold-lite' : 'text-dim'}`}>{done ? '✦ ' : ''}+{XP.journal} XP</span>
       </div>
       <p className="text-[15px] leading-relaxed text-muted">{shown}</p>
+      {community && !state.journal?.[date]?.text && !useCommunity && community.question !== shown && (
+        <button type="button" onClick={() => setUseCommunity(true)} className="self-start text-left text-sm text-gold-lite">
+          Or answer {community.by}&apos;s question: &ldquo;{community.question}&rdquo;
+        </button>
+      )}
       <JournalEditor date={date} prompt={shown} reading={reading} />
       <p className="-mt-1 text-xs text-dim">Today&apos;s reading is saved alongside what you write.</p>
       <Link href="/journal" className="self-start text-sm text-gold-lite">All entries ›</Link>
