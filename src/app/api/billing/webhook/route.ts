@@ -47,6 +47,15 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+        // A pack of vision credits: add them once (the session id makes it idempotent).
+        if (session.mode === 'payment' && session.metadata?.kind === 'vision-credits' && session.payment_status === 'paid') {
+          const userId = session.metadata.user_id ?? session.client_reference_id;
+          const credits = Number(session.metadata.credits) || 0;
+          if (userId && credits > 0) {
+            const { error } = await admin.from('credit_ledger').upsert({ id: session.id, user_id: userId, delta: credits, reason: `bought ${credits}` }, { onConflict: 'id', ignoreDuplicates: true });
+            if (error) throw error;
+          }
+        }
         if (session.mode === 'subscription' && session.subscription) {
           const sub = await s.subscriptions.retrieve(typeof session.subscription === 'string' ? session.subscription : session.subscription.id);
           if (!sub.metadata.user_id && session.client_reference_id) sub.metadata.user_id = session.client_reference_id;

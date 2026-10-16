@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { isOwnerEmail } from '@/lib/owner';
 
-interface Stats { accounts: number | null; accountsTotalApprox: string | null; charts: number; newThisWeek: number; plusPaying: number; plusGifted: number; checkInsThisWeek: number; links: number }
+interface Stats { accounts: number | null; accountsTotalApprox: string | null; charts: number; newThisWeek: number; plusPaying: number; plusGifted: number; checkInsThisWeek: number; links: number; visions30d: number; visionCostAvg: number | null; visionCost30d: number }
 
 export default function Admin() {
   const { user, ready } = useAuth();
@@ -47,6 +47,9 @@ export default function Admin() {
           {tile('Plus (gifted)', stats.plusGifted)}
           {tile('Check-ins, 7d', stats.checkInsThisWeek)}
           {tile('Links', stats.links)}
+          {tile('Visions, 30d', stats.visions30d)}
+          {tile('Avg cost/vision', stats.visionCostAvg == null ? '—' : `$${stats.visionCostAvg.toFixed(3)}`)}
+          {tile('Vision spend, 30d', `$${stats.visionCost30d.toFixed(2)}`)}
         </section>
       )}
       {inbox && (

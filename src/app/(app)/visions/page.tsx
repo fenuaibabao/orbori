@@ -17,12 +17,27 @@ export default function Visions() {
   const { user } = useAuth();
   const plus = usePlus();
   const p = useProgress();
-  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number; monthLeft?: number | null } | null>(null);
+  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number; monthLeft?: number | null; credits?: number; allowance?: boolean; packs?: { id: string; credits: number; cents: number; open: boolean }[] } | null>(null);
   const [busy, setBusy] = useState<VisionKind | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   const load = () => fetch('/api/visions').then((r) => r.json()).then(setInfo).catch(() => setInfo({ enabled: false, items: [], usedToday: 0, limit: 3 }));
   useEffect(() => { load(); }, [user]);
+  // Back from Stripe: credits land a moment later, when Stripe confirms the payment.
+  const [bought, setBought] = useState(false);
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has('credits')) return;
+    setBought(true);
+    const t = [2000, 5000, 10000].map((ms) => setTimeout(load, ms));
+    return () => t.forEach(clearTimeout);
+  }, []);
+  const buy = async (pack: string) => {
+    setErr(null);
+    const r = await fetch('/api/credits/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pack }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.url) { setErr(d.error ?? 'Something went wrong.'); return; }
+    window.location.assign(d.url);
+  };
 
   // Free art: drawn by Orbori from your sigil (Celestials' own design and theme carry over).
   const art = (kind: 'wallpaper' | 'flash') => {
@@ -41,8 +56,9 @@ export default function Visions() {
   };
   const remove = async (id: string) => { await fetch(`/api/visions?id=${id}`, { method: 'DELETE' }); load(); };
 
-  const canMake = !!user && plus.plus && info?.enabled;
   const left = info ? Math.max(0, info.limit - info.usedToday) : 0;
+  const credits = info?.credits ?? 0;
+  const canMake = !!user && !!info?.enabled && (left > 0 || credits > 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -71,12 +87,13 @@ export default function Visions() {
       <section aria-labelledby="ai" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="ai" className="font-display text-xl font-bold">Visions <span className="ml-1 font-mono text-[11px] font-normal text-gold-lite">PLUS</span></h2>
-          {canMake && <span className="font-mono text-[11px] text-muted">{left} left today{info!.monthLeft != null ? ` · ${info!.monthLeft} this month` : ''}</span>}
+          {user && info?.enabled && <span className="font-mono text-[11px] text-muted">{info.allowance ? `${left} free today${info.monthLeft != null ? ` · ${info.monthLeft} this month` : ''} · ` : ''}{credits} {credits === 1 ? 'credit' : 'credits'}</span>}
         </div>
         {!info?.enabled ? <p className="rounded-2xl bg-night p-4 text-sm text-muted">Visions are being switched on. Check back soon.</p>
           : !user ? <p className="rounded-2xl bg-night p-4 text-sm">Sign in to make visions. <Link href={`/signin?next=${encodeURIComponent('/visions')}`} className="font-semibold text-gold-lite">Sign in ›</Link></p>
-          : !plus.plus ? <p className="rounded-2xl bg-night p-4 text-sm">Visions are part of Orbori Plus. <Link href="/plus" className="font-semibold text-gold-lite">See Plus ›</Link></p>
+          : !plus.plus && credits === 0 ? <p className="rounded-2xl bg-night p-4 text-sm">Visions come with <Link href="/plus" className="font-semibold text-gold-lite">Orbori Plus</Link> (3 a day, 20 a month), or with a pack of credits below.</p>
           : null}
+        {bought && <p role="status" className="rounded-2xl border border-gold bg-night p-4 text-sm">Thank you. Your credits are on their way; they appear here within a few seconds.</p>}
 
         <details className="rounded-2xl bg-night p-4 text-sm">
           <summary className="cursor-pointer font-semibold">How should we picture you? <span className="font-normal text-muted">(optional, for makeup, nails and hair)</span></summary>
@@ -102,13 +119,36 @@ export default function Visions() {
               <p className="text-sm text-muted">{v.blurb}</p>
               <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy || left === 0}
                 className="mt-auto flex min-h-11 items-center justify-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space disabled:opacity-50">
-                {busy === v.id ? 'Painting… about a minute' : 'Make it'}
+                {busy === v.id ? 'Painting… about a minute' : left > 0 ? 'Make it' : 'Make it · 1 credit'}
               </button>
             </article>
           ))}
         </div>
         {err && <p role="alert" className="text-sm text-mauve-lite">{err}</p>}
       </section>
+
+      {user && info?.enabled && info.packs && (
+        <section aria-labelledby="packs" className="flex flex-col gap-3 rounded-3xl border border-line bg-night p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="packs" className="font-display text-xl font-bold">More visions</h2>
+            <span className="font-mono text-[11px] text-gold-lite">{credits} {credits === 1 ? 'CREDIT' : 'CREDITS'}</span>
+          </div>
+          <p className="text-sm text-muted">One credit makes one vision, any kind. Credits never expire and are used only after your free Plus visions run out. Priced close to what each image costs us.</p>
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {info.packs.map((pk) => (
+              <li key={pk.id}>
+                <button type="button" onClick={() => buy(pk.id)} disabled={!pk.open}
+                  className="flex min-h-20 w-full flex-col items-center justify-center rounded-2xl border border-line-2 bg-deep p-3 text-center hover:border-gold disabled:opacity-60">
+                  <span className="font-mono text-lg font-bold text-gold-lite">{pk.credits}</span>
+                  <span className="text-xs text-muted">visions</span>
+                  <span className="mt-1 text-sm font-semibold">${(pk.cents / 100).toFixed(2)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {info.packs.some((pk) => !pk.open) && <p className="text-xs text-dim">Credit packs open after the beta.</p>}
+        </section>
+      )}
 
       {info && info.items.length > 0 && (
         <section aria-labelledby="mine" className="flex flex-col gap-3">

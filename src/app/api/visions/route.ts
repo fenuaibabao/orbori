@@ -7,6 +7,8 @@ import { isOwnerEmail } from '@/lib/owner';
 import { isPlusRow } from '@/lib/plus-status';
 import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { parseBirthInput } from '@/lib/validate';
+import { imageCost, PACKS } from '@/lib/credits';
+import { BETA } from '@/lib/beta';
 import { HAIR, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
 
 export const runtime = 'nodejs';
@@ -16,6 +18,13 @@ const DAILY = 3;
 /** Per calendar month, so heavy use can't outrun what Plus costs. */
 const MONTHLY = 20;
 const BUCKET = 'visions';
+/** With credits, a looser daily ceiling that only stops runaway use. */
+const CREDIT_DAILY = 25;
+
+async function balance(admin: NonNullable<ReturnType<typeof supabaseAdmin>>, userId: string) {
+  const { data } = await admin.from('credit_ledger').select('delta').eq('user_id', userId);
+  return (data ?? []).reduce((s, r) => s + r.delta, 0);
+}
 const MODEL = () => process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2';
 const FALLBACK = 'gpt-image-1.5';
 
@@ -35,14 +44,24 @@ export async function GET() {
   const signed = rows.length ? await admin.storage.from(BUCKET).createSignedUrls(rows.map((r) => r.path), 7 * 86400) : { data: [] };
   const today = new Date().toISOString().slice(0, 10);
   const owner = isOwnerEmail(user.email);
-  const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
-  const usedToday = rows.filter((r) => r.created_at.startsWith(today)).length;
+  const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
+  const { count: freeToday } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today}T00:00:00Z`);
+  const usedToday = owner ? rows.filter((r) => r.created_at.startsWith(today)).length : freeToday ?? 0;
+  const credits = await balance(admin, user.id);
+  let plusOn = owner;
+  if (!owner) {
+    const { data: sub } = await admin.from('subscriptions').select('status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
+    plusOn = isPlusRow(sub);
+  }
   return NextResponse.json({
+    credits,
+    allowance: plusOn,
+    packs: PACKS.map((p) => ({ ...p, open: !BETA || owner })),
     enabled,
     items: rows.map((r, i) => ({ id: r.id, kind: r.kind, note: r.note, created_at: r.created_at, url: signed.data?.[i]?.signedUrl ?? null })),
     usedToday,
-    limit: owner ? 50 : Math.max(0, Math.min(DAILY, MONTHLY - (month ?? 0) + usedToday)),
-    monthLeft: owner ? null : Math.max(0, MONTHLY - (month ?? 0)),
+    limit: owner ? 50 : plusOn ? Math.max(0, Math.min(DAILY, MONTHLY - (month ?? 0) + usedToday)) : 0,
+    monthLeft: owner || !plusOn ? null : Math.max(0, MONTHLY - (month ?? 0)),
   });
 }
 
@@ -54,16 +73,25 @@ export async function POST(req: Request) {
   if (!admin) return NextResponse.json({ error: 'Accounts are not configured.' }, { status: 503 });
   if (!user) return NextResponse.json({ error: 'Sign in to make visions.' }, { status: 401 });
   const owner = isOwnerEmail(user.email);
+  const today = new Date().toISOString().slice(0, 10);
+  // Plus allowance first (3 a day, 20 a month); after that, or without Plus, a credit pays for each vision.
+  let useCredit = false;
   if (!owner) {
     const { data: sub } = await admin.from('subscriptions').select('status, plan, current_period_end').eq('user_id', user.id).maybeSingle();
-    if (!isPlusRow(sub)) return NextResponse.json({ error: 'Cosmic Visions are part of Orbori Plus.' }, { status: 402 });
-  }
-  const today = new Date().toISOString().slice(0, 10);
-  const { count } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
-  if ((count ?? 0) >= (owner ? 50 : DAILY)) return NextResponse.json({ error: `That's today's ${DAILY} visions. More tomorrow.` }, { status: 429 });
-  if (!owner) {
-    const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
-    if ((month ?? 0) >= MONTHLY) return NextResponse.json({ error: `That's this month's ${MONTHLY} visions. More on the 1st.` }, { status: 429 });
+    const { count: day } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
+    const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
+    const { count: freeToday } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today}T00:00:00Z`);
+    const allowanceLeft = isPlusRow(sub) && (freeToday ?? 0) < DAILY && (month ?? 0) < MONTHLY;
+    if (!allowanceLeft) {
+      if ((await balance(admin, user.id)) < 1) {
+        return NextResponse.json({ error: isPlusRow(sub) ? 'You\'ve used your free visions for now. Grab a pack of credits to keep going.' : 'Visions come with Orbori Plus, or with a pack of credits.', needCredits: true }, { status: 402 });
+      }
+      if ((day ?? 0) >= CREDIT_DAILY) return NextResponse.json({ error: `That's ${CREDIT_DAILY} visions today. Your credits will keep until tomorrow.` }, { status: 429 });
+      useCredit = true;
+    }
+  } else {
+    const { count } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
+    if ((count ?? 0) >= 50) return NextResponse.json({ error: 'That\'s 50 today.' }, { status: 429 });
   }
 
   try {
@@ -98,11 +126,13 @@ export async function POST(req: Request) {
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({ model, prompt, size: '1024x1536', quality: 'medium', n: 1, user: createHash('sha256').update(user.id).digest('hex').slice(0, 16) }),
     });
-    let res = await call(MODEL());
+    let model = MODEL();
+    let res = await call(model);
     let out = await res.json().catch(() => ({}));
     // If the newest model isn't available on this account yet, use the previous one.
     if (!res.ok && res.status !== 429 && out?.error?.code !== 'moderation_blocked' && /model|verif|access/i.test(out?.error?.message ?? '')) {
       console.error('[visions] falling back:', out?.error?.message);
+      model = FALLBACK;
       res = await call(FALLBACK);
       out = await res.json().catch(() => ({}));
     }
@@ -118,7 +148,8 @@ export async function POST(req: Request) {
     const path = `${user.id}/${id}.png`;
     const up = await admin.storage.from(BUCKET).upload(path, Buffer.from(b64, 'base64'), { contentType: 'image/png' });
     if (up.error) throw new Error(up.error.message);
-    await admin.from('visions').insert({ id, user_id: user.id, kind, note, path });
+    await admin.from('visions').insert({ id, user_id: user.id, kind, note, path, model, cost_usd: imageCost(model, out?.usage), paid: useCredit });
+    if (useCredit) await admin.from('credit_ledger').insert({ id: `vision:${id}`, user_id: user.id, delta: -1, reason: kind });
     const { data: s } = await admin.storage.from(BUCKET).createSignedUrl(path, 7 * 86400);
     return NextResponse.json({ id, kind, note, url: s?.signedUrl ?? null, created_at: new Date().toISOString() });
   } catch (e) {
