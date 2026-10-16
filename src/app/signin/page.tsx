@@ -26,6 +26,8 @@ function SignIn() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true); setError(null);
+    // Remember where to return after the email link (it lands on the home page).
+    try { if (next.startsWith('/') && next !== '/') localStorage.setItem('orbori.next', next); } catch { /* ignore */ }
     const r = await signInWithEmail(email.trim());
     setBusy(false);
     if (r.error) setError(r.error); else setSent(true);

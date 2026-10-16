@@ -11,11 +11,11 @@ const PLUS = ['Everything in Free', 'All seven traditions in depth: houses, aspe
 
 const money = (p: PriceInfo) => new Intl.NumberFormat('en-US', { style: 'currency', currency: p.currency, minimumFractionDigits: p.amount % 1 ? 2 : 0 }).format(p.amount);
 
-export function Pricing({ prices }: { prices: PriceInfo[] | null }) {
-  return <Suspense fallback={<div className="min-h-dvh" />}><Inner prices={prices} /></Suspense>;
+export function Pricing({ prices, beta }: { prices: PriceInfo[] | null; beta: boolean }) {
+  return <Suspense fallback={<div className="min-h-dvh" />}><Inner prices={prices} beta={beta} /></Suspense>;
 }
 
-function Inner({ prices }: { prices: PriceInfo[] | null }) {
+function Inner({ prices, beta }: { prices: PriceInfo[] | null; beta: boolean }) {
   const { user } = useAuth();
   const plus = usePlus();
   const params = useSearchParams();
@@ -46,6 +46,7 @@ function Inner({ prices }: { prices: PriceInfo[] | null }) {
   const cta = (plan: 'monthly' | 'yearly', label: string, primary: boolean) => {
     const cls = `flex h-12 w-full items-center justify-center rounded-full px-5 font-bold disabled:opacity-50 ${primary ? 'bg-gold text-space hover:bg-gold-lite' : 'border border-royal text-starlight hover:border-gold-lite'}`;
     if (!user) return <Link href={`/signin?next=${encodeURIComponent('/plus')}`} className={cls}>Sign in to continue</Link>;
+    if (beta) return <button type="button" disabled className={cls}>Opens after the beta</button>;
     if (!prices) return <button type="button" disabled className={cls}>Coming soon</button>;
     return <button type="button" disabled={busy !== null} onClick={() => choose(plan)} className={cls}>{busy === plan ? 'Opening checkout…' : label}</button>;
   };
@@ -58,6 +59,12 @@ function Inner({ prices }: { prices: PriceInfo[] | null }) {
         <p className="text-[15px] text-muted">The daily reading stays free forever. Plus opens every system in depth.</p>
       </header>
 
+      {beta && !plus.plus && (
+        <div className="rounded-[22px] border border-gold bg-night p-5 text-sm text-muted">
+          <p className="font-display text-lg font-bold text-starlight">Orbori is in beta.</p>
+          Plus is free for testers right now. If someone sent you a tester link, open it and sign in; Plus switches on automatically. Paid plans open after the beta.
+        </div>
+      )}
       {welcome && plus.plus && (
         <div role="status" className="rounded-[22px] border border-gold bg-night p-5">
           <p className="font-display text-lg font-bold text-gold-lite">Welcome to Plus.</p>

@@ -11,7 +11,11 @@ export default function Home() {
   const ready = store.ready && synced;
   const { state } = store;
   useEffect(() => {
-    if (ready) router.replace(state.profile ? '/today' : '/welcome');
+    if (!ready) return;
+    let next: string | null = null;
+    try { next = localStorage.getItem('orbori.next'); localStorage.removeItem('orbori.next'); } catch { /* ignore */ }
+    if (next && next.startsWith('/') && !next.startsWith('//')) router.replace(next);
+    else router.replace(state.profile ? '/today' : '/welcome');
   }, [ready, state.profile, router]);
   return <div className="min-h-dvh" />;
 }

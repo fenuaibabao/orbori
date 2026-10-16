@@ -12,8 +12,15 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
+  const [inbox, setInbox] = useState<{ betaPath: string; feedback: { id: string; email: string | null; page: string | null; message: string; created_at: string }[]; testers: { email: string; since: string }[] } | null>(null);
+  const [copied, setCopied] = useState(false);
   const load = () => fetch('/api/admin/stats').then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.error); setStats(d); }).catch((e) => setError(e.message));
-  useEffect(() => { if (owner) load(); }, [owner]);
+  useEffect(() => {
+    if (!owner) return;
+    load();
+    fetch('/api/admin/feedback').then((r) => r.json()).then((d) => { if (d.betaPath) setInbox(d); }).catch(() => {});
+  }, [owner]);
+  const betaUrl = inbox ? `${typeof window !== 'undefined' ? window.location.origin : ''}${inbox.betaPath}` : '';
 
   const plus = async (grant: boolean) => {
     setNote('…');
@@ -41,6 +48,34 @@ export default function Admin() {
           {tile('Links', stats.links)}
         </section>
       )}
+      {inbox && (
+        <section className="flex flex-col gap-3 rounded-[22px] border border-gold bg-night p-[18px]">
+          <h2 className="font-display text-lg font-bold">Tester link</h2>
+          <p className="text-sm text-muted">Send this to your testers. Anyone who opens it and signs in gets Plus free during the beta.</p>
+          <div className="flex gap-2">
+            <input readOnly value={betaUrl} className="h-11 min-w-0 flex-1 rounded-2xl border border-line-2 bg-deep px-3 font-mono text-xs" onFocus={(e) => e.currentTarget.select()} />
+            <button type="button" onClick={() => { navigator.clipboard.writeText(betaUrl).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); }}
+              className="h-11 rounded-full bg-gold px-4 text-sm font-bold text-space">{copied ? 'Copied' : 'Copy'}</button>
+          </div>
+          <p className="text-xs text-dim">{inbox.testers.length} {inbox.testers.length === 1 ? 'tester has' : 'testers have'} joined{inbox.testers.length ? `: ${inbox.testers.map((t) => t.email).join(', ')}` : '.'}</p>
+        </section>
+      )}
+
+      {inbox && (
+        <section className="flex flex-col gap-3 rounded-[22px] border border-royal bg-night p-[18px]">
+          <h2 className="font-display text-lg font-bold">Feedback <span className="font-mono text-sm text-gold-lite">{inbox.feedback.length}</span></h2>
+          {inbox.feedback.length === 0 && <p className="text-sm text-muted">Nothing yet. Feedback from the button in the app lands here.</p>}
+          <ul className="flex flex-col gap-2">
+            {inbox.feedback.map((f) => (
+              <li key={f.id} className="rounded-xl bg-deep p-3 text-sm">
+                <p className="whitespace-pre-wrap">{f.message}</p>
+                <p className="mt-1.5 font-mono text-[11px] text-dim">{f.email ?? 'anonymous'} · {f.page ?? ''} · {new Date(f.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="flex flex-col gap-3 rounded-[22px] border border-royal bg-night p-[18px]">
         <h2 className="font-display text-lg font-bold">Gift Plus</h2>
         <p className="text-sm text-muted">Grant Plus to an account for free (friends, reviewers, practitioners), or take a gift back. The person must have signed in at least once.</p>

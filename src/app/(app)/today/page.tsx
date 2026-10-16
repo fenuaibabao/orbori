@@ -63,7 +63,7 @@ export default function Today() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-3.5">
         <div className="flex items-center justify-between">
-          <span className="lg:hidden"><Logo size={28} /></span>
+          <span className="flex items-center gap-1.5 lg:hidden"><Logo size={28} /><span className="rounded-full border border-gold px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-gold-lite">BETA</span></span>
           <span className="hidden font-mono text-xs tracking-[0.08em] text-gold-lite lg:block">{pretty} · TODAY&apos;S COSMIC COUNCIL</span>
           <div className="flex items-center gap-2">
             <Link href="/profile" aria-label={`${progress.streak}-night check-in streak`}

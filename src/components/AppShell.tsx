@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth';
 import { isOwnerEmail } from '@/lib/owner';
 import { ChartIcon, CosmosIcon, ProfileIcon, SunIcon, VisionsIcon } from './icons';
 import { Logo } from './Logo';
+import { Feedback } from './Feedback';
 
 const TABS = [
   { href: '/today', label: 'Today', Icon: SunIcon },
@@ -38,7 +39,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="lg:flex lg:min-h-dvh">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:gap-7 lg:border-r lg:border-[#1C1856] lg:px-5 lg:py-8">
-        <Link href="/today" className="pl-3.5"><Logo size={32} /></Link>
+        <Link href="/today" className="flex items-center gap-2 pl-3.5"><Logo size={32} /><span className="rounded-full border border-gold px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-gold-lite">BETA</span></Link>
         <nav aria-label="Main" className="flex flex-col gap-1">
           {TABS.map(({ href, label, Icon }) => {
             const on = path.startsWith(href);
@@ -72,10 +73,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           )}
         </nav>
+        <Feedback className="mt-auto flex min-h-11 items-center gap-2 rounded-[14px] border border-line px-3.5 text-sm font-medium text-muted hover:text-starlight" />
       </aside>
 
       <main className="mx-auto w-full max-w-[1080px] px-5 pb-36 pt-[calc(env(safe-area-inset-top)+24px)] lg:px-10 lg:pb-16 lg:pt-8">{children}</main>
 
+      <Feedback className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] right-3 z-20 rounded-full border border-royal bg-night/95 px-3 py-1.5 text-xs font-semibold text-muted shadow-lg backdrop-blur lg:hidden" />
       {/* Mobile tab bar */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-[#0B0934]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
         {TABS.map(({ href, label, Icon }) => {

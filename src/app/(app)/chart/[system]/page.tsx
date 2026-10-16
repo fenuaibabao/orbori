@@ -539,6 +539,8 @@ function Mayan({ d, chart }: { d: ChartDepth; chart: Chart }) {
           {' '}The next Wajxaqib&apos; B&apos;atz&apos;, when the Chol Q&apos;ij begins again, is {longDate(m.today.nextWajxaqibBatz)}; the next Mam, {m.today.mam.nextMam.label}, is seated {longDate(m.today.mam.nextSeated)}.
         </p>
         {strip(m.today.trecena.days, m.today.date)}
+        <a href={`https://thefourpillars.net/${new Date(`${m.today.date}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase()}-${m.today.date.slice(0, 4)}/`}
+          target="_blank" rel="noopener" className="self-start text-sm font-semibold text-gold-lite">Read Mark Elmy on {m.today.day.label} and this month&apos;s days ↗</a>
       </Section>
       <PartnerLink
         href="https://thefourpillars.net"
