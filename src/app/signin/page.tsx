@@ -44,7 +44,8 @@ function SignIn() {
       ) : sent ? (
         <div className="flex flex-col gap-3 rounded-[22px] border border-royal bg-night p-5 text-center">
           <p className="font-display text-lg font-bold">Check your email</p>
-          <p className="text-sm text-muted">We sent a sign-in link to <span className="text-starlight">{email}</span>. Open it on this device and you&apos;re in. It can take a minute to arrive.</p>
+          <p className="text-sm text-muted">We sent a sign-in link to <span className="text-starlight">{email}</span>. Open it on this device and you&apos;re in. It can take a few minutes to arrive.</p>
+          <p className="text-xs text-dim">Don&apos;t see it? Check your spam or junk folder for &ldquo;Your sign-in link&rdquo; from Orbori, and mark it &ldquo;not spam&rdquo; so the next one lands in your inbox.</p>
           <button type="button" onClick={() => setSent(false)} className="text-sm text-gold-lite">Use a different email</button>
         </div>
       ) : (

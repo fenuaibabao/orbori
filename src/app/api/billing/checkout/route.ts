@@ -32,8 +32,8 @@ export async function POST(req: Request) {
     line_items: [{ price: PRICES[plan], quantity: 1 }],
     allow_promotion_codes: true,
     subscription_data: { metadata: { user_id: user.id } },
-    success_url: `${siteUrl()}/plus?welcome=1`,
-    cancel_url: `${siteUrl()}/plus`,
+    success_url: `${siteUrl(req)}/plus?welcome=1`,
+    cancel_url: `${siteUrl(req)}/plus`,
   });
   return NextResponse.json({ url: session.url });
 }

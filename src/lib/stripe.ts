@@ -17,7 +17,13 @@ export function stripe(): Stripe | null {
   return client;
 }
 
-export const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? 'https://orbori.vercel.app';
+const ALLOWED_ORIGINS = ['https://www.orbori.app', 'https://orbori.app', 'https://orbori.vercel.app'];
+/** Where to send people back after Stripe: the address they came from if it's ours, else the main one. */
+export const siteUrl = (req?: Request) => {
+  const origin = req?.headers.get('origin') ?? '';
+  if (ALLOWED_ORIGINS.includes(origin)) return origin;
+  return process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes('vercel.app') ? process.env.NEXT_PUBLIC_SITE_URL : 'https://www.orbori.app';
+};
 
 export function planFromPrice(priceId: string | undefined, interval?: string | null): Plan {
   if (priceId === PRICES.yearly) return 'yearly';
