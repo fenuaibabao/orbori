@@ -1,5 +1,6 @@
 import * as A from 'astronomy-engine';
 import { ImageResponse } from 'next/og';
+import sharp from 'sharp';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { moonNight } from '@/lib/astro/hawaiian';
@@ -196,5 +197,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
     }
     default: return new Response('Unknown post', { status: 404 });
   }
-  return new ImageResponse(node as React.ReactElement, { width: W, height: H, fonts: await loadFonts() });
+  const png = new ImageResponse(node as React.ReactElement, { width: W, height: H, fonts: await loadFonts() });
+  // Instagram's publishing API only takes JPEGs.
+  if (q.get('format') === 'jpg') {
+    const jpg = await sharp(Buffer.from(await png.arrayBuffer())).jpeg({ quality: 92, mozjpeg: true }).toBuffer();
+    return new Response(new Uint8Array(jpg), { headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=3600' } });
+  }
+  return png;
 }
