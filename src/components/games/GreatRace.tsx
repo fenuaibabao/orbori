@@ -1,4 +1,5 @@
 'use client';
+import { buzz } from '@/lib/haptics';
 import { useState } from 'react';
 import { ANIMALS } from '@/lib/astro/chinese';
 import { shuffle } from '@/lib/games';
@@ -15,8 +16,8 @@ export function GreatRace({ onFinish, onExit }: { onFinish: (mistakes: number) =
     if (done || ANIMALS.indexOf(a) < n) return;
     if (a === ANIMALS[n]) {
       setN(n + 1); setMiss(null);
-      if (n + 1 === ANIMALS.length) onFinish(mistakes);
-    } else { setMistakes((m) => m + 1); setMiss(a); }
+      if (n + 1 === ANIMALS.length) { buzz('win'); onFinish(mistakes); } else buzz('right');
+    } else { setMistakes((m) => m + 1); setMiss(a); buzz('wrong'); }
   };
 
   if (done) {

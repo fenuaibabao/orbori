@@ -89,3 +89,8 @@ html[data-theme="aurora"] {
 @keyframes orbori-glow { 0%, 100% { filter: drop-shadow(0 0 2px var(--color-gold-lite)); } 50% { filter: drop-shadow(0 0 8px var(--color-gold-lite)); } }
 .anim-sigil { animation: orbori-spin 40s linear infinite, orbori-glow 4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .anim-sigil { animation: none; } }
+
+/* Phone menu sheet slides up */
+@keyframes orb-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.orb-sheet { animation: orb-sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@media (prefers-reduced-motion: reduce) { .orb-sheet { animation: none; } }

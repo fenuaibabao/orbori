@@ -1,4 +1,5 @@
 'use client';
+import { buzz } from '@/lib/haptics';
 import { useState } from 'react';
 
 export interface Round { prompt: React.ReactNode; question?: string; options: string[]; answer: string; after?: string; optionLang?: string }
@@ -13,7 +14,7 @@ export function QuizGame({ rounds, onFinish, onExit, verdict }: {
   const [done, setDone] = useState(false);
   const r = rounds[i];
 
-  const choose = (o: string) => { if (picked) return; setPicked(o); if (o === r.answer) setScore((s) => s + 1); };
+  const choose = (o: string) => { if (picked) return; setPicked(o); if (o === r.answer) { setScore((s) => s + 1); buzz('right'); } else buzz('wrong'); };
   const next = () => {
     if (i + 1 >= rounds.length) { setDone(true); onFinish(score, rounds.length); return; }
     setI(i + 1); setPicked(null);

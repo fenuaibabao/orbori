@@ -1,4 +1,5 @@
 'use client';
+import { buzz } from '@/lib/haptics';
 import { useEffect, useState } from 'react';
 import { makeQuest, type QuestQuestion } from '@/lib/games';
 
@@ -24,7 +25,7 @@ export function TermQuest({ hard, onFinish, onExit }: { hard: boolean; onFinish:
   const choose = (o: string) => {
     if (picked) return;
     setPicked(o);
-    if (o === q.answer) setScore((s) => s + 1);
+    if (o === q.answer) { setScore((s) => s + 1); buzz('right'); } else buzz('wrong');
   };
   const next = () => {
     if (i + 1 >= qs.length) { setDone(true); onFinish(score, qs.length); return; }

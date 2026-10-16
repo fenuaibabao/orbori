@@ -3,6 +3,7 @@ import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AiReading, closingQuestion } from '@/components/AiReading';
+import { InstallPrompt } from '@/components/InstallPrompt';
 import { JournalCard } from '@/components/Journal';
 import { ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
@@ -215,6 +216,8 @@ export default function Today() {
             </ul>
             <p className="text-xs text-dim">Extras cap at {DAILY_ACTIVITY_CAP} XP a day. Weekly challenges on your <Link href="/profile" className="text-gold-lite">Profile</Link> add +{XP.challenge} each.</p>
           </section>
+
+          <InstallPrompt />
 
           <section aria-labelledby="systems" className="flex flex-col gap-3 lg:col-span-3 lg:mt-2">
             <h2 id="systems" className="font-display text-xl font-bold">What each system says</h2>

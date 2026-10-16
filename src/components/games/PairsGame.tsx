@@ -1,4 +1,5 @@
 'use client';
+import { buzz } from '@/lib/haptics';
 import { useEffect, useState } from 'react';
 import { shuffle } from '@/lib/games';
 
@@ -21,6 +22,7 @@ export function PairsGame({ pairs, onFinish, onExit, hint, aLang }: {
     if (up.length !== 2) return;
     const [a, b] = up.map((k) => cards.find((c) => c.key === k)!);
     const same = a.pair === b.pair;
+    buzz(same ? 'right' : 'wrong');
     const t = setTimeout(() => { if (same) setMatched((m) => new Set(m).add(a.pair)); setUp([]); }, same ? 350 : 900);
     return () => clearTimeout(t);
   }, [up, cards]);

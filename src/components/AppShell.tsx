@@ -10,6 +10,7 @@ import { ChartIcon, CosmosIcon, ProfileIcon, SunIcon, VisionsIcon } from './icon
 import { Logo } from './Logo';
 import { Feedback } from './Feedback';
 import { RewardEffects } from './Rewards';
+import { OrbButton } from './OrbMenu';
 
 const TABS = [
   { href: '/today', label: 'Today', Icon: SunIcon },
@@ -18,6 +19,9 @@ const TABS = [
   { href: '/visions', label: 'Visions', Icon: VisionsIcon },
   { href: '/profile', label: 'Profile', Icon: ProfileIcon },
 ];
+
+/** On phones: Today, Chart, the orb, Visions, Me. */
+const PHONE_TABS = [TABS[0], TABS[1], 'orb', TABS[3], { ...TABS[4], label: 'Me' }] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
@@ -95,11 +99,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main className="mx-auto w-full max-w-[1080px] px-5 pb-36 pt-[calc(env(safe-area-inset-top)+24px)] lg:px-10 lg:pb-16 lg:pt-8">{children}</main>
 
-      <Feedback className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] right-3 z-20 rounded-full border border-royal bg-night/95 px-3 py-1.5 text-xs font-semibold text-muted shadow-lg backdrop-blur lg:hidden" />
-      {/* Mobile tab bar */}
+      <Feedback className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] right-3 z-10 rounded-full border border-royal bg-night/95 px-3 py-1.5 text-xs font-semibold text-muted shadow-lg backdrop-blur lg:hidden" />
+      {/* Mobile tab bar: four tabs and the orb in the middle, which opens everything else */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-deep/95 px-2 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 backdrop-blur lg:hidden">
-        {TABS.map(({ href, label, Icon }) => {
-          const on = path.startsWith(href) || (href === '/profile' && (path.startsWith('/compatibility') || path.startsWith('/learn') || path.startsWith('/journal') || path.startsWith('/play') || path.startsWith('/rewards') || path.startsWith('/recap') || path.startsWith('/plus')));
+        {PHONE_TABS.map((t) => {
+          if (t === 'orb') return <OrbButton key="orb" />;
+          const { href, label, Icon } = t;
+          const on = path.startsWith(href) || (href === '/profile' && path.startsWith('/plus'));
           return (
             <Link key={href} href={href} aria-current={on ? 'page' : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${on ? 'text-starlight' : 'text-dim'}`}>
