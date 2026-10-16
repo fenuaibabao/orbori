@@ -6,6 +6,7 @@ import { usePlus } from '@/lib/plus';
 import { setPrefs, usePrefs } from '@/lib/prefs';
 import { useAppStore } from '@/lib/store';
 import { useProgress } from '@/lib/use-progress';
+import { saveImage } from '@/lib/save-image';
 import { HAIR, SKIN, VISION_KINDS, type VisionKind } from '@/lib/visions';
 
 interface Vision { id: string; kind: VisionKind; note: string | null; url: string | null; created_at: string }
@@ -54,6 +55,13 @@ export default function Visions() {
     if (!r.ok) { setErr(d.error ?? 'Something went wrong.'); return; }
     load();
   };
+  const [saving, setSaving] = useState<string | null>(null);
+  const save = async (key: string, url: string, filename: string) => {
+    setSaving(key);
+    const r = await saveImage(url, filename);
+    setSaving(null);
+    if (r === 'failed') setErr('Could not save that image. Try again.');
+  };
   const remove = async (id: string) => { await fetch(`/api/visions?id=${id}`, { method: 'DELETE' }); load(); };
 
   const left = info ? Math.max(0, info.limit - info.usedToday) : 0;
@@ -78,7 +86,7 @@ export default function Visions() {
                 <h3 className="font-semibold">{title}</h3>
                 <p className="text-sm text-muted">{body}</p>
               </div>
-              <a href={art(k)} download={`orbori-${k}.png`} className="flex min-h-11 items-center justify-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space">Download</a>
+              <button type="button" onClick={() => save(k, art(k), `orbori-${k}.png`)} disabled={saving === k} className="flex min-h-11 items-center justify-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space disabled:opacity-60">{saving === k ? 'Saving…' : 'Save'}</button>
             </article>
           ))}
         </div>
@@ -161,7 +169,7 @@ export default function Visions() {
                 <div className="flex items-center justify-between gap-2 px-1">
                   <span className="text-xs font-semibold">{nameOf(v.kind)}</span>
                   <span className="flex gap-2 text-xs">
-                    {v.url && <a href={`/api/visions/download?id=${v.id}`} download className="text-gold-lite">Save</a>}
+                    {v.url && <button type="button" onClick={() => save(v.id, `/api/visions/download?id=${v.id}`, `orbori-${v.kind}.jpg`)} disabled={saving === v.id} className="min-h-8 text-gold-lite disabled:opacity-60">{saving === v.id ? 'Saving…' : 'Save'}</button>}
                     <button type="button" onClick={() => remove(v.id)} className="text-muted hover:text-starlight">Delete</button>
                   </span>
                 </div>
