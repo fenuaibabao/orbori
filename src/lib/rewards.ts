@@ -4,13 +4,17 @@ export interface Reward { id: string; level: number; title: string; body: string
 export const REWARDS: Reward[] = [
   { id: 'themes', level: 1, title: 'Color themes', body: 'Dress Orbori in Dawn (plum and rose gold) or Moonlit (silver and midnight blue).' },
   { id: 'sigil-ring', level: 1, title: 'Gold sigil ring', body: 'A gold ring around your sigil wherever it appears.' },
+  { id: 'flame-colors', level: 1, title: 'Streak flame colors', body: 'Recolor your streak flame: gold, rose, sky or starlight.' },
   { id: 'card-designs', level: 2, title: 'Special share cards', body: 'Eclipse and Gold Leaf designs for every card you share.' },
   { id: 'week-recap', level: 2, title: 'Week in the stars', body: 'A weekly recap of your check-ins, scores, journal and learning, side by side.' },
   { id: 'hard-mode', level: 2, title: 'Hard mode', body: 'Term Quest against the clock, with every answer from the same tradition.' },
   { id: 'plus-month', level: 3, title: 'A month of Plus, free', body: 'Thirty days of Orbori Plus. Claim it whenever you like; it starts the day you claim.' },
+  { id: 'year-recap', level: 3, title: 'Your year in the stars', body: 'Your whole year at a glance: every month, your best streak, how often the Council read you right.' },
+  { id: 'gift-week', level: 3, title: 'Gift a week of Plus', body: 'Send a friend a link for seven free days of Orbori Plus.' },
   { id: 'level-badge', level: 3, title: 'Your level, shown to links', body: 'People you are linked with see your level beside your sigil.' },
   { id: 'founding', level: 4, title: 'Founding Celestial', body: 'A lifetime badge for reaching the top. It never goes away.' },
   { id: 'thank-you', level: 4, title: 'A note from the founder', body: 'A personal thank-you for walking the whole path.' },
+  { id: 'gold-icon', level: 4, title: 'The gold icon', body: 'A gold Orbori icon for your browser tab and home screen.' },
   { id: 'early-access', level: 4, title: 'Early access', body: 'First in line for new features like The Cosmos and Cosmic Visions.' },
 ];
 
@@ -29,3 +33,11 @@ export const CARD_STYLES = [
   { id: 'leaf', name: 'Gold Leaf', level: 2 },
 ] as const;
 export type CardStyle = (typeof CARD_STYLES)[number]['id'];
+
+export const FLAMES = [
+  { id: 'gold', name: 'Gold', colors: ['#A2752C', '#D4A24C'] },
+  { id: 'rose', name: 'Rose', colors: ['#B0606F', '#E8A0AE'] },
+  { id: 'sky', name: 'Sky', colors: ['#3D6FB0', '#8FC0F0'] },
+  { id: 'starlight', name: 'Starlight', colors: ['#B9B4D8', '#F4EFE6'] },
+] as const;
+export type FlameId = (typeof FLAMES)[number]['id'];

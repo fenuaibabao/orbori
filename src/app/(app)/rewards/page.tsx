@@ -7,12 +7,13 @@ import { useAuth } from '@/lib/auth';
 import { usePlus } from '@/lib/plus';
 import { setPrefs, usePrefs } from '@/lib/prefs';
 import { LEVELS } from '@/lib/progress';
-import { CARD_STYLES, isUnlocked, REWARDS, THEMES } from '@/lib/rewards';
+import { CARD_STYLES, FLAMES, isUnlocked, REWARDS, THEMES } from '@/lib/rewards';
+import { FlameIcon } from '@/components/icons';
 import { useAppStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase/client';
 import { useProgress } from '@/lib/use-progress';
 
-const THANK_YOU = `You made it to Celestial. That means you showed up night after night, read, wrote, played and learned your way through seven traditions. Orbori exists for people exactly like you: curious, open-hearted and willing to look up. Thank you for walking the whole path with us. — Fenua, founder of Orbori`;
+const THANK_YOU = `You made it to Celestial. That means you showed up night after night, read, wrote, played and learned your way through seven traditions. Orbori exists for people exactly like you: curious, open-hearted and willing to look up. Thank you for walking the whole path with us. — Endaoism, founder of Orbori`;
 
 export default function Rewards() {
   const { state } = useAppStore();
@@ -22,6 +23,19 @@ export default function Rewards() {
   const plus = usePlus();
   const [claimed, setClaimed] = useState<boolean | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [gift, setGift] = useState<{ code?: string; redeemed?: boolean; next?: string; error?: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const makeGift = async () => {
+    setGift({});
+    const r = await fetch('/api/gift', { method: 'POST' });
+    const d = await r.json().catch(() => ({}));
+    setGift(r.ok ? d : { error: d.error ?? 'Something went wrong.' });
+  };
+  const giftUrl = gift?.code ? `${window.location.origin}/gift/${gift.code}` : '';
+  const copyGift = async () => {
+    try { if (navigator.share) await navigator.share({ title: 'A week of Orbori Plus', text: 'A week of Orbori Plus, on me ✦', url: giftUrl }); else { await navigator.clipboard.writeText(giftUrl); setCopied(true); } }
+    catch { /* cancelled */ }
+  };
 
   // Mark this level's rewards as seen (clears the banner).
   useEffect(() => { if (p.levelIndex > prefs.seenLevel) setPrefs({ seenLevel: p.levelIndex }); }, [p.levelIndex, prefs.seenLevel]);
@@ -53,6 +67,44 @@ export default function Rewards() {
             {t.name}
           </button>
         ))}
+      </div>
+    );
+    if (id === 'flame-colors') return (
+      <div role="radiogroup" aria-label="Streak flame color" className="flex flex-wrap gap-2">
+        {FLAMES.map((f) => (
+          <button key={f.id} type="button" role="radio" aria-checked={prefs.flame === f.id} onClick={() => setPrefs({ flame: f.id })}
+            className={`flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm ${prefs.flame === f.id ? 'border-gold-lite bg-royal' : 'border-line-2 hover:border-gold'}`}>
+            <FlameIcon size={18} colors={f.colors} />{f.name}
+          </button>
+        ))}
+      </div>
+    );
+    if (id === 'year-recap') return <Link href="/recap/year" className="self-start text-sm font-semibold text-gold-lite">Open your year ›</Link>;
+    if (id === 'gift-week') {
+      if (!user) return <Link href={`/signin?next=${encodeURIComponent('/rewards')}`} className="self-start text-sm font-semibold text-gold-lite">Sign in to gift ›</Link>;
+      if (!gift) return <button type="button" onClick={makeGift} className="flex min-h-11 items-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space">Get my gift link</button>;
+      if (gift.error) return <p role="alert" className="text-sm text-mauve-lite">{gift.error}</p>;
+      if (!gift.code) return <p className="text-sm text-muted">Wrapping…</p>;
+      return gift.redeemed ? (
+        <p className="text-sm text-gold-lite">Your friend opened it. You can send another after {new Date(gift.next!).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <p className="break-all rounded-xl bg-night px-3 py-2 font-mono text-xs text-muted">{giftUrl}</p>
+          <button type="button" onClick={copyGift} className="flex min-h-11 items-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space">{copied ? 'Copied' : 'Send it'}</button>
+          <p className="text-xs text-dim">One gift a year. It works for one friend who doesn&apos;t have Plus yet.</p>
+        </div>
+      );
+    }
+    if (id === 'gold-icon') return (
+      <div role="radiogroup" aria-label="App icon" className="flex flex-wrap gap-2">
+        {([['night', 'Night', '/icon.svg'], ['gold', 'Gold', '/icon-gold.svg']] as const).map(([v, label, src]) => (
+          <button key={v} type="button" role="radio" aria-checked={prefs.icon === v} onClick={() => setPrefs({ icon: v })}
+            className={`flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm ${prefs.icon === v ? 'border-gold-lite bg-royal' : 'border-line-2 hover:border-gold'}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="" width={22} height={22} className="rounded-md" />{label}
+          </button>
+        ))}
+        <p className="w-full text-xs text-dim">On iPhone, add Orbori to your home screen after choosing Gold to get the gold icon there.</p>
       </div>
     );
     if (id === 'card-designs') return (

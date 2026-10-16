@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AiReading, closingQuestion } from '@/components/AiReading';
 import { JournalCard } from '@/components/Journal';
-import { FlameIcon, ShareIcon } from '@/components/icons';
+import { ShareIcon } from '@/components/icons';
 import { Logo } from '@/components/Logo';
 import { NudgeBanner } from '@/components/LinkedPeople';
-import { MySigil } from '@/components/Rewards';
+import { MyFlame, MySigil } from '@/components/Rewards';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
@@ -71,7 +71,7 @@ export default function Today() {
           <div className="flex items-center gap-2">
             <Link href="/profile" aria-label={`${progress.streak}-night check-in streak`}
               className="flex h-9 items-center gap-1.5 rounded-full border border-royal bg-night pl-2 pr-3">
-              <FlameIcon /><span className="font-mono text-sm font-bold">{progress.streak}</span>
+              <MyFlame /><span className="font-mono text-sm font-bold">{progress.streak}</span>
             </Link>
             <Link href="/chart" aria-label="My chart" className="rounded-full"><MySigil seed={profile.seed} size={40} /></Link>
           </div>

@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { LEVELS } from '@/lib/progress';
 import { setPrefs, usePrefs } from '@/lib/prefs';
-import { isUnlocked, REWARDS, THEMES } from '@/lib/rewards';
+import { FLAMES, isUnlocked, REWARDS, THEMES } from '@/lib/rewards';
+import { FlameIcon } from './icons';
 import { useProgress } from '@/lib/use-progress';
 import { Sigil } from './Sigil';
 
@@ -17,6 +18,17 @@ export function RewardEffects() {
     const el = document.documentElement;
     if (theme === 'night') delete el.dataset.theme; else el.dataset.theme = theme;
   }, [theme]);
+
+  // The gold icon (Celestial): swap the tab and home-screen icons on this device.
+  const gold = levelIndex >= 4 && prefs.icon === 'gold';
+  useEffect(() => {
+    document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"], link[rel="apple-touch-icon"]').forEach((l) => {
+      if (!l.dataset.orig) l.dataset.orig = l.getAttribute('href') ?? '';
+      const apple = l.rel === 'apple-touch-icon';
+      l.href = gold ? (apple ? '/apple-icon-gold.png' : '/icon-gold.svg') : l.dataset.orig;
+      if (!apple) l.type = gold ? 'image/svg+xml' : l.type;
+    });
+  }, [gold]);
 
   if (levelIndex <= prefs.seenLevel) return null;
   const fresh = REWARDS.filter((r) => r.level > prefs.seenLevel && r.level <= levelIndex);
@@ -43,4 +55,12 @@ export function MySigil({ seed, size }: { seed: number; size: number }) {
       <Sigil seed={seed} size={size} />
     </span>
   );
+}
+
+/** The streak flame, in the color chosen on the Rewards page (Seer and up). */
+export function MyFlame({ size }: { size?: number }) {
+  const { levelIndex } = useProgress();
+  const { flame } = usePrefs();
+  const f = FLAMES.find((x) => x.id === flame && isUnlocked(levelIndex, 'flame-colors')) ?? FLAMES[0];
+  return <FlameIcon size={size} colors={f.colors} />;
 }

@@ -1,11 +1,11 @@
 'use client';
 /** Per-device look preferences (theme, card style). Kept in this browser only. */
 import { useEffect, useState } from 'react';
-import type { CardStyle, ThemeId } from './rewards';
+import type { CardStyle, FlameId, ThemeId } from './rewards';
 
 const KEY = 'orbori.prefs';
-export interface Prefs { theme: ThemeId; card: CardStyle; seenLevel: number }
-const DEFAULTS: Prefs = { theme: 'night', card: 'classic', seenLevel: 0 };
+export interface Prefs { theme: ThemeId; card: CardStyle; flame: FlameId; icon: 'night' | 'gold'; seenLevel: number }
+const DEFAULTS: Prefs = { theme: 'night', card: 'classic', flame: 'gold', icon: 'night', seenLevel: 0 };
 
 export function readPrefs(): Prefs {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return DEFAULTS; }

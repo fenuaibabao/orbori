@@ -31,10 +31,11 @@ export const ChevronIcon = ({ size = 18, className }: P) => (
 export const SearchIcon = ({ size = 20, className }: P) => (
   <svg {...base(size)} className={className}><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
 );
-export const FlameIcon = ({ size = 20 }: P) => (
+/** Streak flame. `colors` lets the Seer reward recolor it: [fill, edge]. */
+export const FlameIcon = ({ size = 20, colors = ['#A2752C', '#D4A24C'] }: P & { colors?: readonly [string, string] }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle cx="12" cy="13" r="8" stroke="#343E9F" strokeWidth="1.4" />
-    <path d="M12 4c1 3 4.5 4.5 4.5 9a4.5 4.5 0 01-9 0c0-2.2 1.2-3.4 2.2-4.4 0 2 1 3 2.3 3.2 0-3-1-5.3 0-7.8z" fill="#A2752C" stroke="#D4A24C" strokeWidth="1" />
+    <path d="M12 4c1 3 4.5 4.5 4.5 9a4.5 4.5 0 01-9 0c0-2.2 1.2-3.4 2.2-4.4 0 2 1 3 2.3 3.2 0-3-1-5.3 0-7.8z" fill={colors[0]} stroke={colors[1]} strokeWidth="1" />
   </svg>
 );
 export const BadgeGlyph = ({ d, size = 26 }: { d: string; size?: number }) => (
