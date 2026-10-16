@@ -95,7 +95,10 @@ function mergeJournal(a: Record<string, JournalEntry>, b: Record<string, Journal
 
 function mergeActivity(a: LocalState['activity'], b: LocalState['activity']): LocalState['activity'] {
   const out: LocalState['activity'] = { ...a };
-  for (const [d, v] of Object.entries(b)) out[d] = { ...(out[d] ?? {}), ...v };
+  for (const [d, v] of Object.entries(b)) {
+    const terms = Array.from(new Set([...(out[d]?.terms ?? []), ...(v.terms ?? [])]));
+    out[d] = { ...(out[d] ?? {}), ...v, ...(terms.length ? { terms } : {}) };
+  }
   return out;
 }
 

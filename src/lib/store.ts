@@ -107,6 +107,14 @@ export function useStore() {
     if (!changed) return;
     write({ ...s, activity: { ...s.activity, [date]: { ...cur, ...patch } } });
   }, []);
+  /** Mark a Learn term as opened. The first new term of the day also earns Learn XP. */
+  const seeTerm = useCallback((date: string, id: string) => {
+    const s = read();
+    const already = Object.values(s.activity ?? {}).some((a) => a.terms?.includes(id));
+    if (already) return;
+    const cur = s.activity?.[date] ?? {};
+    write({ ...s, activity: { ...s.activity, [date]: { ...cur, learn: true, terms: [...(cur.terms ?? []), id] } } });
+  }, []);
   /** Save the journal entry for a date (empty text keeps an empty entry, so deletes sync too). */
   const writeJournal = useCallback((date: string, text: string, prompt?: string, reading?: ReadingSnapshot) => {
     const s = read();
@@ -126,7 +134,7 @@ export function useStore() {
     write({ ...s, matches: s.matches.filter((m) => m.id !== id) });
   }, []);
 
-  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal };
+  return { ready: state !== null, state: state ?? EMPTY, setProfile, checkIn, reset, addMatch, removeMatch, record, writeJournal, seeTerm };
 }
 
 /**

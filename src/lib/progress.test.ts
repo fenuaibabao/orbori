@@ -49,3 +49,11 @@ describe('XP sources', () => {
     expect(p.thisWeek.filter((c) => c.done)).toHaveLength(1);
   });
 });
+
+import { seenTerms } from './progress';
+describe('seen Learn terms', () => {
+  it('collects every term opened across days', () => {
+    const s = seenTerms({ '2026-10-14': { learn: true, terms: ['dasha', 'tithi'] }, '2026-10-15': { terms: ['nawal'] }, '2026-10-16': { deep: true } });
+    expect([...s].sort()).toEqual(['dasha', 'nawal', 'tithi']);
+  });
+});

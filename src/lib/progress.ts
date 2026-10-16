@@ -35,8 +35,14 @@ export interface Activity {
   sync?: boolean;
   /** Wrote in the journal. */
   journal?: boolean;
+  /** Learn terms opened for the first time that day (ids). */
+  terms?: string[];
 }
 export type ActivityLog = Record<string, Activity>;
+
+/** Every Learn term someone has opened, across all days. */
+export const seenTerms = (log: ActivityLog | undefined): Set<string> =>
+  new Set(Object.values(log ?? {}).flatMap((a) => a.terms ?? []));
 
 const dayMs = 86400000;
 const toDay = (iso: string) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / dayMs;

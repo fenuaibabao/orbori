@@ -203,7 +203,7 @@ export default function Today() {
                 ['Today\'s question', !!act.question, XP.question, null],
                 ['Write in your journal', !!act.journal, XP.journal, '/journal'],
                 ['Go deeper on a system', !!act.deep, XP.deep, '/chart'],
-                ['Read a Learn term', !!act.learn, XP.learn, '/learn'],
+                ['Learn a new term', !!act.learn, XP.learn, '/learn#next'],
                 ['Share a card', !!act.share, XP.share, null],
                 ['Nudge a linked person', !!act.nudge, XP.nudge, '/compatibility'],
                 ['In sync with a linked person', !!act.sync, XP.sync, '/compatibility'],
