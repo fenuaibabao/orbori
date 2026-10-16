@@ -1,15 +1,8 @@
-import * as A from 'astronomy-engine';
 import { ImageResponse } from 'next/og';
+import { skyToday } from '@/lib/sky';
 import sharp from 'sharp';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { moonNight } from '@/lib/astro/hawaiian';
-import { hijriDate, moonMansionAt } from '@/lib/astro/islamic';
-import { tzolkin } from '@/lib/astro/mayan';
-import { reduce } from '@/lib/astro/numerology';
-import { placement } from '@/lib/astro/util';
-import { lahiriAyanamsa, nakshatra } from '@/lib/astro/vedic';
-import { dayPillar } from '@/lib/council/signals';
 
 export const runtime = 'nodejs';
 
@@ -74,29 +67,6 @@ function Moon({ night, size }: { night: number; size: number }) {
       <path d={`M 50 10 A 40 40 0 0 ${waxing ? 1 : 0} 50 90 A ${rx} 40 0 0 ${inner} 50 10 Z`} fill={C.star} />
     </svg>
   );
-}
-
-/** The sky today, seven ways: universal positions (no one's personal chart). */
-function skyToday(date: string) {
-  const noon = new Date(`${date}T20:00:00Z`); // noon Pacific
-  const time = A.MakeTime(noon);
-  const moonLon = A.EclipticGeoMoon(time).lon;
-  const sidereal = ((moonLon - lahiriAyanamsa(time)) % 360 + 360) % 360;
-  const dp = dayPillar(date);
-  const t = tzolkin(date);
-  const h = moonNight(date, 'Pacific/Honolulu');
-  const hijri = hijriDate(date, 'UTC');
-  const mansion = moonMansionAt(time);
-  const universal = reduce(date.replace(/-/g, '').split('').reduce((s, d) => s + +d, 0));
-  return [
-    ['Western', `Moon in ${placement(moonLon).sign}`],
-    ['Vedic', `Moon in ${nakshatra(sidereal).name}`],
-    ['Chinese', `${dp.element} ${dp.animal} day`],
-    ['Numerology', `Universal day ${universal}`],
-    ['Mayan', `${t.label} · ${t.english}`],
-    ['Hawaiian', `${h.name}, night ${h.night}`],
-    ['Islamic', `${hijri.day} ${hijri.monthName} · Moon in ${mansion.name}`],
-  ] as [string, string][];
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ slug: string }> }) {

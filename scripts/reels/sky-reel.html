@@ -1,0 +1,88 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Orbori reel template: "Tonight's sky, read seven ways". Rendered frame by frame by render.mjs (render(t) draws time t). -->
+<style>
+@font-face{font-family:Syne;font-weight:800;src:url(FONTS/syne/files/syne-latin-800-normal.woff2)}
+@font-face{font-family:Syne;font-weight:800;src:url(FONTS/syne/files/syne-latin-ext-800-normal.woff2);unicode-range:U+0100-02FF,U+1E00-1EFF}
+@font-face{font-family:Inter;font-weight:500;src:url(FONTS/inter/files/inter-latin-500-normal.woff2)}
+@font-face{font-family:Inter;font-weight:500;src:url(FONTS/inter/files/inter-latin-ext-500-normal.woff2);unicode-range:U+0100-02FF,U+1E00-1EFF}
+@font-face{font-family:Inter;font-weight:700;src:url(FONTS/inter/files/inter-latin-700-normal.woff2)}
+@font-face{font-family:Inter;font-weight:700;src:url(FONTS/inter/files/inter-latin-ext-700-normal.woff2);unicode-range:U+0100-02FF,U+1E00-1EFF}
+@font-face{font-family:Mono;font-weight:700;src:url(FONTS/space-mono/files/space-mono-latin-700-normal.woff2)}
+*{margin:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#060528}
+#c{position:absolute;inset:0}
+.layer{position:absolute;left:0;right:0}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse 120% 70% at 50% 0%,#2a2380 0%,#0d0a35 45%,#060528 80%)}
+#stars{position:absolute;inset:0}
+#brand{top:170px;text-align:center;font:800 64px Syne;color:#ece8f4;letter-spacing:-2px}
+#brand i{font-style:normal;position:relative;display:inline-block}
+#brand i svg{position:absolute;left:50%;transform:translateX(-50%);top:2px;width:27px;height:17px;overflow:visible}
+#hook{top:700px;text-align:center;padding:0 90px}
+#hook h1{font:800 86px/1.06 Syne;color:#ece8f4;letter-spacing:-3px}
+#hook p{font:700 34px Mono;color:#d4a24c;letter-spacing:6px;margin-top:44px}
+#head{top:300px;text-align:center}
+#head p{font:700 30px Mono;color:#d4a24c;letter-spacing:6px}
+#head h2{font:800 52px Syne;white-space:nowrap;color:#ece8f4;margin-top:12px;letter-spacing:-1px}
+#rows{top:480px;padding:0 90px;display:flex;flex-direction:column;gap:22px}
+.row{display:flex;align-items:center;gap:30px;background:#161240cc;border:2px solid #2e2a6e;border-radius:34px;padding:20px 30px;height:122px}
+.orb{width:46px;height:46px;flex:0 0 46px;border-radius:50%;background:#2e2a6e}
+.lbl{font:700 25px Mono;color:#d4a24c;letter-spacing:3px}
+.val{font:700 41px Inter;color:#ece8f4;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:760px}
+#end{top:640px;text-align:center;padding:0 90px}
+#end h1{font:800 92px/1.06 Syne;color:#ece8f4;letter-spacing:-3px}
+#end .mark{width:170px;height:170px;margin:0 auto 60px}
+#end p{font:500 40px/1.4 Inter;color:#b7b2d8;margin-top:40px}
+#end b{display:inline-block;margin-top:44px;font:800 46px Syne;color:#060528;background:#d4a24c;border-radius:99px;padding:22px 54px}
+</style></head><body>
+<div id="c">
+  <div id="bg"></div><canvas id="stars" width="1080" height="1920"></canvas>
+  <div class="layer" id="brand">orbor<i>ı<svg viewBox="0 0 26 16"><circle cx="7" cy="9" r="5.5" fill="#A2752C"/><circle cx="13" cy="6" r="5.5" fill="#D4A24C" fill-opacity=".9"/><circle cx="19" cy="9" r="5.5" fill="#A2752C" fill-opacity=".85"/></svg></i></div>
+  <div class="layer" id="hook"><h1>Tonight’s sky,<br>read seven ways</h1><p id="date1"></p></div>
+  <div class="layer" id="head"><p id="date2"></p><h2>Seven traditions. One sky.</h2></div>
+  <div class="layer" id="rows"></div>
+  <div class="layer" id="end">
+    <svg class="mark" viewBox="0 0 120 120"><rect x="49" y="58" width="22" height="48" rx="11" fill="#F4EFE6"/><circle cx="45" cy="40" r="12" fill="#A2752C"/><circle cx="75" cy="40" r="12" fill="#A2752C" fill-opacity=".85"/><circle cx="60" cy="31" r="12" fill="#D4A24C" fill-opacity=".92"/></svg>
+    <h1>Which one speaks to you?</h1>
+    <p>Now read your own birth chart<br>all seven ways.</p>
+    <b>orbori.app</b>
+  </div>
+</div>
+<script>
+const D = JSON.parse(decodeURIComponent(location.hash.slice(1)));   // { date: 'SAT · OCT 17', rows: [[label, value], …] }
+const LABEL = { Western: 'WESTERN', Vedic: 'JYOTISH', Chinese: 'FOUR PILLARS', Numerology: 'NUMEROLOGY', Mayan: "CHOL Q'IJ", Hawaiian: 'HAWAIIAN MOON', Islamic: 'LUNAR MANSIONS' };
+document.getElementById('date1').textContent = D.date; document.getElementById('date2').textContent = D.date;
+const rowsEl = document.getElementById('rows');
+const rows = D.rows.map(([l, v]) => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = `<span class="orb"></span><div><div class="lbl">${LABEL[l] || l}</div><div class="val"></div></div>`; r.querySelector('.val').textContent = v; rowsEl.appendChild(r); return r; });
+// Stars, seeded so every frame matches.
+let s = 7; const rnd = () => ((s = Math.imul(s ^ (s >>> 15), 2246822519) + 0x9e3779b9 | 0) >>> 0) / 4294967296;
+const STARS = Array.from({ length: 160 }, () => ({ x: rnd() * 1080, y: rnd() * 1920, r: rnd() * 2.2 + 0.4, p: rnd() * 6.28, sp: 0.6 + rnd() * 1.6 }));
+const ctx = document.getElementById('stars').getContext('2d');
+const clamp = (x) => Math.max(0, Math.min(1, x)), ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const span = (t, a, b) => ease((t - a) / (b - a));
+const set = (el, o, dy = 0, sc = 1) => { el.style.opacity = o; el.style.transform = `translateY(${dy}px) scale(${sc})`; };
+const T = { hookIn: 0.2, hookOut: 2.0, rows0: 2.4, step: 0.95, endAt: 10.2 };
+window.DURATION = 13.5;
+window.CUES = D.rows.map((_, i) => T.rows0 + i * T.step + 0.25);
+window.render = (t) => {
+  ctx.clearRect(0, 0, 1080, 1920);
+  for (const st of STARS) { ctx.globalAlpha = 0.35 + 0.45 * Math.sin(st.p + t * st.sp) ** 2; ctx.fillStyle = '#ece8f4'; ctx.beginPath(); ctx.arc(st.x, st.y - t * 6 * st.sp, st.r, 0, 6.29); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  const hook = document.getElementById('hook');
+  set(hook, span(t, T.hookIn, T.hookIn + 0.7) * (1 - span(t, T.hookOut, T.hookOut + 0.4)), 40 * (1 - span(t, T.hookIn, T.hookIn + 0.7)) - 60 * span(t, T.hookOut, T.hookOut + 0.4));
+  const out = span(t, T.endAt, T.endAt + 0.5);
+  set(document.getElementById('head'), span(t, T.hookOut + 0.2, T.hookOut + 0.8) * (1 - out));
+  rows.forEach((r, i) => {
+    const a = T.rows0 + i * T.step, p = span(t, a, a + 0.45);
+    set(r, p * (1 - out), 50 * (1 - p));
+    const lit = span(t, a + 0.25, a + 0.7);
+    const orb = r.querySelector('.orb');
+    orb.style.background = lit > 0.05 ? 'radial-gradient(circle at 35% 30%,#ffe2a6,#d4a24c 55%,#a2752c)' : '#2e2a6e';
+    orb.style.boxShadow = `0 0 ${30 * lit}px rgba(212,162,76,${0.8 * lit})`;
+    r.style.borderColor = `rgba(212,162,76,${0.15 + 0.5 * lit * (1 - span(t, a + 0.9, a + 1.6))})`;
+  });
+  set(document.getElementById('end'), span(t, T.endAt + 0.3, T.endAt + 1.0), 40 * (1 - span(t, T.endAt + 0.3, T.endAt + 1.0)));
+  set(document.getElementById('brand'), 1 - span(t, T.endAt, T.endAt + 0.4) * 0.0);
+};
+render(0);
+</script></body></html>
