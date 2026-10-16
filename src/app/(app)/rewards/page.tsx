@@ -79,6 +79,7 @@ export default function Rewards() {
         ))}
       </div>
     );
+    if (id === 'astrocartography') return <Link href="/astrocartography" className="self-start text-sm font-semibold text-gold-lite">Open your map ›</Link>;
     if (id === 'year-recap') return <Link href="/recap/year" className="self-start text-sm font-semibold text-gold-lite">Open your year ›</Link>;
     if (id === 'gift-week') {
       if (!user) return <Link href={`/signin?next=${encodeURIComponent('/rewards')}`} className="self-start text-sm font-semibold text-gold-lite">Sign in to gift ›</Link>;

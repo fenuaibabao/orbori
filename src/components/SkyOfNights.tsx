@@ -6,7 +6,11 @@ export function SkyOfNights({ dates, className = '' }: { dates: string[]; classN
   const sorted = [...dates].sort();
   const pos = (d: string) => {
     const n = Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
-    const h = (k: number) => (((n * 2654435761 + k * 40503) >>> 0) % 10000) / 10000;
+    const h = (k: number) => {
+      let t = (n * 374761393 + k * 668265263) >>> 0;
+      t = Math.imul(t ^ (t >>> 13), 1274126177);
+      return ((t ^ (t >>> 16)) >>> 0) / 4294967296;
+    };
     return { x: 4 + h(1) * 92, y: 6 + h(2) * 88, r: 0.35 + h(3) * 0.55 };
   };
   const pts = sorted.map((d) => ({ d, ...pos(d) }));

@@ -9,8 +9,10 @@ export interface Prefs {
   theme: ThemeId; card: CardStyle; flame: FlameId; icon: 'night' | 'gold'; seenLevel: number;
   /** Celestial looks */
   sigilMotion: boolean; sigil: SigilDesign | null; celestialNo: number | null; revealed: boolean;
+  /** Cosmic Visions: how the person wants to be shown (optional). */
+  look: { skin?: string; hair?: string };
 }
-const DEFAULTS: Prefs = { theme: 'night', card: 'classic', flame: 'gold', icon: 'night', seenLevel: 0, sigilMotion: false, sigil: null, celestialNo: null, revealed: false };
+const DEFAULTS: Prefs = { theme: 'night', card: 'classic', flame: 'gold', icon: 'night', seenLevel: 0, sigilMotion: false, sigil: null, celestialNo: null, revealed: false, look: {} };
 
 export function readPrefs(): Prefs {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return DEFAULTS; }

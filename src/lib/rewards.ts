@@ -14,6 +14,7 @@ export const REWARDS: Reward[] = [
   { id: 'level-badge', level: 3, title: 'Your level, shown to links', body: 'People you are linked with see your level beside your sigil.' },
   { id: 'founding', level: 4, title: 'Founding Celestial', body: 'A lifetime badge for reaching the top. It never goes away.' },
   { id: 'thank-you', level: 4, title: 'A note from the founder', body: 'A personal thank-you for walking the whole path.' },
+  { id: 'astrocartography', level: 4, title: 'Astrocartography', body: 'Your planet lines across the world map, and the cities where your Venus, Jupiter and Sun shine strongest.' },
   { id: 'gold-icon', level: 4, title: 'The gold icon', body: 'A gold Orbori icon for your browser tab and home screen.' },
   { id: 'early-access', level: 4, title: 'Early access', body: 'First in line for new features like The Cosmos and Cosmic Visions.' },
 ];

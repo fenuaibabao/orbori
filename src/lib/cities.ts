@@ -54,3 +54,9 @@ export function searchCities(query: string, limit = 8): City[] {
   }
   return [...region, ...country, ...loose].slice(0, limit);
 }
+
+/** The world's biggest cities (for astrocartography "power places"). */
+export function majorCities(limit = 2500): City[] {
+  const { rows } = load();
+  return rows.slice(0, limit).map((r, i) => toCity(r, i));
+}

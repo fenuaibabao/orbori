@@ -112,6 +112,12 @@ export default function Beyond() {
       {err && <p role="alert" className="text-sm text-mauve-lite">{err}</p>}
       {note && <p role="status" className="rounded-xl bg-night px-4 py-3 text-sm text-mauve-lite">{note}</p>}
 
+      <Link href="/astrocartography" className="flex min-h-14 items-center gap-3 rounded-3xl border border-gold bg-night px-5 py-3">
+        <span aria-hidden="true" className="text-xl text-gold-lite">◍</span>
+        <span className="flex-1"><span className="block font-display text-lg font-bold">Astrocartography</span><span className="text-sm text-muted">Your planet lines across the world.</span></span>
+        <span className="text-gold-lite">›</span>
+      </Link>
+
       <section aria-labelledby="paths" className={card}>
         <div className="flex items-baseline justify-between gap-3">
           <h2 id="paths" className="font-display text-xl font-bold">The Seven Paths</h2>
