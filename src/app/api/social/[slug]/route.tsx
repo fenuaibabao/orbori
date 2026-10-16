@@ -151,7 +151,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
           </svg>
         </div>
         <Big size={84}>No two skies are the same.</Big>
-        <Body>Everyone on Orbori gets a sigil drawn from their own chart. Wear it as a wallpaper. Some people are getting it tattooed.</Body>
+        <Body>Everyone on Orbori gets a sigil drawn from their own chart. Wear it as a wallpaper, or take it to your tattoo artist.</Body>
       </Frame>); break;
     case '7': node = (
       <Frame eyebrow="FOUNDING 111">
