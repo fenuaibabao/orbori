@@ -60,13 +60,19 @@ export default function Rewards() {
   const control = (id: string) => {
     if (id === 'themes') return (
       <div role="radiogroup" aria-label="Theme" className="flex flex-wrap gap-2">
-        {THEMES.map((t) => (
-          <button key={t.id} type="button" role="radio" aria-checked={prefs.theme === t.id} onClick={() => setPrefs({ theme: t.id })}
-            className={`flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm ${prefs.theme === t.id ? 'border-gold-lite bg-royal' : 'border-line-2 hover:border-gold'}`}>
-            <span aria-hidden="true" className="flex">{t.swatch.map((c) => <span key={c} className="-ml-1 h-4 w-4 rounded-full border border-black/30 first:ml-0" style={{ background: c }} />)}</span>
-            {t.name}
-          </button>
-        ))}
+        {THEMES.map((t) => {
+          // Aurora is a Celestial reward: show it, but locked until then (it used to look selectable and do nothing).
+          const locked = p.levelIndex < t.level;
+          const on = prefs.theme === t.id && !locked;
+          return (
+            <button key={t.id} type="button" role="radio" aria-checked={on} disabled={locked} onClick={() => setPrefs({ theme: t.id })}
+              title={locked ? `Unlocks at ${LEVELS[t.level].name}` : undefined}
+              className={`flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm ${on ? 'border-gold-lite bg-royal' : 'border-line-2 hover:border-gold'} disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-line-2`}>
+              <span aria-hidden="true" className="flex">{t.swatch.map((c) => <span key={c} className="-ml-1 h-4 w-4 rounded-full border border-black/30 first:ml-0" style={{ background: c }} />)}</span>
+              {t.name}{locked && <span className="font-mono text-[10px] text-dim">🔒 {LEVELS[t.level].name.toUpperCase()}</span>}
+            </button>
+          );
+        })}
       </div>
     );
     if (id === 'flame-colors') return (
