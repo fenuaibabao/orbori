@@ -92,7 +92,12 @@ export default function Visions() {
           {([['wallpaper', 'Phone wallpaper', 'Your sigil among the stars, in your theme\'s colors.'], ['flash', 'Sigil tattoo flash', 'Your sigil four ways: fine line, bold, dotwork and with orbs. Take it to your artist.']] as const).map(([k, title, body]) => (
             <article key={k} className="flex flex-col gap-3 rounded-3xl bg-night p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={art(k)} alt={title} loading="lazy" className={`w-full rounded-2xl bg-deep object-cover ${k === 'wallpaper' ? 'aspect-[9/16] max-h-80 object-top' : 'aspect-square'}`} />
+              {k === 'wallpaper' ? (
+                <div className="flex justify-center rounded-2xl bg-deep py-4">
+                  {/* The whole wallpaper, shown like a phone screen, so the sigil is in view. */}
+                  <img src={art(k)} alt={title} loading="lazy" className="aspect-[1179/2556] h-[380px] w-auto rounded-[26px] border-[5px] border-black object-cover shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+                </div>
+              ) : <img src={art(k)} alt={title} loading="lazy" className="aspect-square w-full rounded-2xl bg-deep object-cover" />}
               <div>
                 <h3 className="font-semibold">{title}</h3>
                 <p className="text-sm text-muted">{body}</p>
