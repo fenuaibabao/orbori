@@ -218,18 +218,25 @@ export default function Today() {
             </div>
             <ul className="grid grid-cols-2 gap-1.5 text-sm sm:grid-cols-4">
               {([
-                ['Check in', !!today, XP.checkIn, null],
-                ['Today\'s question', !!act.question, XP.question, null],
+                ['Check in', !!today, XP.checkIn, '#land'],
+                ['Today\'s question', !!act.question, XP.question, '#dq'],
                 ['Write in your journal', !!act.journal, XP.journal, '/journal'],
                 ['Play a minigame', !!act.games?.length, XP.game, '/play'],
                 ['Go deeper on a system', !!act.deep, XP.deep, '/chart'],
                 ['Learn a new term', !!act.learn, XP.learn, '/learn#next'],
-                ['Share a card', !!act.share, XP.share, null],
+                ['Share today\'s score card', !!act.share, XP.share, 'share'],
                 ['Nudge a linked person', !!act.nudge, XP.nudge, '/compatibility'],
                 ['In sync with a linked person', !!act.sync, XP.sync, '/compatibility'],
               ] as [string, boolean, number, string | null][]).map(([label, done, xp, href]) => {
                 const inner = <><span aria-hidden="true" className={done ? 'text-gold-lite' : 'text-dim'}>{done ? '✦' : '○'}</span> <span className={done ? '' : 'text-muted'}>{label}</span> <span className="font-mono text-[11px] text-dim">+{xp}</span></>;
-                return <li key={label} className="rounded-xl bg-deep px-3 py-2">{href && !done ? <Link href={href}>{inner}</Link> : inner}</li>;
+                return (
+                  <li key={label} className="rounded-xl bg-deep px-3 py-2">
+                    {done || !href ? inner
+                      : href === 'share' ? <button type="button" onClick={shareScore} className="text-left">{inner}</button>
+                      : href.startsWith('#') ? <a href={href} onClick={(e) => { e.preventDefault(); document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>{inner}</a>
+                      : <Link href={href}>{inner}</Link>}
+                  </li>
+                );
               })}
             </ul>
             <p className="text-xs text-dim">Extras cap at {DAILY_ACTIVITY_CAP} XP a day. Weekly challenges on your <Link href="/profile" className="text-gold-lite">Profile</Link> add +{XP.challenge} each.</p>
