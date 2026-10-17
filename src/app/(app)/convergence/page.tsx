@@ -171,12 +171,12 @@ export default function ConvergencePage() {
                   <h2 className="mt-2.5 font-display text-[22px] font-bold leading-tight">{sel.head}</h2>
                   <p className="mt-1 text-xs text-dim">{nice(sel.d)} · {left === 0 ? 'today' : left > 0 ? `in ${left} days` : `${-left} days ago`}</p>
                   <div className="mt-3 flex justify-start"><Orbs v={sel.v} /></div>
-                  <p className="mt-2 text-sm text-muted">{sel.agree}{hold ? <> Only {voiceInSentence(hold[0])} differs and says <b className="text-mauve-lite">{ADVICE_LABEL[hold[2]].toLowerCase()}</b>.</> : ' Not one differs. The whole Council speaks with one voice.'}</p>
+                  <p className="mt-2 text-sm text-muted">{sel.agree}{hold ? <> Only {voiceInSentence(hold[0])} differs and says <b className="text-differ-lite">{ADVICE_LABEL[hold[2]].toLowerCase()}</b>.</> : ' Not one differs. The whole Council speaks with one voice.'}</p>
                   <ul className="mt-3 flex flex-col gap-1.5">
                     {sel.v.map((v) => (
-                      <li key={v[0]} className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-xs ${v[1] ? 'border-line bg-night' : 'border-[#6b4a55] bg-[#1f1238]'}`}>
+                      <li key={v[0]} className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-xs ${v[1] ? 'border-line bg-night' : 'border-differ bg-[rgba(229,72,77,0.10)]'}`}>
                         <b className="min-w-[96px]">{VOICE_NAME[v[0]]}</b><span className="flex-1 text-dim">{v[3]}</span>
-                        <em className={`whitespace-nowrap not-italic font-bold ${v[1] ? 'text-gold-lite' : 'text-mauve-lite'}`}>{v[1] ? '✦ agrees' : 'differs'}</em>
+                        <em className={`whitespace-nowrap not-italic font-bold ${v[1] ? 'text-gold-lite' : 'text-differ-lite'}`}>{v[1] ? '✦ agrees' : 'differs'}</em>
                       </li>
                     ))}
                   </ul>

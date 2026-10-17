@@ -24,6 +24,9 @@
   --color-gold-lite: #d4a24c;
   --color-mauve: #957579;
   --color-mauve-lite: #c9a3a6;
+  /* "Differs": a clear red, the same in every theme */
+  --color-differ: #e5484d;
+  --color-differ-lite: #ff7b7f;
   --font-display: "Syne", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;

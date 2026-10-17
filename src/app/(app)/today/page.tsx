@@ -139,7 +139,7 @@ export default function Today() {
                 </div>
                 {reading.holdoutText && (
                   <div className="flex flex-col gap-1 rounded-[14px] bg-deep p-3">
-                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-mauve-lite">{'WHERE THEY DIFFER'}</span>
+                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-differ-lite">{'WHERE THEY DIFFER'}</span>
                     <span className="text-sm leading-snug">{reading.holdoutText}</span>
                   </div>
                 )}
@@ -248,16 +248,16 @@ export default function Today() {
             <h2 id="systems" className="font-display text-xl font-bold">What each tradition says</h2>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {reading.systems.map((s) => (
-                <article key={s.system} className={`flex flex-col gap-2.5 rounded-[20px] bg-night p-[18px] ${s.agrees ? '' : 'border border-mauve'}`}>
+                <article key={s.system} className={`flex flex-col gap-2.5 rounded-[20px] bg-night p-[18px] ${s.agrees ? '' : 'border-[1.5px] border-differ bg-[linear-gradient(180deg,rgba(229,72,77,0.10),transparent_60%)]'}`}>
                   <div className="flex items-center justify-between">
                     <Tag>{s.label}</Tag>
-                    <span className={`font-mono text-[11px] font-bold tracking-[0.06em] ${s.agrees ? 'text-gold-lite' : 'text-mauve-lite'}`}>
+                    <span className={`font-mono text-[11px] font-bold tracking-[0.06em] ${s.agrees ? 'text-gold-lite' : 'text-differ-lite'}`}>
                       {s.agrees ? '● AGREES' : '◐ DIFFERS'}
                     </span>
                   </div>
                   <h3 className="text-[17px] font-semibold">{s.headline}</h3>
                   <p className="text-sm leading-relaxed text-muted">{s.body}</p>
-                  {s.why && <p className="text-[13px] text-mauve-lite">{s.why}</p>}
+                  {s.why && <p className="text-[13px] text-differ-lite">{s.why}</p>}
                   <details className="group mt-auto">
                     <summary className="flex cursor-pointer list-none items-center gap-1.5 font-mono text-[11px] tracking-[0.04em] text-dim [&::-webkit-details-marker]:hidden">
                       <span className="underline decoration-dotted underline-offset-2">{s.term}</span>

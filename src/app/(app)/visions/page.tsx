@@ -126,7 +126,7 @@ export default function Visions() {
               <h3 className="font-display text-lg font-bold">{v.name}</h3>
               <p className="text-sm text-muted">{v.blurb}</p>
               <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy || left === 0}
-                className="mt-auto flex min-h-11 items-center justify-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space disabled:opacity-50">
+                className="mt-auto flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 text-[15px] font-extrabold text-space shadow-[0_0_18px_rgba(212,162,76,0.45)] transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
                 {busy === v.id ? 'Creating your image… about a minute' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
               </button>
             </article>
