@@ -20,6 +20,8 @@ const MONTHLY = 20;
 const BUCKET = 'visions';
 /** With credits, a looser daily ceiling that only stops runaway use. */
 const CREDIT_DAILY = 25;
+/** During the beta, Plus members (testers included) create as many as they like; this only stops a runaway script. */
+const BETA_SAFETY = 100;
 
 /** In a discounted Founding year, free visions are 10 a month. */
 async function monthlyCap(admin: NonNullable<ReturnType<typeof supabaseAdmin>>, userId: string, sub: { plan?: string | null } | null) {
@@ -62,15 +64,17 @@ export async function GET() {
     plusOn = isPlusRow(sub);
     cap = await monthlyCap(admin, user.id, sub);
   }
+  const unlimited = BETA && plusOn;
   return NextResponse.json({
     credits,
+    unlimited,
     allowance: plusOn,
     packs: PACKS.map((p) => ({ ...p, open: !BETA || owner })),
     enabled,
     items: rows.map((r, i) => ({ id: r.id, kind: r.kind, note: r.note, created_at: r.created_at, url: signed.data?.[i]?.signedUrl ?? null })),
     usedToday,
-    limit: owner ? 50 : plusOn ? Math.max(0, Math.min(DAILY, cap - (month ?? 0) + usedToday)) : 0,
-    monthLeft: owner || !plusOn ? null : Math.max(0, cap - (month ?? 0)),
+    limit: unlimited ? BETA_SAFETY : owner ? 50 : plusOn ? Math.max(0, Math.min(DAILY, cap - (month ?? 0) + usedToday)) : 0,
+    monthLeft: owner || !plusOn || unlimited ? null : Math.max(0, cap - (month ?? 0)),
   });
 }
 
@@ -90,7 +94,10 @@ export async function POST(req: Request) {
     const { count: day } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
     const { count: month } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today.slice(0, 7)}-01T00:00:00Z`);
     const { count: freeToday } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('paid', false).gte('created_at', `${today}T00:00:00Z`);
-    const allowanceLeft = isPlusRow(sub) && (freeToday ?? 0) < DAILY && (month ?? 0) < (await monthlyCap(admin, user.id, sub));
+    if (BETA && isPlusRow(sub)) {
+      if ((day ?? 0) >= BETA_SAFETY) return NextResponse.json({ error: `That's ${BETA_SAFETY} visions today. More tomorrow!` }, { status: 429 });
+    }
+    const allowanceLeft = isPlusRow(sub) && (BETA || ((freeToday ?? 0) < DAILY && (month ?? 0) < (await monthlyCap(admin, user.id, sub))));
     if (!allowanceLeft) {
       if ((await balance(admin, user.id)) < 1) {
         return NextResponse.json({ error: isPlusRow(sub) ? 'You\'ve used your free visions for now. Grab a pack of credits to keep going.' : 'Visions come with Orbori Plus, or with a pack of credits.', needCredits: true }, { status: 402 });
@@ -100,7 +107,7 @@ export async function POST(req: Request) {
     }
   } else {
     const { count } = await admin.from('visions').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', `${today}T00:00:00Z`);
-    if ((count ?? 0) >= 50) return NextResponse.json({ error: 'That\'s 50 today.' }, { status: 429 });
+    if ((count ?? 0) >= (BETA ? BETA_SAFETY : 50)) return NextResponse.json({ error: 'That\'s a lot of visions for one day. More tomorrow!' }, { status: 429 });
   }
 
   try {

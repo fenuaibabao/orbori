@@ -19,7 +19,7 @@ export default function Visions() {
   const { user } = useAuth();
   const plus = usePlus();
   const p = useProgress();
-  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number; monthLeft?: number | null; credits?: number; allowance?: boolean; packs?: { id: string; credits: number; cents: number; open: boolean }[] } | null>(null);
+  const [info, setInfo] = useState<{ enabled: boolean; items: Vision[]; usedToday: number; limit: number; monthLeft?: number | null; unlimited?: boolean; credits?: number; allowance?: boolean; packs?: { id: string; credits: number; cents: number; open: boolean }[] } | null>(null);
   const [busy, setBusy] = useState<VisionKind | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -106,7 +106,7 @@ export default function Visions() {
       <section aria-labelledby="ai" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="ai" className="font-display text-xl font-bold">Visions <span className="ml-1 font-mono text-[11px] font-normal text-gold-lite">PLUS</span></h2>
-          {user && info?.enabled && <span className="font-mono text-[11px] text-muted">{info.allowance ? `${left} free today${info.monthLeft != null ? ` · ${info.monthLeft} this month` : ''} · ` : ''}{credits} {credits === 1 ? 'credit' : 'credits'}</span>}
+          {user && info?.enabled && <span className="font-mono text-[11px] text-muted">{info.unlimited ? 'UNLIMITED DURING THE BETA ✦' : <>{info.allowance ? `${left} free today${info.monthLeft != null ? ` · ${info.monthLeft} this month` : ''} · ` : ''}{credits} {credits === 1 ? 'credit' : 'credits'}</>}</span>}
         </div>
         {!info?.enabled ? <p className="rounded-2xl bg-night p-4 text-sm text-muted">Visions are being switched on. Check back soon.</p>
           : !user ? <p className="rounded-2xl bg-night p-4 text-sm">Sign in to make visions. <Link href={`/signin?next=${encodeURIComponent('/visions')}`} className="font-semibold text-gold-lite">Sign in ›</Link></p>
@@ -138,7 +138,7 @@ export default function Visions() {
               <p className="text-sm text-muted">{v.blurb}</p>
               <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy}
                 className={`mt-auto flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 text-[15px] font-extrabold text-space shadow-[0_0_18px_rgba(212,162,76,0.45)] transition hover:brightness-110 active:scale-[0.98] ${busy === v.id ? 'animate-pulse disabled:opacity-100' : 'disabled:opacity-50 disabled:shadow-none'}`}>
-                {busy === v.id ? 'Creating your image… about a minute' : busy ? 'One at a time: finishing your other image…' : !canMake && user && info?.enabled && left === 0 && credits === 0 ? 'All used for today · more tomorrow' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
+                {busy === v.id ? 'Creating your image… about a minute' : busy ? 'One at a time: finishing your other image…' : !canMake && user && info?.enabled && left === 0 && credits === 0 ? 'All used for today · more tomorrow' : left > 0 || info?.unlimited ? 'Create my image ✦' : 'Create my image · 1 credit'}
               </button>
               {done === v.id && <button type="button" onClick={seeIt} className="text-left text-sm font-semibold text-gold-lite">✓ Your image is ready. See it below ↓</button>}
             </article>
