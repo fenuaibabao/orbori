@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ADVICE_LABEL } from '@/lib/convergence';
 import { useAuth } from '@/lib/auth';
 import { localToday, useAppStore } from '@/lib/store';
+import { GroupCalendar } from './GroupCalendar';
 import { Sigil } from './Sigil';
 
 interface Star { id: string; me: boolean; linkId: string | null; handle: string; seed: number; checkedIn: boolean; score: number; agree: number; advice: string; sentMe: boolean; sentByMe: boolean }
@@ -155,9 +156,8 @@ export function LiveSky() {
             : !nextDay ? <p className="mt-1 text-sm text-muted">No day in the next year where all of you line up. They&apos;re rare; a smaller group finds more.</p>
             : (
               <>
-                <p className="mt-1 text-sm"><b>{nice(nextDay.d)}</b> · everyone: <b className="text-gold-lite">{ADVICE_LABEL[nextDay.adv].toLowerCase()}</b></p>
-                <p className="mt-0.5 text-xs text-dim">The day all of your Councils give the same strong advice.{days.length > 1 ? ` ${days.length - 1} more in the next year: ${days.slice(1, 4).map((g) => nice(g.d).replace(/, \d{4}$/, '')).join(', ')}${days.length > 4 ? '…' : ''}.` : ''}</p>
-                <a href={`/api/constellation/ics?date=${nextDay.d}&adv=${nextDay.adv}&name=${encodeURIComponent(sky.name ?? '')}`} className="mt-2 inline-block text-xs font-semibold text-gold-lite">＋ Add to my calendar</a>
+                <p className="mt-1 text-xs text-dim">Days when everyone&apos;s Council gives the same strong advice. {days.length} in the next year; the next is {nice(nextDay.d)}.</p>
+                <GroupCalendar days={days} today={date} names={sky.stars.map((s) => (s.me ? 'You' : s.handle))} group={sky.name} />
               </>
             )}
         </div>
