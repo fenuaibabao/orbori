@@ -29,7 +29,7 @@ Output only the reading text.`;
 
 export function readingPrompt(r: CouncilReading, big3: string, name?: string): string {
   const lines = r.systems.map((s) =>
-    `- ${s.label} (${s.agrees ? 'agrees' : 'dissents'}; advice: ${s.advice}; ${s.basis}): ${s.headline}. ${s.body}${s.why ? ` [Why it differs: ${s.why}]` : ''}`);
+    `- ${s.label} (${s.agrees ? 'agrees' : 'dissents'}; advice: ${s.advice}; term: ${s.term}; ${s.basis}): ${s.headline}. ${s.body}${s.why ? ` [Why it differs: ${s.why}]` : ''}`);
   return [
     `Date: ${r.date}`,
     name ? `Person: ${name}` : null,

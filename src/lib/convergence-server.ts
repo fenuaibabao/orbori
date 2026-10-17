@@ -28,7 +28,7 @@ const FAR = 6 * 365;         // how far to look for the next Convergence
 
 /** A year of glowing days from `today`, plus the next Convergence (cached per person). */
 export async function forecastFor(admin: SupabaseClient, userId: string, input: BirthInput, timeZone: string, today: string): Promise<Forecast> {
-  const key = createHash('sha256').update(JSON.stringify([input.date, input.time, input.latitude, input.longitude, input.timeZone, timeZone])).digest('hex').slice(0, 24);
+  const key = createHash('sha256').update(JSON.stringify(['w2', input.date, input.time, input.latitude, input.longitude, input.timeZone, timeZone])).digest('hex').slice(0, 24);
   const { data: cached } = await admin.from('convergence_cache').select('key, from_date, data').eq('user_id', userId).maybeSingle();
   let data = cached?.key === key && cached.from_date <= today && addDays(cached.from_date, REFRESH_AFTER) >= today ? cached.data as Forecast : null;
   if (!data) {

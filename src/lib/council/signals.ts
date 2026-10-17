@@ -22,6 +22,18 @@ export function hash(s: string): number {
   return h >>> 0;
 }
 const pick = <T,>(arr: T[], seed: string) => arr[hash(seed) % arr.length];
+/** "Kej day: stand tall…" → "Stand tall…" */
+const afterColon = (line: string) => { const i = line.indexOf(': '); const t = i >= 0 ? line.slice(i + 2) : line; return t.charAt(0).toUpperCase() + t.slice(1); };
+
+/** Plain headlines by advice, used where a tradition has no headline of its own. */
+const HEAD: Record<Advice, string[]> = {
+  speak: ['Say what you mean', 'Your words carry today', 'Speak up'],
+  act: ['Make your move', 'A green-light day', 'Go for it'],
+  connect: ['Reach out to someone', 'A warm, easy day', 'Lean on your people'],
+  build: ['Steady effort pays off', 'Put in the work', 'Keep your head down'],
+  slow: ['Take it slow', 'Pause before you react', 'Rest, don\'t launch'],
+  release: ['Let something go', 'Clear the decks', 'Wrap things up'],
+};
 
 /* ───────────── Western: transits to natal points ───────────── */
 
@@ -44,6 +56,20 @@ const PLANET_ADVICE: Record<string, Advice> = {
   Mercury: 'speak', Mars: 'act', Venus: 'connect', Jupiter: 'act', Saturn: 'build', Sun: 'act', Moon: 'connect',
 };
 
+const PLANET_PLAIN: Record<string, string> = {
+  Moon: 'The Moon, which sets the day\'s mood,', Sun: 'The Sun, the day\'s main light,', Mercury: 'Mercury, the planet of talk and texts,',
+  Venus: 'Venus, the planet of love and charm,', Mars: 'Mars, the planet of drive,', Jupiter: 'Jupiter, the planet of luck and growth,',
+  Saturn: 'Saturn, the planet of hard work,',
+};
+const NATAL_PLAIN: Record<string, string> = {
+  Sun: 'your Sun (your core self)', Moon: 'your Moon (your emotional side)', Rising: 'your Rising sign (how you come across)',
+  Venus: 'your Venus (how you love)', Mercury: 'your Mercury (how you think and talk)', Mars: 'your Mars (how you go after things)',
+};
+const VERB_PLAIN: Record<string, string> = {
+  conjoins: 'is sitting right on', sextiles: 'is at a helpful angle to', trines: 'is at an easy, flowing angle to',
+  squares: 'is at a tense angle to', opposes: 'is pulling against',
+};
+
 const WESTERN_COPY: Record<Advice, string[]> = {
   speak: ['Your feelings come with subtitles today. Use them.', 'Words land clean. Send the text you drafted twice.', 'Say it plainly. People are actually listening.'],
   act: ['Momentum is on your side. Start before you feel ready.', 'Green light energy. Make the first move.', 'Bold is cheap today. Spend some.'],
@@ -55,7 +81,7 @@ const WESTERN_COPY: Record<Advice, string[]> = {
 
 export function westernSignal(chart: Chart, when: Date, dateKey: string): SystemSignal {
   const time = A.MakeTime(when);
-  let best: { score: number; text: string; advice: Advice; polarity: number; strength: number } | null = null;
+  let best: { score: number; text: string; plain: string; advice: Advice; polarity: number; strength: number } | null = null;
   let net = 0;
   for (const [tName, body, orb, w] of T_BODIES) {
     const tLon = bodyLongitude(body, time);
@@ -78,6 +104,7 @@ export function westernSignal(chart: Chart, when: Date, dateKey: string): System
           best = {
             score, advice, polarity: nature, strength,
             text: `${tName} ${verb} your ${natal.sign} ${nName}`,
+            plain: `${PLANET_PLAIN[tName]} ${VERB_PLAIN[verb]} ${NATAL_PLAIN[nName]}.`,
           };
         }
       }
@@ -90,30 +117,33 @@ export function westernSignal(chart: Chart, when: Date, dateKey: string): System
     const same = moonSign % 4 === sunSign % 4;
     const advice: Advice = same ? 'connect' : 'build';
     return {
-      system: 'western', label: 'Western', advice, polarity: same ? 0.4 : 0.1, intensity: 0.3,
-      headline: `Moon in ${SIGNS[moonSign]}, ${same ? 'your element' : 'a quiet sky'}`,
-      body: pick(WESTERN_COPY[advice], dateKey + 'w'), basis: 'No tight transits',
+      system: 'western', label: 'Western astrology', advice, polarity: same ? 0.4 : 0.1, intensity: 0.3,
+      headline: pick(HEAD[advice], dateKey + 'wh'),
+      body: `No big planet moves touch your chart today. The Moon is in ${SIGNS[moonSign]}, ${same ? 'the same element as your Sun, so things flow' : 'a quiet sky for you'}. ${pick(WESTERN_COPY[advice], dateKey + 'w')}`,
+      term: `Moon in ${SIGNS[moonSign]}`, basis: 'No tight transits',
     };
   }
   return {
-    system: 'western', label: 'Western', advice: best.advice, polarity: clamp(best.polarity * 0.6 + net * 0.25),
-    intensity: clamp(best.strength, 0, 1), headline: best.text, body: pick(WESTERN_COPY[best.advice], dateKey + 'w'),
-    basis: best.text,
+    system: 'western', label: 'Western astrology', advice: best.advice, polarity: clamp(best.polarity * 0.6 + net * 0.25),
+    intensity: clamp(best.strength, 0, 1), headline: pick(HEAD[best.advice], dateKey + 'wh'),
+    body: `${best.plain} ${pick(WESTERN_COPY[best.advice], dateKey + 'w')}`,
+    term: best.text, basis: best.text,
   };
 }
 
 /* ───────────── Vedic: Tara Bala + Chandrashtama ───────────── */
 
-const TARAS: [string, Advice, number, string][] = [
-  ['Janma', 'slow', -0.2, 'Your birth star returns. Sensitive day; keep it simple.'],
-  ['Sampat', 'build', 0.7, 'A wealth star. Good for money moves and practical wins.'],
-  ['Vipat', 'slow', -0.6, 'A danger star. Avoid big launches; double-check details.'],
-  ['Kshema', 'connect', 0.6, 'A well-being star. Care for your people and yourself.'],
-  ['Pratyak', 'slow', -0.5, 'An obstacle star. Draft it today, send it later.'],
-  ['Sadhana', 'act', 0.8, 'An achievement star. Effort converts to results today.'],
-  ['Naidhana', 'release', -0.8, 'The hardest star. End things, don\'t start them.'],
-  ['Mitra', 'connect', 0.6, 'A friendly star. Allies show up when asked.'],
-  ['Param Mitra', 'speak', 0.8, 'Your best-friend star. Ask for what you want.'],
+// [name, advice, polarity, plain headline, what kind of star it is, what to do]
+const TARAS: [string, Advice, number, string, string, string][] = [
+  ['Janma', 'slow', -0.2, 'A sensitive day', 'the star you were born under', 'Keep things simple.'],
+  ['Sampat', 'build', 0.7, 'Good for money and practical wins', 'a "wealth" star', 'Make the practical move.'],
+  ['Vipat', 'slow', -0.6, 'Go carefully today', 'a "danger" star', 'Avoid big launches and double-check details.'],
+  ['Kshema', 'connect', 0.6, 'Look after yourself and your people', 'a "well-being" star', 'Care for the people close to you, including you.'],
+  ['Pratyak', 'slow', -0.5, 'Expect a few obstacles', 'an "obstacle" star', 'Draft it today, send it later.'],
+  ['Sadhana', 'act', 0.8, 'Effort turns into results', 'an "achievement" star', 'Work hard on the thing that matters.'],
+  ['Naidhana', 'release', -0.8, 'End things, don\'t start them', 'the hardest star of the cycle', 'Finish or let go rather than begin.'],
+  ['Mitra', 'connect', 0.6, 'Friends show up today', 'a "friend" star', 'Ask an ally for help.'],
+  ['Param Mitra', 'speak', 0.8, 'Ask for what you want', 'your "best friend" star', 'Speak up; you\'re likely to be heard.'],
 ];
 
 export function vedicSignal(chart: Chart, when: Date): SystemSignal {
@@ -122,21 +152,24 @@ export function vedicSignal(chart: Chart, when: Date): SystemSignal {
   const today = nakshatra(sidMoon);
   const natal = chart.vedic.moonNakshatra;
   const count = ((today.index - natal.index + 27) % 27) + 1;
-  const [tara, advice0, pol0, body0] = TARAS[(count - 1) % 9];
+  const [tara, advice0, pol0, head0, kind0, todo0] = TARAS[(count - 1) % 9];
   const natalRashi = Math.floor(chart.vedic.planets.moon.longitude / 30);
   const moonRashi = Math.floor(sidMoon / 30);
   const chandrashtama = (moonRashi - natalRashi + 12) % 12 === 7;
   if (chandrashtama) {
     return {
-      system: 'vedic', label: 'Vedic', advice: 'slow', polarity: -0.9, intensity: 0.95,
-      headline: `Chandrashtama: Moon in your 8th from Moon`,
-      body: 'The one day a month Vedic says lie low. No big decisions, no big fights.',
+      system: 'vedic', label: 'Vedic (Indian) astrology', advice: 'slow', polarity: -0.9, intensity: 0.95,
+      headline: 'Lie-low day',
+      body: 'Once a month the Moon passes the touchiest spot in your chart. Skip big decisions and big fights today.',
+      term: 'Chandrashtama · Moon 8th from your Moon',
       basis: `Moon in ${SIGNS[moonRashi]} (sidereal), 8th from your ${SIGNS[natalRashi]} Moon`,
     };
   }
   return {
-    system: 'vedic', label: 'Vedic', advice: advice0, polarity: pol0, intensity: 0.4 + Math.abs(pol0) * 0.5,
-    headline: `Moon in ${today.name}: a ${tara} day for you`, body: body0,
+    system: 'vedic', label: 'Vedic (Indian) astrology', advice: advice0, polarity: pol0, intensity: 0.4 + Math.abs(pol0) * 0.5,
+    headline: head0,
+    body: `Vedic astrology follows the Moon through 27 star groups. Counted from your birth star, today's Moon is on ${kind0}. ${todo0}`,
+    term: `Moon in ${today.name} · ${tara} tara`,
     basis: `Tara ${((count - 1) % 9) + 1} of 9 from your ${natal.name} Moon`,
   };
 }
@@ -161,47 +194,49 @@ export function chineseSignal(chart: Chart, date: string, dateKey: string): Syst
   const a = ANIMALS.indexOf(me);
   const b = ANIMALS.indexOf(day.animal);
   const diff = (b - a + 12) % 12;
-  let rel: string, advice: Advice, polarity: number, body: string;
+  let rel: string, advice: Advice, polarity: number, body: string, headline: string;
+  const da = day.animal;
   if (diff === 0) {
-    rel = 'your own animal'; advice = 'build'; polarity = 0.3;
-    body = pick(['Mirror day. You are the vibe; set it on purpose.', 'Home-field advantage. Play your own game.'], dateKey + 'c');
+    rel = 'your own animal'; advice = 'build'; polarity = 0.3; headline = 'Home-field advantage';
+    body = `Today is a ${da} day, the same animal as your birth year. ${pick(['You set the vibe today, so set it on purpose.', 'Play your own game.'], dateKey + 'c')}`;
   } else if (diff === 6) {
-    rel = 'a clash'; advice = 'release'; polarity = -0.5;
-    body = pick(['Clash energy, but clashes clear stale air. Be quick, be kind.', 'Opposites day. Let one thing go so the rest can move.'], dateKey + 'c');
+    rel = 'a clash'; advice = 'release'; polarity = -0.5; headline = 'A clashing day';
+    body = `Today's animal, the ${da}, sits opposite your ${me} on the zodiac wheel. ${pick(['Clashes clear stale air, so be quick and be kind.', 'Let one thing go so the rest can move.'], dateKey + 'c')}`;
   } else if (diff === 4 || diff === 8) {
-    rel = 'your trine'; advice = 'act'; polarity = 0.8;
-    body = pick(['Same team, different jersey. Everything clicks faster.', 'Your trine is up. Go for the thing.'], dateKey + 'c');
-  } else if (pairIn(SIX_HARMONY, me, day.animal)) {
-    rel = 'your secret friend'; advice = 'connect'; polarity = 0.8;
-    body = 'Secret-friend day. Help arrives from an unexpected person.';
-  } else if (pairIn(HARM, me, day.animal)) {
-    rel = 'a harm pairing'; advice = 'slow'; polarity = -0.4;
-    body = 'Small misunderstandings multiply. Re-read before replying.';
+    rel = 'your trine'; advice = 'act'; polarity = 0.8; headline = 'Everything clicks today';
+    body = `Today's animal, the ${da}, is on the same team as your ${me}. ${pick(['Things move faster than usual.', 'Go for the thing.'], dateKey + 'c')}`;
+  } else if (pairIn(SIX_HARMONY, me, da)) {
+    rel = 'your secret friend'; advice = 'connect'; polarity = 0.8; headline = 'Help from an unexpected place';
+    body = `In the Chinese zodiac the ${da} is your ${me}'s "secret friend". Help can arrive from someone you don't expect.`;
+  } else if (pairIn(HARM, me, da)) {
+    rel = 'a harm pairing'; advice = 'slow'; polarity = -0.4; headline = 'Watch for misunderstandings';
+    body = `The ${da} and your ${me} tend to rub each other the wrong way. Re-read before you reply.`;
   } else {
-    rel = 'neutral ground'; advice = 'build'; polarity = 0.1;
-    body = 'Neutral sky. Good day to grind quietly.';
+    rel = 'neutral ground'; advice = 'build'; polarity = 0.1; headline = 'A quiet, steady day';
+    body = `Today's animal, the ${da}, neither helps nor clashes with your sign, the ${me}. Good for heads-down work.`;
   }
   return {
     system: 'chinese', label: 'Chinese zodiac', advice, polarity, intensity: 0.3 + Math.abs(polarity) * 0.6,
-    headline: `${chart.chinese.element} ${me} on a ${day.element} ${day.animal} day`, body,
+    headline, body,
+    term: `${day.element} ${day.animal} day · you're a ${chart.chinese.element} ${me}`,
     basis: `Day pillar ${day.element} ${day.animal}: ${rel}`,
   };
 }
 
 /* ───────────── Numerology: Personal Day ───────────── */
 
-const PERSONAL_DAY: Record<number, [string, Advice, number, string]> = {
-  1: ['the starter', 'act', 0.7, 'New-beginnings day. Plant one flag.'],
-  2: ['the diplomat', 'connect', 0.4, 'Partnership day. Two heads, one plan.'],
-  3: ['the talker', 'speak', 0.8, 'The universe is literally handing you the mic.'],
-  4: ['the builder', 'build', 0.4, 'Foundations day. Unsexy, essential, satisfying.'],
-  5: ['the wildcard', 'act', 0.6, 'Change is the plan. Say yes to the detour.'],
-  6: ['the caretaker', 'connect', 0.5, 'Home and heart day. Feed someone, including you.'],
-  7: ['the hermit', 'slow', -0.1, 'Inner-work day. Fewer tabs, more thoughts.'],
-  8: ['the boss', 'build', 0.7, 'Power and money day. Negotiate like you mean it.'],
-  9: ['the closer', 'release', 0, 'Completion day. Finish, forgive, file it away.'],
-  11: ['the intuitive', 'speak', 0.5, 'Master day. Trust the hunch and say it out loud.'],
-  22: ['the architect', 'build', 0.8, 'Master builder day. Think big, then make it real.'],
+const PERSONAL_DAY: Record<number, [string, Advice, number, string, string]> = {
+  1: ['the starter', 'act', 0.7, 'Start something new', 'Plant one flag.'],
+  2: ['the diplomat', 'connect', 0.4, 'Team up', 'Two heads, one plan.'],
+  3: ['the talker', 'speak', 0.8, 'Speak up and share', 'The day is handing you the mic.'],
+  4: ['the builder', 'build', 0.4, 'Lay the groundwork', 'Unglamorous, essential, satisfying.'],
+  5: ['the wildcard', 'act', 0.6, 'Say yes to change', 'Take the detour.'],
+  6: ['the caretaker', 'connect', 0.5, 'Take care of home and heart', 'Feed someone, including you.'],
+  7: ['the hermit', 'slow', -0.1, 'Turn inward', 'Fewer tabs, more thinking.'],
+  8: ['the boss', 'build', 0.7, 'Handle business', 'Money and power day. Negotiate like you mean it.'],
+  9: ['the closer', 'release', 0, 'Wrap things up', 'Finish, forgive, file it away.'],
+  11: ['the intuitive', 'speak', 0.5, 'Trust your hunch', 'Say it out loud.'],
+  22: ['the architect', 'build', 0.8, 'Think big, build real', 'Then make it real.'],
 };
 
 export function personalDay(birthDate: string, date: string) {
@@ -216,10 +251,12 @@ export function personalDay(birthDate: string, date: string) {
 
 export function numerologySignal(chart: Chart, date: string): SystemSignal {
   const pd = personalDay(chart.input.date, date);
-  const [name, advice, polarity, body] = PERSONAL_DAY[pd.day];
+  const [name, advice, polarity, head, line] = PERSONAL_DAY[pd.day];
   return {
     system: 'numerology', label: 'Numerology', advice, polarity, intensity: 0.35 + Math.abs(polarity) * 0.5,
-    headline: `Personal Day ${pd.day}: ${name}`, body,
+    headline: head,
+    body: `Add up your birthday and today's date and you get ${pd.day}, "${name}". ${line}`,
+    term: `Personal Day ${pd.day} · Life Path ${chart.numerology.lifePath}`,
     basis: `Personal Year ${pd.year}, Month ${pd.month}, Day ${pd.day} · Life Path ${chart.numerology.lifePath}`,
   };
 }
@@ -230,6 +267,12 @@ export function numerologySignal(chart: Chart, date: string): SystemSignal {
 const SIGN_ADVICE: Advice[] = [
   'slow', 'speak', 'act', 'connect', 'act', 'release', 'build', 'build', 'release', 'speak',
   'act', 'act', 'connect', 'slow', 'act', 'release', 'speak', 'release', 'connect', 'act',
+];
+const SIGN_HEAD: string[] = [
+  'Listen to your gut', 'Say what matters', 'Start fresh', 'Gather your people', 'Use your power fairly',
+  'Honor an ending', 'A day to lead', 'Plant seeds', 'Give back', 'Stand up for what\'s fair',
+  'Make something', 'Get moving', 'Tend your home', 'Trust your instincts', 'Zoom out',
+  'Forgive someone', 'Think it through', 'Cut away what\'s false', 'Clear the air', 'Aim high',
 ];
 const SIGN_LINE: string[] = [
   'Imox day: listen to your dreams and gut before you act.',
@@ -262,13 +305,15 @@ export function mayanSignal(chart: Chart, date: string): SystemSignal {
   const diff = (ti - mi + 20) % 20;
   let advice = SIGN_ADVICE[ti];
   let polarity = today.number <= 3 ? 0.3 : today.number <= 9 ? 0.5 : 0.6;
-  let tail = ` Energy of the ${today.number}: ${NUMBER_LINE[today.number]}.`;
-  if (diff === 0) { polarity = 0.9; advice = 'act'; tail += " It's your nawal's day. Hard to lose."; }
-  else if (diff === 10) { polarity = -0.5; advice = 'slow'; tail += ' Your opposite nawal rules today, so go gently.'; }
+  let tail = ` Its number, ${today.number}, stands for ${NUMBER_LINE[today.number]}.`;
+  let headline = SIGN_HEAD[ti];
+  if (diff === 0) { polarity = 0.9; advice = 'act'; headline = 'Your own sign\'s day'; tail += ' Today is your birth sign\'s day. Hard to lose.'; }
+  else if (diff === 10) { polarity = -0.5; advice = 'slow'; headline = 'Go gently today'; tail += ' Your opposite sign rules today, so go gently.'; }
   return {
-    system: 'mayan', label: "Chol Q'ij (Mayan)", advice, polarity, intensity: 0.3 + today.number / 26 + (diff === 0 ? 0.3 : 0),
-    headline: `${today.label} meets your ${mine.label}`,
-    body: SIGN_LINE[ti] + tail,
+    system: 'mayan', label: "Mayan calendar (Chol Q'ij)", advice, polarity, intensity: 0.3 + today.number / 26 + (diff === 0 ? 0.3 : 0),
+    headline,
+    body: `In the 260-day Mayan calendar, today is ${today.daySign}, the ${today.english}. ${afterColon(SIGN_LINE[ti])}${tail}`,
+    term: `${today.label} · you're ${mine.label}`,
     basis: `${today.label} (${today.english})`,
   };
 }
@@ -277,15 +322,20 @@ export type { Sign };
 
 /* ───────────── Hawaiian: tonight's moon (Kaulana Mahina) ───────────── */
 
+const HAWAIIAN_HEAD: Record<Advice, string> = {
+  speak: 'Share your news', act: 'Plant and begin', connect: 'Gather your people', build: 'Steady, quiet work', slow: 'Rest, don\'t launch', release: 'Let things go',
+};
+
 export function hawaiianSignal(chart: Chart, date: string, timeZone: string): SystemSignal {
   const tonight = moonNight(date, timeZone);
   const m = NIGHT_MEANING[tonight.night - 1];
   const same = tonight.night === chart.hawaiian.night;
   return {
-    system: 'hawaiian', label: 'Hawaiian moon', advice: m.advice, polarity: clamp(m.polarity + (same ? 0.2 : 0)),
+    system: 'hawaiian', label: 'Hawaiian moon calendar', advice: m.advice, polarity: clamp(m.polarity + (same ? 0.2 : 0)),
     intensity: 0.35 + Math.abs(m.polarity) * 0.6,
-    headline: `${tonight.name}, night ${tonight.night} of the ${tonight.month} moon`,
-    body: m.today + (same ? ' Tonight is your own birth night: the moon is on your side.' : ''),
+    headline: same ? 'Your own birth night' : HAWAIIAN_HEAD[m.advice],
+    body: `Every night of the Hawaiian moon calendar has a name; tonight is ${tonight.name}. ${afterColon(m.today).replace('ʻOle night', 'ʻOle ("nothing") night')}${same ? ' It\'s also the night you were born: the moon is on your side.' : ''}`,
+    term: `${tonight.name}, night ${tonight.night} · ${tonight.month} moon`,
     basis: `${tonight.anahulu}, ${ANAHULU_LINE[tonight.anahulu]}`,
   };
 }
@@ -305,9 +355,10 @@ export function islamicSignal(chart: Chart, when: Date, date: string, timeZone: 
   if (ramadan) note += ' In Ramadan the whole month leans toward restraint and reflection.';
   const same = mansion.index === chart.islamic.mansion.index;
   return {
-    system: 'islamic', label: 'Lunar mansions', advice: mansion.advice, polarity, intensity: 0.35 + Math.abs(polarity) * 0.6,
-    headline: `Moon in ${mansion.name}, ${mansion.meaning}`,
-    body: mansion.today + note + (same ? ' The Moon is back in your birth mansion.' : ''),
+    system: 'islamic', label: 'Arabic lunar mansions', advice: mansion.advice, polarity, intensity: 0.35 + Math.abs(polarity) * 0.6,
+    headline: same ? 'The Moon comes home to you' : pick(HEAD[mansion.advice], date + 'm'),
+    body: `The Moon is in "${mansion.meaning}", one of 28 star stations in the old Arabic sky. ${mansion.today}${note}${same ? ' It\'s the same station the Moon was in when you were born.' : ''}`,
+    term: `${mansion.name} · ${hijri.label}`,
     basis: `${hijri.label} · mansion ${mansion.index + 1} of 28`,
   };
 }

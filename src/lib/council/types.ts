@@ -18,8 +18,12 @@ export interface SystemSignal {
   polarity: number;
   /** 0 … 1, how strongly the system is speaking today. */
   intensity: number;
+  /** Plain-English headline: what to do today. */
   headline: string;
+  /** Plain-English why, one or two sentences. */
   body: string;
+  /** The tradition's own term for today, shown in small print (e.g. "Chandrashtama"). */
+  term: string;
   /** Short technical basis, e.g. "Tara: Sadhana (6)". */
   basis: string;
 }

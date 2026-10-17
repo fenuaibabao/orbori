@@ -26,9 +26,26 @@ const ADVICE_VERB: Record<Advice, string> = {
   slow: 'says wait', release: 'says let it go',
 };
 const SHORT: Record<string, string> = {
-  western: 'Western', vedic: 'Vedic', chinese: 'The Chinese zodiac', numerology: 'Numerology', mayan: "The Chol Q'ij",
+  western: 'Western astrology', vedic: 'Vedic astrology', chinese: 'The Chinese zodiac', numerology: 'Numerology', mayan: 'The Mayan calendar',
   hawaiian: 'The Hawaiian moon', islamic: 'The lunar mansions',
 };
+/** Same names, mid-list ("Vedic astrology, the Hawaiian moon"). */
+const LOWER = (sys: string) => SHORT[sys].replace(/^The /, 'the ');
+const NUM = ['', 'One', 'Two', 'Three'];
+const SAYS: Record<Advice, string> = {
+  speak: 'speak up', act: 'make a move', connect: 'lean on your people', build: 'keep your head down', slow: 'wait', release: 'let it go',
+};
+
+/** "Two say wait (Vedic astrology, the Hawaiian moon). One says make a move (the lunar mansions)." */
+export function holdoutLine(dissent: { system: string; advice: Advice }[], strong: boolean): string | null {
+  if (!dissent.length) return null;
+  if (dissent.length === 1) return `${SHORT[dissent[0].system]} ${ADVICE_VERB[dissent[0].advice]}. Noted.${strong ? ' Overruled.' : ''}`;
+  const groups = new Map<Advice, string[]>();
+  for (const d of dissent) groups.set(d.advice, [...(groups.get(d.advice) ?? []), d.system]);
+  return [...groups.entries()].sort((a, b) => b[1].length - a[1].length)
+    .map(([adv, sys]) => `${NUM[sys.length] ?? sys.length} ${sys.length === 1 ? 'says' : 'say'} ${SAYS[adv]} (${sys.map(LOWER).join(', ')}).`)
+    .join(' ');
+}
 
 /** Score base by how many of the 7 voices share the majority mood. */
 const BASE: Record<number, number> = { 1: 1.2, 2: 2.4, 3: 3.8, 4: 5.4, 5: 7.0, 6: 8.4, 7: 9.4 };
@@ -71,9 +88,7 @@ export function cosmicCouncil(chart: Chart, date: string, timeZone: string): Cou
   const score = Math.round(Math.max(1, Math.min(10, raw)) * 10) / 10;
 
   const dissent = systems.filter((s) => MOOD[s.advice] !== topMood);
-  let holdoutText: string | null = null;
-  if (dissent.length === 1) holdoutText = `${SHORT[dissent[0].system]} ${ADVICE_VERB[dissent[0].advice]}. Noted.${top.n >= 5 ? ' Overruled.' : ''}`;
-  else if (dissent.length > 1) holdoutText = dissent.map((s) => `${SHORT[s.system]} ${ADVICE_VERB[s.advice]}`).join('; ') + '.';
+  const holdoutText = holdoutLine(dissent, top.n >= 5);
 
   const headlines = HEADLINES[majority];
   return {
@@ -87,7 +102,7 @@ export function cosmicCouncil(chart: Chart, date: string, timeZone: string): Cou
     systems: systems.map((s) => ({
       ...s,
       agrees: MOOD[s.advice] === topMood,
-      why: MOOD[s.advice] !== topMood && s.basis !== s.headline ? `Why the split: ${s.basis}.` : undefined,
+      why: MOOD[s.advice] !== topMood ? `This one says ${SAYS[s.advice]}, while most say ${SAYS[majority]}.` : undefined,
     })),
   };
 }
