@@ -34,6 +34,7 @@ const EXPLORE: { id: string; label: string; note: string; href?: string; bg: str
   { id: 'journal', label: 'Journal', note: 'Your private running diary', href: '/journal', bg: '#5a2a63', icon: <Ic d={<><path d="M6 3h11a2 2 0 012 2v16H6a2 2 0 01-2-2V5a2 2 0 012-2z" /><path d="M8 8h7M8 12h7M8 16h4" /></>} /> },
   { id: 'learn', label: 'Learn', note: 'Every astrology term, in plain English', href: '/learn', bg: '#24508a', icon: <Ic d={<><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z" /><path d="M4 21V5M8 7h7" /></>} /> },
   { id: 'tour', label: 'Tour', note: 'A 30-second walk through Orbori', bg: '#2f6b3a', icon: <Ic d={<><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></>} /> },
+  { id: 'resources', label: 'Resources', note: 'Who Orbori learned from, and where to go deeper', href: '/resources', bg: '#7a2f4f', icon: <Ic d={<><path d="M5 4h4v16H5zM10 4h4v16h-4z" /><path d="M15.5 5.2l3.7-1 3 15.5-3.7 1z" /></>} /> },
 ];
 
 export default function Profile() {
@@ -175,7 +176,7 @@ export default function Profile() {
         {auth.user && <FriendName />}
 
         <p className="mb-2 ml-1 mt-5 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">EXPLORE</p>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
           {EXPLORE.map((t) => {
             const inner = (
               <>
