@@ -12,13 +12,12 @@ import { MyFlame, MySigil } from '@/components/Rewards';
 import { Bar, Eyebrow, Tag } from '@/components/ui';
 import { useChart, useToday } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
-import { DAILY_ACTIVITY_CAP, XP, type Answer } from '@/lib/progress';
+import { DAILY_ACTIVITY_CAP, XP } from '@/lib/progress';
 import { dailyQuestion } from '@/lib/questions';
 import { useLinks } from '@/lib/use-links';
 import { big3, cardUrl, shareCard } from '@/lib/share';
 import { localToday, useAppStore } from '@/lib/store';
 
-const ANSWERS: [Answer, string][] = [['nailed', 'Nailed it'], ['kinda', 'Kinda'], ['nope', 'Nope']];
 
 export default function Today() {
   const { state, checkIn, record } = useAppStore();
@@ -35,11 +34,12 @@ export default function Today() {
 
   const pretty = new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase().replace(',', ' ·');
 
-  const answer = (a: Answer) => {
-    if (!reading) return;
-    checkIn(date, a, reading.score);
+  // Opening Today is the check-in.
+  useEffect(() => {
+    if (!reading || today) return;
+    checkIn(date, 'seen', reading.score);
     setJustAnswered(true);
-  };
+  }, [reading, today, date, checkIn]);
 
   const shareScore = async () => {
     if (!reading || !data) return;
@@ -152,38 +152,17 @@ export default function Today() {
               <Link href="/convergence" className="-mt-1 text-center text-[13px] font-semibold text-gold-lite">See your glowing days ahead ✦</Link>
             </section>
 
-            <section aria-labelledby="land" className="flex flex-col gap-3.5 rounded-3xl border border-royal bg-night p-5 order-last lg:order-none lg:self-start">
-              <div>
-                <h2 id="land" className="font-display text-xl font-bold">Did it land?</h2>
-                <p className="mt-1 text-[13px] text-muted">One tap tonight. It trains your Council and keeps your streak alive.{progress.knockedBack ? ' You missed last night, so your streak slipped back one. Check in to keep it going.' : ''}</p>
-              </div>
-              <div className="flex gap-2">
-                {ANSWERS.map(([a, label]) => (
-                  <button key={a} type="button" onClick={() => answer(a)} aria-pressed={today?.answer === a}
-                    className={`min-h-12 flex-1 rounded-full border text-sm font-semibold ${today?.answer === a ? 'border-gold-lite bg-royal' : 'border-royal hover:border-gold-lite'}`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-              {today && (
-                <div role="status" className={`${justAnswered ? 'anim-pop' : ''} flex flex-col gap-3 rounded-[18px] border border-gold bg-deep p-4`}>
-                  <div className="flex gap-2">
-                    <div className="flex-1 rounded-xl bg-night p-2.5 text-center">
-                      <p className="font-mono text-xl font-bold text-gold-lite">+{progress.todayXp} XP today</p>
-                      <p className="mt-0.5 text-[11px] text-muted">
-                        {progress.nextLevel ? `${progress.level}, ${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} to ${progress.nextLevel.name}` : progress.level}
-                      </p>
-                    </div>
-                    <div className="flex-1 rounded-xl bg-night p-2.5 text-center">
-                      <p className="font-mono text-xl font-bold text-gold-lite">{progress.streak} {progress.streak === 1 ? 'night' : 'nights'}</p>
-                      <p className="mt-0.5 text-[11px] text-muted">{progress.streak < 7 ? `Streak +1 · 7-Night Watch at 7` : progress.streak < 30 ? 'Streak +1 · 30-night badge at 30' : 'Streak +1 · legendary'}</p>
-                    </div>
-                  </div>
-                  <p className="text-sm leading-snug text-muted">
-                    Thanks for reporting back. Answer today&apos;s question below for +{XP.question} more.
-                  </p>
-                </div>
-              )}
+            {/* Opening Orbori checks you in: no rating needed. */}
+            <section id="land" aria-label="Checked in for today" className={`${justAnswered ? 'anim-pop' : ''} flex items-center gap-3 rounded-[18px] border border-gold bg-[linear-gradient(135deg,#2a2380,var(--color-deep))] p-3.5 lg:self-start`}>
+              <span aria-hidden="true" className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-gold text-base font-black text-space">✓</span>
+              <span className="min-w-0 flex-1">
+                <b className="block text-[15px]">Checked in for today</b>
+                <span className="block text-xs text-muted">
+                  {today ? `+${XP.checkIn} XP just for opening Orbori` : 'Checking you in…'}
+                  {progress.nextLevel ? ` · ${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} XP to ${progress.nextLevel.name}` : ''}
+                </span>
+              </span>
+              <span className="flex-none font-mono text-sm font-extrabold text-gold-lite">🔥 {progress.streak}</span>
             </section>
 
           <AiReading profile={profile} onText={setAiText} />
@@ -218,7 +197,7 @@ export default function Today() {
             </div>
             <ul className="grid grid-cols-2 gap-1.5 text-sm sm:grid-cols-4">
               {([
-                ['Check in', !!today, XP.checkIn, '#land'],
+                ['Open Orbori (check-in)', !!today, XP.checkIn, null],
                 ['Today\'s question', !!act.question, XP.question, '#dq'],
                 ['Write in your journal', !!act.journal, XP.journal, '/journal'],
                 ['Play a minigame', !!act.games?.length, XP.game, '/play'],

@@ -86,9 +86,9 @@ export function NightlyReminder() {
       <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">NIGHTLY REMINDER</p>
       <div className="flex flex-col gap-3 rounded-[18px] bg-night p-4">
         <div className="flex items-center gap-3">
-          <span className="flex-1 text-[15px]">Remind me to check in{reward}
+          <span className="flex-1 text-[15px]">Remind me to open Orbori{reward}
             <span className="mt-0.5 block text-xs text-dim">
-              {status === 'on' ? `Every night at ${pretty(time)}, only if you haven't checked in yet.`
+              {status === 'on' ? `Every night at ${pretty(time)}, only if you haven't opened Orbori yet that day.`
                 : status === 'homescreen' ? 'On iPhone, add Orbori to your Home Screen first (Share → Add to Home Screen), then open it from there.'
                 : status === 'denied' ? 'Notifications are blocked for Orbori. Allow them in your phone or browser settings, then come back.'
                 : status === 'unsupported' ? 'This browser can\'t show notifications. Try Chrome, or Safari from the Home Screen.'

@@ -27,6 +27,7 @@ export default function YearRecap() {
     const perMonth = MONTHS.map((_, i) => days.filter((d) => +d.slice(5, 7) === i + 1).length);
     let best = 0, run = 0, prev: number | null = null;
     for (const d of days) { const n = toDay(d); run = prev !== null && n - prev === 1 ? run + 1 : 1; best = Math.max(best, run); prev = n; }
+    const rated = days.filter((d) => state.checkIns[d].answer !== 'seen').length;
     const nailed = days.filter((d) => state.checkIns[d].answer === 'nailed').length;
     const top = [...days].sort((a, b) => state.checkIns[b].score - state.checkIns[a].score)[0];
     const acts = Object.entries(state.activity ?? {}).filter(([d]) => inYear(d));
@@ -34,7 +35,7 @@ export default function YearRecap() {
     const words = journal.reduce((s, [, e]) => s + e.text.trim().split(/\s+/).length, 0);
     const xp = days.length * XP.checkIn + acts.reduce((s, [, a]) => s + activityXp(a), 0);
     return {
-      nights: days.length, perMonth, best, nailed, top, xp, words, entries: journal.length,
+      nights: days.length, perMonth, best, nailed, rated, top, xp, words, entries: journal.length,
       terms: acts.reduce((s, [, a]) => s + (a.terms?.length ?? 0), 0),
       games: acts.reduce((s, [, a]) => s + (a.games?.length ?? 0), 0),
       busiest: perMonth.indexOf(Math.max(...perMonth)),
@@ -94,7 +95,7 @@ export default function YearRecap() {
       {y.nights > 0 && (
         <p className="rounded-2xl border border-gold bg-night p-4 text-[15px] leading-relaxed">
           {y.perMonth[y.busiest] > 0 && <>{MONTHS[y.busiest]} was your most faithful month. </>}
-          The Council read you right {y.nailed} {y.nailed === 1 ? 'time' : 'times'} out of {y.nights} ({Math.round((y.nailed / y.nights) * 100)}%).
+          {y.rated > 0 && <>On the {y.rated} {y.rated === 1 ? 'day' : 'days'} you rated, the Council read you right {y.nailed} {y.nailed === 1 ? 'time' : 'times'} ({Math.round((y.nailed / y.rated) * 100)}%).</>}
           {y.top && <> Your brightest day was {pretty(y.top)}, scoring {state.checkIns[y.top].score.toFixed(1)}.</>}
         </p>
       )}

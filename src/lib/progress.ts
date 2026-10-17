@@ -1,6 +1,7 @@
 /** Oracle Levels, streaks, XP and badges. Pure functions so they can move server-side later. */
 
-export type Answer = 'nailed' | 'kinda' | 'nope';
+/** 'seen': checked in just by opening Orbori (the old ratings stay on past days). */
+export type Answer = 'nailed' | 'kinda' | 'nope' | 'seen';
 export interface CheckIn { answer: Answer; score: number }
 
 export const LEVELS = [
@@ -211,9 +212,10 @@ export interface Badge { id: string; name: string; how: string; earned: boolean;
 export function badges(p: Progress, opts: { mythic: boolean; matches: number; founding?: number | null }): Badge[] {
   return [
     ...(opts.founding ? [{ id: 'founding-member', name: 'Founding Member', how: `One of the Founding 111 (#${opts.founding})`, earned: true, status: `#${opts.founding}`, icon: 'M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.3 5.8L12 16l-5 3 1.3-5.8L4 9.3l5.6-.7z' }] : []),
-    { id: 'first-light', name: 'First Light', how: 'First check-in', earned: p.checkIns >= 1, status: p.checkIns >= 1 ? 'EARNED' : '0 / 1', icon: 'M3 18h18M7 18a5 5 0 0110 0M12 6v4M5 11l2 2M19 11l-2 2' },
+    { id: 'first-light', name: 'First Light', how: 'Your first day on Orbori', earned: p.checkIns >= 1, status: p.checkIns >= 1 ? 'EARNED' : '0 / 1', icon: 'M3 18h18M7 18a5 5 0 0110 0M12 6v4M5 11l2 2M19 11l-2 2' },
     { id: 'seven-night', name: '7-Night Watch', how: '7-night streak', earned: p.bestStreak >= 7, status: p.bestStreak >= 7 ? 'EARNED' : `${Math.min(p.streak, 7)} / 7`, icon: 'M16 4a8 8 0 100 16a6.5 6.5 0 010-16z' },
-    { id: 'called-it', name: 'Called It', how: '"Nailed it" on 5 low-convergence days', earned: p.calledIt >= 5, status: p.calledIt >= 5 ? 'EARNED' : `${p.calledIt} / 5`, icon: 'M12 3a9 9 0 110 18a9 9 0 010-18zM8 12l3 3 5-6' },
+    // Retired with "Did it land?": shown only to people who already earned it.
+    ...(p.calledIt >= 5 ? [{ id: 'called-it', name: 'Called It', how: '"Nailed it" on 5 low-convergence days', earned: true, status: 'EARNED', icon: 'M12 3a9 9 0 110 18a9 9 0 010-18zM8 12l3 3 5-6' }] : []),
     { id: 'constellation', name: 'Constellation Maker', how: '5 compatibility matches', earned: opts.matches >= 5, status: opts.matches >= 5 ? 'EARNED' : `${opts.matches} / 5`, icon: 'M5 18l5-11 9 6-14 5z' },
     { id: 'thirty-night', name: '30-Night Orbit', how: '30-night streak', earned: p.bestStreak >= 30, status: p.bestStreak >= 30 ? 'EARNED' : `${Math.min(p.streak, 30)} / 30`, icon: 'M12 4a8 8 0 110 16a8 8 0 010-16zM12 1v6' },
     { id: 'founding-celestial', name: 'Founding Celestial', how: 'Reach Celestial, the top level', earned: p.levelIndex >= 4, status: p.levelIndex >= 4 ? 'EARNED' : 'CELESTIAL', icon: 'M12 2l1.8 5.5H19l-4.6 3.4 1.8 5.6L12 13l-4.2 3.5 1.8-5.6L5 7.5h5.2z' },

@@ -14,7 +14,7 @@ const STEPS: Step[] = [
   { title: 'Welcome to Orbori ✦', text: 'Seven sky traditions read your chart side by side, every day. Here\'s a 30-second tour.', target: null, next: 'Start' },
   { title: 'Your day', text: 'Today\'s headline, and how much the seven traditions agree, from 1 to 10.', target: 'day' },
   { title: 'The seven voices', text: 'What each tradition says, in plain English. Gold agrees; red differs.', target: 'voices' },
-  { title: 'Points and streaks', text: 'Check in nightly, learn, journal and play to earn points, climb levels and grow your 🔥 streak.', target: 'points' },
+  { title: 'Points and streaks', text: 'Just opening Orbori each day checks you in. Learn, journal and play for more points, levels and a bigger 🔥 streak.', target: 'points' },
   { title: 'Your chart', text: 'Your full birth chart, all seven ways, each explained.', target: 'chart' },
   { title: 'Cosmic Visions', text: 'Orbori paints your chart: outfits, nails, wallpapers and more.', target: 'visions' },
   { title: 'The orb', text: (d) => (d ? 'Match, Learn, Journal, Play and Rewards are all in this menu.' : 'Tap the orb for Journal, Play, Learn, Match, the Cosmos and Rewards.'), target: 'more', menu: true },

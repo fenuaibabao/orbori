@@ -6,7 +6,7 @@ import { isUnlocked } from '@/lib/rewards';
 import { localToday, useAppStore } from '@/lib/store';
 import { useProgress } from '@/lib/use-progress';
 
-const ANSWER: Record<Answer, string> = { nailed: 'Nailed it', kinda: 'Kinda', nope: 'Nope' };
+const ANSWER: Record<Answer, string> = { nailed: 'Nailed it', kinda: 'Kinda', nope: 'Nope', seen: 'Checked in' };
 const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 const dayName = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
 
@@ -25,7 +25,8 @@ export default function Recap() {
   });
   const checked = rows.filter((r) => r.c);
   const best = [...checked].sort((x, y) => y.c!.score - x.c!.score)[0];
-  const nailed = checked.filter((r) => r.c!.answer === 'nailed').length;
+  const rated = checked.filter((r) => r.c!.answer !== 'seen');
+  const nailed = rated.filter((r) => r.c!.answer === 'nailed').length;
   const weekXp = rows.reduce((s, r) => s + r.xp, 0);
   const wrote = rows.filter((r) => r.j?.text.trim()).length;
   const terms = rows.reduce((s, r) => s + (r.a?.terms?.length ?? 0), 0);
@@ -65,8 +66,8 @@ export default function Recap() {
       {checked.length > 0 && (
         <p className="rounded-2xl border border-gold bg-night p-4 text-[15px] leading-relaxed">
           {best && <>Your highest-scoring day was <strong className="text-gold-lite">{dayName(best.d)}</strong> at {best.c!.score.toFixed(1)}. </>}
-          The Council landed for you {nailed} {nailed === 1 ? 'time' : 'times'} out of {checked.length}
-          {checked.length >= 3 ? (nailed / checked.length >= 0.6 ? ', a week when the stars read you well.' : nailed / checked.length <= 0.3 ? ', a week that kept its own counsel. Worth noticing what was different.' : ', a mixed week, which is honest.') : '.'}
+          You checked in {checked.length} {checked.length === 1 ? 'day' : 'days'} this week.
+          {rated.length > 0 && <> The Council landed for you {nailed} of the {rated.length} {rated.length === 1 ? 'day' : 'days'} you rated.</>}
         </p>
       )}
 
@@ -78,7 +79,7 @@ export default function Recap() {
               <span className="font-mono text-[11px] text-dim">{xp ? `+${xp} XP` : '—'}</span>
             </div>
             {j?.reading && <p className="text-sm"><span className="font-mono text-gold-lite">{j.reading.score.toFixed(1)}</span> <span className="text-muted">· {j.reading.headline}</span></p>}
-            {c ? <p className="text-sm text-muted">Checked in: <strong className="text-starlight">{ANSWER[c.answer]}</strong>{!j?.reading ? ` · score ${c.score.toFixed(1)}` : ''}</p> : <p className="text-sm text-dim">No check-in.</p>}
+            {c ? <p className="text-sm text-muted">{c.answer === 'seen' ? <>Checked in</> : <>Checked in: <strong className="text-starlight">{ANSWER[c.answer]}</strong></>}{!j?.reading ? ` · score ${c.score.toFixed(1)}` : ''}</p> : <p className="text-sm text-dim">No check-in.</p>}
             {j?.text.trim() && <p className="line-clamp-3 whitespace-pre-wrap text-sm italic leading-relaxed text-muted">&ldquo;{j.text.trim()}&rdquo;</p>}
           </li>
         ))}

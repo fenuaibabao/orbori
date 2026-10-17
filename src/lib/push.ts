@@ -24,8 +24,8 @@ export const REMINDERS = [
   'Seven voices weighed in on your day. Did they call it?',
   'Tonight\'s Council is ready. Two minutes before bed?',
   'How did today really go? Your check-in is waiting.',
-  'The sky had something to say about today. Check in ✦',
-  'Keep your streak glowing. Check in tonight.',
+  'The sky had something to say about today. Take a look ✦',
+  'Keep your streak glowing. Open Orbori tonight.',
   'One question, one tap: how did today go?',
 ];
 
