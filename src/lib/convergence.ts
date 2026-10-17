@@ -53,6 +53,6 @@ export function findConvergence(chart: Chart, from: string, maxDays: number, tim
 export function glowSummary(g: GlowDay): string {
   const hold = g.v.find((v) => !v[1]);
   return g.n === 7
-    ? 'All 7 voices of the Cosmic Council agree. No holdouts. As rare as a blue moon.'
-    : `6 of 7 voices agree. Only ${voiceInSentence(hold![0])} holds out and says ${ADVICE_LABEL[hold![2]].toLowerCase()}.`;
+    ? 'All 7 voices of the Cosmic Council agree. Not one differs. As rare as a blue moon.'
+    : `6 of 7 voices agree. Only ${voiceInSentence(hold![0])} differs and says ${ADVICE_LABEL[hold![2]].toLowerCase()}.`;
 }

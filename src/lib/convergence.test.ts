@@ -15,7 +15,7 @@ describe('Convergence forecast', () => {
       expect(r.agreeCount).toBe(g.n);
       expect(g.v.filter((v) => !v[1]).length).toBe(7 - g.n);
     }
-    expect(glowSummary(days[0])).toMatch(/^6 of 7 voices agree\. Only the Chol Q'ij holds out and says wait\.$/);
+    expect(glowSummary(days[0])).toMatch(/^6 of 7 voices agree\. Only the Chol Q'ij differs and says wait\.$/);
   });
   it('finds the next full Convergence', () => {
     const g = findConvergence(chart, '2027-10-16', 600, 'America/Los_Angeles');

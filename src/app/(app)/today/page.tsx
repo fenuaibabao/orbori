@@ -103,7 +103,7 @@ export default function Today() {
               <div aria-hidden="true" className="mt-3 flex justify-center gap-1.5">
                 {Array.from({ length: 7 }, (_, i) => <span key={i} className="h-4 w-4 rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffe2a6,#d4a24c_55%,#a2752c)] shadow-[0_0_10px_rgba(212,162,76,0.6)]" />)}
               </div>
-              <p className="mx-auto mt-3 max-w-md text-sm text-muted">Every voice on the Council says the same thing today. No holdouts. It happens about as often as a blue moon, and you were here for it: <span className="font-semibold text-gold-lite">Converged badge earned.</span></p>
+              <p className="mx-auto mt-3 max-w-md text-sm text-muted">Every voice on the Council says the same thing today. Not one differs. It happens about as often as a blue moon, and you were here for it: <span className="font-semibold text-gold-lite">Converged badge earned.</span></p>
             </section>
           )}
           <section aria-labelledby="council" className="flex flex-col gap-1">
@@ -139,7 +139,7 @@ export default function Today() {
                 </div>
                 {reading.holdoutText && (
                   <div className="flex flex-col gap-1 rounded-[14px] bg-deep p-3">
-                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-mauve-lite">{reading.systems.length - reading.agreeCount === 1 ? 'THE HOLDOUT' : 'THE HOLDOUTS'}</span>
+                    <span className="font-mono text-[11px] font-bold tracking-[0.06em] text-mauve-lite">{'WHERE THEY DIFFER'}</span>
                     <span className="text-sm leading-snug">{reading.holdoutText}</span>
                   </div>
                 )}
@@ -245,7 +245,7 @@ export default function Today() {
                   <div className="flex items-center justify-between">
                     <Tag>{s.label}</Tag>
                     <span className={`font-mono text-[11px] font-bold tracking-[0.06em] ${s.agrees ? 'text-gold-lite' : 'text-mauve-lite'}`}>
-                      {s.agrees ? '● AGREES' : '◐ HOLDS OUT'}
+                      {s.agrees ? '● AGREES' : '◐ DIFFERS'}
                     </span>
                   </div>
                   <h3 className="text-[17px] font-semibold">{s.headline}</h3>

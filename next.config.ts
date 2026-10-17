@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/cities': ['./.generated/cities.json'],
     '/api/card/[kind]': ['./node_modules/@fontsource/*/files/*-latin-*-normal.woff'],
+    '/api/visions/download': ['./node_modules/@fontsource/*/files/*-latin-*-normal.woff'],
+    '/api/social/[slug]': ['./node_modules/@fontsource/*/files/*-latin-*-normal.woff'],
+    '/api/art/[kind]': ['./node_modules/@fontsource/*/files/*-latin-*-normal.woff'],
   },
 };
 

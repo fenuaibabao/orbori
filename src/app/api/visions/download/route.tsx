@@ -25,6 +25,13 @@ const clean = (s: string) => s.replace(/[^\p{L}\p{N} .,'’:;()&/·-]/gu, '').sl
 
 /** GET ?id= → the vision as a JPEG with its story printed underneath (and in the file's description). */
 export async function GET(req: Request) {
+  try { return await render(req); } catch (e) {
+    console.error('[vision download]', e);
+    return new Response(`Could not prepare the image: ${(e as Error).message}`, { status: 500 });
+  }
+}
+
+async function render(req: Request) {
   const admin = supabaseAdmin();
   const user = await currentUser();
   if (!admin || !user) return new Response('Sign in first.', { status: 401 });

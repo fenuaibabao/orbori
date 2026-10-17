@@ -127,7 +127,7 @@ export default function Visions() {
               <p className="text-sm text-muted">{v.blurb}</p>
               <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy || left === 0}
                 className="mt-auto flex min-h-11 items-center justify-center self-start rounded-full bg-gold px-5 text-sm font-bold text-space disabled:opacity-50">
-                {busy === v.id ? 'Painting… about a minute' : left > 0 ? 'Make it' : 'Make it · 1 credit'}
+                {busy === v.id ? 'Creating your image… about a minute' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
               </button>
             </article>
           ))}
@@ -141,7 +141,7 @@ export default function Visions() {
             <h2 id="packs" className="font-display text-xl font-bold">More visions</h2>
             <span className="font-mono text-[11px] text-gold-lite">{credits} {credits === 1 ? 'CREDIT' : 'CREDITS'}</span>
           </div>
-          <p className="text-sm text-muted">One credit makes one vision, any kind. Credits never expire and are used only after your free Plus visions run out. Priced close to what each image costs us.</p>
+          <p className="text-sm text-muted">One credit makes one vision, any kind. Credits never expire and are used only after your free Plus visions run out.</p>
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {info.packs.map((pk) => (
               <li key={pk.id}>
