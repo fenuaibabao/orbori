@@ -136,9 +136,9 @@ export default function Visions() {
             <article key={v.id} className="flex flex-col gap-2 rounded-3xl border border-royal bg-night p-4">
               <h3 className="font-display text-lg font-bold">{v.name}</h3>
               <p className="text-sm text-muted">{v.blurb}</p>
-              <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy || left === 0}
+              <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy}
                 className="mt-auto flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 text-[15px] font-extrabold text-space shadow-[0_0_18px_rgba(212,162,76,0.45)] transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
-                {busy === v.id ? 'Creating your image… about a minute' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
+                {busy === v.id ? 'Creating your image… about a minute' : busy ? 'One at a time: finishing your other image…' : !canMake && user && info?.enabled && left === 0 && credits === 0 ? 'All used for today · more tomorrow' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
               </button>
               {done === v.id && <button type="button" onClick={seeIt} className="text-left text-sm font-semibold text-gold-lite">✓ Your image is ready. See it below ↓</button>}
             </article>
