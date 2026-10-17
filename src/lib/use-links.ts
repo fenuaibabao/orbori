@@ -6,7 +6,7 @@ import { localToday, readState, replaceState } from './store';
 export interface LinkedPerson {
   /** Their level, shown only once they're an Oracle or above. */
   level?: string | null;
-  id: string; userId: string; handle: string; seed: number; since: string;
+  id: string; userId: string; handle: string; realHandle?: string; seed: number; since: string;
   sun: string; moon: string; rising: string | null; animal: string; lifePath: number; tzolkin: string; big3: string;
   compat: number;
   today: { agree: number; total: number; sameMajority: boolean; theirHeadline: string; theirScore: number; checkedIn: boolean };

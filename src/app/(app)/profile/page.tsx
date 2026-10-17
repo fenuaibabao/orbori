@@ -9,6 +9,7 @@ import { big3, cardUrl, shareCard } from '@/lib/share';
 import { MySigil } from '@/components/Rewards';
 import { NightlyReminder } from '@/components/NightlyReminder';
 import { DeleteAccount } from '@/components/DeleteAccount';
+import { FriendName } from '@/components/FriendName';
 import { replayTour } from '@/components/WelcomeTour';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
@@ -171,6 +172,7 @@ export default function Profile() {
           </span>
           <span className="flex-none rounded-full bg-gold px-3 py-1.5 text-xs font-extrabold text-space">Edit</span>
         </button>
+        {auth.user && <FriendName />}
 
         <p className="mb-2 ml-1 mt-5 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">EXPLORE</p>
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">

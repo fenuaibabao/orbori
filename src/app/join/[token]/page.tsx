@@ -6,6 +6,7 @@ import { Logo } from '@/components/Logo';
 import { Sigil } from '@/components/Sigil';
 import { btnGhost, btnPrimary, Screen } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { saveFriendName } from '@/components/FriendName';
 
 interface Preview { handle: string; seed: number; name: string | null; count: number; seeds: number[]; self: boolean; already: boolean }
 
@@ -17,6 +18,12 @@ export default function JoinPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [friendName, setFriendName] = useState('');
+  const [hadName, setHadName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!auth.user) return;
+    fetch('/api/names').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d?.friendName) { setHadName(d.friendName); setFriendName(d.friendName); } }).catch(() => {});
+  }, [auth.user]);
 
   useEffect(() => {
     if (!auth.ready) return;
@@ -27,6 +34,7 @@ export default function JoinPage() {
 
   const join = async () => {
     setBusy(true); setError('');
+    if (friendName.trim() && friendName.trim() !== hadName) await saveFriendName(friendName).catch(() => null);
     const r = await fetch('/api/links/accept', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token }) });
     const d = await r.json().catch(() => ({}));
     setBusy(false);
@@ -72,6 +80,12 @@ export default function JoinPage() {
           <p className="text-sm text-muted">Accounts are switching on soon.</p>
         ) : auth.user ? (
           <>
+            <label className="flex flex-col gap-1.5 text-left">
+              <span className="text-sm font-semibold">What should friends call you? <span className="font-normal text-dim">(optional)</span></span>
+              <input value={friendName} onChange={(e) => setFriendName(e.target.value)} maxLength={24} placeholder="A first name or nickname"
+                className="h-11 rounded-xl border border-line-2 bg-deep px-3 text-[15px]" />
+              <span className="text-[11px] text-dim">Only people in your constellation see it. Skip it and they&apos;ll see your handle.</span>
+            </label>
             <button type="button" onClick={join} disabled={busy} className={btnPrimary}>{busy ? 'Joining…' : 'Join the constellation ✦'}</button>
             {error && <p role="alert" className="text-sm text-mauve-lite">{error} {/chart/i.test(error) && <Link href="/welcome" className="font-semibold text-gold-lite underline">Set up your chart</Link>}</p>}
           </>

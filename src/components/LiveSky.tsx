@@ -7,7 +7,7 @@ import { localToday, useAppStore } from '@/lib/store';
 import { GroupCalendar } from './GroupCalendar';
 import { Sigil } from './Sigil';
 
-interface Star { id: string; me: boolean; linkId: string | null; handle: string; seed: number; checkedIn: boolean; score: number; agree: number; advice: string; sentMe: boolean; sentByMe: boolean }
+interface Star { id: string; me: boolean; linkId: string | null; handle: string; realHandle?: string; friendName?: string | null; nickname?: string | null; seed: number; checkedIn: boolean; score: number; agree: number; advice: string; sentMe: boolean; sentByMe: boolean }
 interface Sky { name: string | null; stars: Star[]; edges: [string, string][]; lit: boolean; streak: number }
 interface GroupDay { d: string; adv: string }
 
@@ -26,6 +26,20 @@ export function LiveSky() {
   const [name, setName] = useState('');
   const [days, setDays] = useState<GroupDay[] | null>(null);
   const [toast, setToast] = useState('');
+  const [renaming, setRenaming] = useState(false);
+  const [nick, setNick] = useState('');
+  const open = (s: Star) => { setSel(s); setRenaming(false); setNick(s.nickname ?? ''); };
+  const saveNick = async (s: Star) => {
+    const r = await fetch('/api/names', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ friendId: s.id, nickname: nick }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return flash(j.error ?? 'Could not save.');
+    const n = j.nickname as string | null;
+    const label = n ?? s.friendName ?? s.realHandle ?? s.handle;
+    const next = { ...s, nickname: n, handle: label };
+    setSky((k) => (k ? { ...k, stars: k.stars.map((x) => (x.id === s.id ? next : x)) } : k));
+    setSel(next); setRenaming(false);
+    flash(n ? `Only you see “${n}”` : 'Nickname removed');
+  };
 
   const load = useCallback(() => {
     fetch(`/api/constellation?date=${date}&tz=${encodeURIComponent(timeZone)}`)
@@ -136,7 +150,7 @@ export function LiveSky() {
         {sky.stars.map((s) => {
           const p = pos.get(s.id)!; const size = s.me ? 58 : 42;
           return (
-            <button key={s.id} type="button" onClick={() => setSel(s)} aria-label={`${s.me ? 'You' : s.handle}${s.checkedIn ? ', checked in tonight' : ', not checked in yet'}`}
+            <button key={s.id} type="button" onClick={() => open(s)} aria-label={`${s.me ? 'You' : s.handle}${s.checkedIn ? ', checked in tonight' : ', not checked in yet'}`}
               className="absolute flex w-[86px] flex-col items-center gap-1" style={{ left: p.x - 43, top: p.y - size / 2 }}>
               <span className={`rounded-full transition ${s.checkedIn || sky.lit ? 'star-glow' : 'opacity-40 grayscale'}`}><Sigil seed={s.seed} size={size} /></span>
               <span className="max-w-[86px] truncate font-mono text-[10px] tracking-[0.04em] text-muted">{s.me ? 'YOU' : s.handle.toUpperCase()}</span>
@@ -172,6 +186,23 @@ export function LiveSky() {
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line-2" />
             <p className="font-mono text-[10px] tracking-[0.12em] text-gold-lite">{sel.checkedIn ? '✦ CHECKED IN TONIGHT' : 'NOT CHECKED IN YET'}</p>
             <h3 className="mt-1 font-display text-xl font-bold">{sel.me ? 'You' : sel.handle}</h3>
+            {!sel.me && (renaming ? (
+              <div className="mt-2">
+                <div className="flex gap-2">
+                  <input autoFocus value={nick} onChange={(e) => setNick(e.target.value)} maxLength={24} placeholder="Your name for them"
+                    onKeyDown={(e) => { if (e.key === 'Enter') saveNick(sel); }} className="h-10 min-w-0 flex-1 rounded-xl border border-line-2 bg-night px-3 text-sm" />
+                  <button type="button" onClick={() => saveNick(sel)} className="h-10 flex-none rounded-full bg-gold px-4 text-xs font-extrabold text-space">Save</button>
+                </div>
+                <p className="mt-1 text-[11px] text-dim">Only you see this. Leave it empty to remove it.</p>
+              </div>
+            ) : (
+              <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-dim">
+                {sel.nickname && <span>Your name for them{sel.friendName ? ` · they go by ${sel.friendName}` : ''}</span>}
+                {!sel.nickname && sel.friendName && <span>The name they chose</span>}
+                <span className="font-mono">{sel.realHandle}</span>
+                <button type="button" onClick={() => setRenaming(true)} className="font-semibold text-gold-lite">✎ {sel.nickname ? 'Rename' : 'Give them a nickname'}</button>
+              </p>
+            ))}
             {sel.me ? (
               <p className="mt-2 text-sm text-muted">{sky.lit ? 'Your whole constellation is lit tonight.' : `${sky.stars.length - tonight} still to go before your constellation lights up.`}</p>
             ) : (

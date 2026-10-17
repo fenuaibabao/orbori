@@ -5,7 +5,7 @@ import type { BirthInput } from './astro/types';
 import { coarse } from './coarse';
 import { compatibility } from './compat';
 import { cosmicCouncil } from './council';
-import { handleFromSeed } from './identity';
+import { labelsFor } from './friend-names';
 import { LEVELS } from './progress';
 import { serverProgress } from './server-progress';
 
@@ -28,6 +28,7 @@ export async function linkSummaries(admin: SupabaseClient, me: string, date: str
     admin.from('nudges').select('from_user').eq('to_user', me).eq('date', date),
     admin.from('nudges').select('to_user').eq('from_user', me).eq('date', date),
   ]);
+  const labels = await labelsFor(admin, me, ids.slice(1).filter((id) => byId.has(id)).map((id) => ({ id, seed: byId.get(id)!.seed })));
   const checked = new Set((checkIns ?? []).map((c) => c.user_id));
   const nudgedMe = new Set((nudgesIn ?? []).map((n) => n.from_user));
   const nudgedByMe = new Set((nudgesOut ?? []).map((n) => n.to_user));
@@ -44,7 +45,7 @@ export async function linkSummaries(admin: SupabaseClient, me: string, date: str
     const agree = myCouncil.systems.filter((s, i) => s.advice === council.systems[i].advice).length;
     const sameMajority = myCouncil.majority === council.majority;
     return [{
-      id: l.id, userId: other, handle: handleFromSeed(p.seed), seed: p.seed, since: l.created_at, level: levels.get(other) ?? null,
+      id: l.id, userId: other, handle: labels.get(other)?.label ?? '', realHandle: labels.get(other)?.handle ?? '', seed: p.seed, since: l.created_at, level: levels.get(other) ?? null,
       ...coarse(chart),
       compat: compatibility(myChart, chart).score,
       today: { agree, total: myCouncil.systems.length, sameMajority, theirHeadline: council.headline, theirScore: council.score, checkedIn: checked.has(other) },

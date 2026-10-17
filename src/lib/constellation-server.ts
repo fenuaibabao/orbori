@@ -6,7 +6,7 @@ import type { BirthInput } from './astro/types';
 import { cosmicCouncil } from './council';
 import { addDays } from './convergence';
 import { constellationDays, groupStreak, type GroupDay } from './constellation';
-import { handleFromSeed } from './identity';
+import { labelsFor } from './friend-names';
 
 interface ProfileRow { user_id: string; input: BirthInput; seed: number }
 const MAX_MEMBERS = 12;
@@ -35,6 +35,7 @@ export async function skyFor(admin: SupabaseClient, me: string, date: string, ti
     admin.from('nudges').select('to_user').eq('from_user', me).eq('date', date),
   ]);
   const myCouncil = cosmicCouncil(computeChart(mine.input), date, timeZone);
+  const labels = await labelsFor(admin, me, ids.map((id) => ({ id, seed: byId.get(id)!.seed })));
   const tonight = new Set((checks ?? []).filter((c) => c.date === date).map((c) => c.user_id));
   const sentMe = new Set((nudgesIn ?? []).map((n) => n.from_user));
   const sentByMe = new Set((nudgesOut ?? []).map((n) => n.to_user));
@@ -42,7 +43,7 @@ export async function skyFor(admin: SupabaseClient, me: string, date: string, ti
     const p = byId.get(id)!;
     const council = id === me ? myCouncil : cosmicCouncil(computeChart(p.input), date, timeZone);
     return {
-      id, me: id === me, linkId: linkOf.get(id) ?? null, handle: handleFromSeed(p.seed), seed: p.seed,
+      id, me: id === me, linkId: linkOf.get(id) ?? null, handle: labels.get(id)!.label, realHandle: labels.get(id)!.handle, friendName: labels.get(id)!.friendName, nickname: labels.get(id)!.nickname, seed: p.seed,
       checkedIn: tonight.has(id), score: council.score,
       agree: id === me ? 7 : myCouncil.systems.filter((s, i) => s.advice === council.systems[i].advice).length,
       advice: council.majority, sentMe: sentMe.has(id), sentByMe: sentByMe.has(id),
