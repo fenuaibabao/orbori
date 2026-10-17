@@ -102,7 +102,7 @@ export default function CompatibilityPage() {
 
       <section aria-labelledby="const" className="flex flex-col gap-3.5 rounded-[22px] bg-night p-[18px]">
         <div className="flex items-baseline justify-between">
-          <h2 id="const" className="font-display text-[19px] font-bold">Your Constellation</h2>
+          <h2 id="const" className="font-display text-[19px] font-bold">Your matches</h2>
           <span className="font-mono text-xs text-muted"><span className="font-bold text-gold-lite">{matches.length}</span> {matches.length === 1 ? 'MATCH' : 'MATCHES'}</span>
         </div>
         <Constellation me={profile.seed} stars={stars} selected={selected} onPick={(id) => { setSelected(id); setAdding(false); }} onAdd={() => setAdding(true)} />

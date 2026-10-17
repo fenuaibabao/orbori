@@ -22,7 +22,7 @@ export function LinkedPeople() {
         <h2 className="font-display text-[19px] font-bold">Linked people</h2>
         <span className="font-mono text-xs text-muted"><span className="font-bold text-gold-lite">{links.length}</span> LINKED</span>
       </div>
-      {links.length === 0 && <p className="text-sm text-muted">Nobody yet. Send someone &ldquo;See your side&rdquo; below; when they accept while signed in, you&apos;re linked both ways.</p>}
+      {links.length === 0 && <p className="text-sm text-muted">Nobody yet. Invite someone to your constellation above, or send a match &ldquo;See your side&rdquo; below.</p>}
       <ul className="flex flex-col gap-2">
         {links.map((l) => (
           <li key={l.id} className="flex flex-col gap-2 rounded-[16px] bg-deep p-3">
