@@ -159,6 +159,7 @@ export default function Today() {
                 <b className="block text-[15px]">Checked in for today</b>
                 <span className="block text-xs text-muted">
                   {today ? `+${XP.checkIn} XP just for opening Orbori` : 'Checking you in…'}
+                  {progress.knockedBack ? ` · missed ${progress.missedNights} ${progress.missedNights === 1 ? 'night' : 'nights'}, so your streak slipped back ${progress.missedNights}` : ''}
                   {progress.nextLevel ? ` · ${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} XP to ${progress.nextLevel.name}` : ''}
                 </span>
               </span>

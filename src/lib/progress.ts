@@ -127,8 +127,10 @@ export interface Progress {
   calledIt: number;
   /** XP earned today (check-in + activities). */
   todayXp: number;
-  /** True when yesterday was missed and the streak was knocked back a night. */
+  /** True when nights were missed since the last check-in, so the streak slipped back. */
   knockedBack: boolean;
+  /** Nights missed since the last check-in (each one took a night off the streak). */
+  missedNights: number;
   thisWeek: Challenge[];
   /** Convergence days seen. */
   converged: number;
@@ -145,9 +147,9 @@ export interface ProgressInput {
 }
 
 /**
- * Streaks: checking in on consecutive nights adds one. Missing a single night
- * knocks the streak back by one instead of resetting it; missing two nights in a
- * row resets it.
+ * Streaks: each day you open Orbori adds one; each day you miss takes one off.
+ * A streak never resets outright, it just shrinks a night at a time.
+ * (Missing 3 nights on a 20-night streak leaves 17.)
  */
 export function computeProgress(input: ProgressInput): Progress {
   const { checkIns, today } = input;
@@ -159,12 +161,17 @@ export function computeProgress(input: ProgressInput): Progress {
   let prev: number | null = null;
   let calledIt = 0;
   let hit7 = false, hit30 = false;
+  let lastGap = Infinity;
   for (const d of days) {
     const n = toDay(d);
     const gap = prev === null ? Infinity : n - prev;
-    if (gap === 1) run += 1;
-    else if (gap === 2) run = Math.max(1, run); // one missed night: −1, then +1 for tonight
-    else { run = 1; hit7 = false; hit30 = false; }
+    lastGap = gap;
+    if (gap === Infinity) run = 1;
+    else {
+      const left = Math.max(0, run - (gap - 1)); // −1 for each missed night
+      if (left === 0) { hit7 = false; hit30 = false; } // fully faded: bonuses can be earned again
+      run = left + 1;
+    }
     prev = n;
     best = Math.max(best, run);
     xp += XP.checkIn;
@@ -183,7 +190,9 @@ export function computeProgress(input: ProgressInput): Progress {
 
   const t = toDay(today);
   const since = prev === null ? Infinity : t - prev;
-  const streak = since <= 1 ? run : since === 2 ? Math.max(0, run - 1) : 0;
+  // Nights missed: since the last check-in, or (if you just checked in today) just before it.
+  const missedNights = since === Infinity ? 0 : since >= 2 ? since - 1 : since === 0 && lastGap !== Infinity && lastGap >= 2 ? lastGap - 1 : 0;
+  const streak = since >= 2 ? Math.max(0, run - missedNights) : run;
 
   let levelIndex = 0;
   for (let i = 0; i < LEVELS.length; i++) if (xp >= LEVELS[i].xp) levelIndex = i;
@@ -200,7 +209,8 @@ export function computeProgress(input: ProgressInput): Progress {
     checkIns: days.length,
     calledIt,
     todayXp: (checkIns[today] ? XP.checkIn : 0) + activityXp(activity[today]),
-    knockedBack: since === 2 && run > 1,
+    knockedBack: missedNights > 0 && run > 0,
+    missedNights,
     thisWeek: weekChallenges(checkIns, activity, weekStart(today)),
     converged: Object.values(activity).filter((a) => a.converged).length,
     fullSky: Object.values(activity).filter((a) => a.fullSky).length,

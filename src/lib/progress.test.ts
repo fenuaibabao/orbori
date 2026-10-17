@@ -16,9 +16,18 @@ describe('streaks', () => {
     expect(p.streak).toBe(2);
     expect(p.knockedBack).toBe(true);
   });
-  it('two missed nights in a row reset it', () => {
-    expect(computeProgress({ checkIns: ci('2026-10-10', '2026-10-11', '2026-10-12', '2026-10-15'), today: '2026-10-15' }).streak).toBe(1);
+  it('each missed night takes one off; it never resets outright', () => {
+    // 10, 11, 12 (3) → miss 13, 14 → 15 checks in: 3 − 2 + 1 = 2
+    expect(computeProgress({ checkIns: ci('2026-10-10', '2026-10-11', '2026-10-12', '2026-10-15'), today: '2026-10-15' }).streak).toBe(2);
+    // 10, 11 (2) → today 14, missed 12 and 13 → 0, but not below
     expect(computeProgress({ checkIns: ci('2026-10-10', '2026-10-11'), today: '2026-10-14' }).streak).toBe(0);
+    const days = Array.from({ length: 20 }, (_, i) => `2026-09-${String(i + 1).padStart(2, '0')}`);
+    const p = computeProgress({ checkIns: ci(...days), today: '2026-09-24' }); // missed 21, 22, 23
+    expect(p.streak).toBe(17);
+    expect(p.missedNights).toBe(3);
+    const back = computeProgress({ checkIns: ci(...days, '2026-09-24'), today: '2026-09-24' });
+    expect(back.streak).toBe(18);
+    expect(back.missedNights).toBe(3);
   });
   it('the 7-night bonus is paid once per run', () => {
     const days = ['01', '02', '03', '04', '05', '06', '07', '09', '10'].map((d) => `2026-10-${d}`);
