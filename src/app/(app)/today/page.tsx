@@ -88,6 +88,7 @@ export default function Today() {
             <span className="text-muted">{progress.xp.toLocaleString('en-US')}{progress.nextLevel ? ` / ${progress.nextLevel.xp.toLocaleString('en-US')} XP` : ' XP'}</span>
           </div>
           <Bar value={progress.levelProgress} />
+          <span className="font-mono text-[11px] text-gold-lite">{progress.nextLevel ? `${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} XP to ${progress.nextLevel.name}` : 'Top level reached ✦'}</span>
         </Link>
       </header>
       <NudgeBanner />
@@ -160,7 +161,6 @@ export default function Today() {
                 <span className="block text-xs text-muted">
                   {today ? `+${XP.checkIn} XP just for opening Orbori` : 'Checking you in…'}
                   {progress.knockedBack ? ` · missed ${progress.missedNights} ${progress.missedNights === 1 ? 'night' : 'nights'}, so your streak slipped back ${progress.missedNights}` : ''}
-                  {progress.nextLevel ? ` · ${(progress.nextLevel.xp - progress.xp).toLocaleString('en-US')} XP to ${progress.nextLevel.name}` : ''}
                 </span>
               </span>
               <span className="flex-none font-mono text-sm font-extrabold text-gold-lite">🔥 {progress.streak}</span>

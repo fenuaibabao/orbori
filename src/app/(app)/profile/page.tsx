@@ -125,9 +125,8 @@ export default function Profile() {
               </span>
             ))}
           </div>
-          <p className="text-xs text-dim">
-            {p.nextLevel ? `${(p.nextLevel.xp - p.xp).toLocaleString('en-US')} XP to ${p.nextLevel.name}. ` : ''}
-            Check in nightly (+{XP.checkIn}), answer the daily question (+{XP.question}), go deeper, learn, share and nudge (+5 each), write in your journal (+{XP.journal}), play a minigame (+{XP.game} each), get in sync with a linked person (+{XP.sync}), streaks (+{XP.streak7} at 7, +{XP.streak30} at 30), linked people (+{XP.linked} each) and weekly challenges (+{XP.challenge} each). Miss a night and your streak slips back one; miss two in a row and it resets.
+          <p className="text-xs font-semibold text-gold-lite">
+            {p.nextLevel ? `${(p.nextLevel.xp - p.xp).toLocaleString('en-US')} XP to ${p.nextLevel.name}` : 'Top level reached ✦'}
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2">
