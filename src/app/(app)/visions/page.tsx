@@ -1,4 +1,5 @@
 'use client';
+import { buzz } from '@/lib/haptics';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
@@ -53,8 +54,12 @@ export default function Visions() {
     const d = await r.json().catch(() => ({}));
     setBusy(null);
     if (!r.ok) { setErr(d.error ?? 'Something went wrong.'); return; }
-    load();
+    await load();
+    setDone(kind); buzz('win');
+    setTimeout(() => setDone((k) => (k === kind ? null : k)), 12000);
   };
+  const [done, setDone] = useState<VisionKind | null>(null);
+  const seeIt = () => document.getElementById('mine')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const [saving, setSaving] = useState<string | null>(null);
   const save = async (key: string, url: string, filename: string) => {
     setSaving(key);
@@ -70,6 +75,12 @@ export default function Visions() {
 
   return (
     <div className="flex flex-col gap-6">
+      {done && (
+        <button type="button" onClick={seeIt} role="status"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+92px)] left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 py-3 text-sm font-extrabold text-space shadow-[0_0_24px_rgba(212,162,76,0.55)] lg:bottom-8">
+          ✦ Image done! See it below ↓
+        </button>
+      )}
       <header>
         <h1 className="font-display text-[26px] font-bold">Cosmic Visions</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted">Your chart, made visible. Everything here is inspired by your signs&apos; colors, elements and moods, never by any tradition&apos;s sacred dress or objects.</p>
@@ -129,6 +140,7 @@ export default function Visions() {
                 className="mt-auto flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 text-[15px] font-extrabold text-space shadow-[0_0_18px_rgba(212,162,76,0.45)] transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
                 {busy === v.id ? 'Creating your image… about a minute' : left > 0 ? 'Create my image ✦' : 'Create my image · 1 credit'}
               </button>
+              {done === v.id && <button type="button" onClick={seeIt} className="text-left text-sm font-semibold text-gold-lite">✓ Your image is ready. See it below ↓</button>}
             </article>
           ))}
         </div>
@@ -162,8 +174,8 @@ export default function Visions() {
         <section aria-labelledby="mine" className="flex flex-col gap-3">
           <h2 id="mine" className="font-display text-xl font-bold">Your visions</h2>
           <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
-            {info.items.map((v) => (
-              <li key={v.id} className="flex flex-col gap-2 rounded-2xl bg-night p-2">
+            {info.items.map((v, i) => (
+              <li key={v.id} className={`flex flex-col gap-2 rounded-2xl bg-night p-2 transition-shadow ${done && i === 0 ? 'ring-2 ring-gold-lite shadow-[0_0_24px_rgba(212,162,76,0.5)]' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {v.url && <img src={v.url} alt={nameOf(v.kind)} className="aspect-[2/3] w-full rounded-xl object-cover" />}
                 <div className="flex items-center justify-between gap-2 px-1">
