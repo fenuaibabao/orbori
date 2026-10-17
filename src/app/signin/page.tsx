@@ -14,7 +14,7 @@ export default function SignInPage() {
 function SignIn() {
   const router = useRouter();
   const params = useSearchParams();
-  const { ready, user, enabled, signInWithEmail, signInWithGoogle } = useAuth();
+  const { ready, user, enabled, signInWithEmail, signInWithGoogle, signInWithApple, appleEnabled } = useAuth();
   const next = params.get('next') ?? '/';
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
@@ -58,6 +58,12 @@ function SignIn() {
               className="h-14 rounded-2xl border border-line-2 bg-night px-4 text-base text-starlight placeholder:text-dim" />
           </label>
           <button type="submit" disabled={busy || !email} className={btnPrimary}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
+          {appleEnabled && (
+            <button type="button" onClick={async () => { const r = await signInWithApple(); if (r.error) setError(r.error); }}
+              className="flex h-14 items-center justify-center rounded-2xl bg-white text-base font-semibold text-black">
+              Continue with Apple
+            </button>
+          )}
           {googleEnabled && (
             <button type="button" onClick={async () => { const r = await signInWithGoogle(); if (r.error) setError(r.error); }} className={btnGhost}>
               Continue with Google

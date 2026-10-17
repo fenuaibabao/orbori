@@ -3,13 +3,15 @@ import { Logo } from '@/components/Logo';
 import { LinkButton, Screen } from '@/components/ui';
 import { accountsEnabled } from '@/lib/supabase/config';
 
-export default function Welcome() {
+export default async function Welcome({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
+  const { deleted } = await searchParams;
   return (
     <Screen className="relative overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[18%] h-[520px] w-[520px] -translate-x-1/2 rounded-full border border-line" />
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[26%] h-[380px] w-[380px] -translate-x-1/2 rounded-full border border-[#2A2670]" />
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[34%] h-[240px] w-[240px] -translate-x-1/2 rounded-full border border-royal bg-night" />
 
+      {deleted && <p role="status" className="relative mx-auto mt-4 rounded-full border border-line-2 bg-night px-4 py-2 text-center text-xs text-muted">Your account and everything in it have been deleted.</p>}
       <div className="relative flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <Logo size={64} />
         <p className="font-display text-xl font-semibold">Where the stars agree.</p>

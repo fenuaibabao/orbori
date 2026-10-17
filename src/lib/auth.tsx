@@ -11,6 +11,9 @@ export interface Auth {
   enabled: boolean;
   signInWithEmail: (email: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithApple: () => Promise<{ error: string | null }>;
+  /** Sign in with Apple is switched on once it's set up with Apple. */
+  appleEnabled: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -44,10 +47,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error ? friendly(error.message) : null };
   }, []);
 
+  const signInWithApple = useCallback(async () => {
+    const sb = supabase();
+    if (!sb) return { error: 'Accounts are not set up yet.' };
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: `${siteUrl()}/auth/callback` } });
+    return { error: error ? friendly(error.message) : null };
+  }, []);
+
   const signOut = useCallback(async () => { await supabase()?.auth.signOut(); }, []);
 
-  const value = useMemo<Auth>(() => ({ ready, user, enabled: accountsEnabled, signInWithEmail, signInWithGoogle, signOut }),
-    [ready, user, signInWithEmail, signInWithGoogle, signOut]);
+  const value = useMemo<Auth>(() => ({ ready, user, enabled: accountsEnabled, signInWithEmail, signInWithGoogle, signInWithApple, appleEnabled: process.env.NEXT_PUBLIC_APPLE_SIGNIN === '1', signOut }),
+    [ready, user, signInWithEmail, signInWithGoogle, signInWithApple, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

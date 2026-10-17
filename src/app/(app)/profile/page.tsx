@@ -8,6 +8,7 @@ import { ShareIcon } from '@/components/icons';
 import { big3, cardUrl, shareCard } from '@/lib/share';
 import { MySigil } from '@/components/Rewards';
 import { NightlyReminder } from '@/components/NightlyReminder';
+import { DeleteAccount } from '@/components/DeleteAccount';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
@@ -238,6 +239,7 @@ export default function Profile() {
           <button type="button" onClick={startOver} className="flex min-h-12 w-full items-center border-t border-line px-4 text-left text-sm font-medium text-[#E7B7BA]">
             Start over
           </button>
+          <DeleteAccount />
         </div>
         <p className="mt-3 text-center text-[11px] text-dim">
           <Link href="/legal/terms">Terms</Link> · <Link href="/legal/privacy">Privacy</Link> · <Link href="/legal/commitments">Our commitments</Link>
