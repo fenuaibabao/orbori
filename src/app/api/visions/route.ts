@@ -9,7 +9,7 @@ import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { parseBirthInput } from '@/lib/validate';
 import { imageCost, PACKS } from '@/lib/credits';
 import { BETA } from '@/lib/beta';
-import { HAIR, palette, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
+import { HAIR, palette, pickTwist, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -132,7 +132,9 @@ export async function POST(req: Request) {
       const big3 = [`Sun in ${chart.western.planets.sun.sign}`, `Moon in ${chart.moonSignOptions[0]}`, chart.western.ascendant ? `${chart.western.ascendant.sign} Rising` : null].filter(Boolean).join(', ');
       note = `Inspired by ${big3}. Colors: ${palette(chart).join(', ')}.`;
     }
-    const prompt = visionPrompt(kind, chart, look, place);
+    const twist = pickTwist(kind);
+    note = `${note} This one: ${twist}.`;
+    const prompt = visionPrompt(kind, chart, look, place, twist);
 
     const call = (model: string) => fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',

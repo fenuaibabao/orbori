@@ -50,7 +50,23 @@ export function palette(chart: Chart): string[] {
   return [CHINESE_COLOR[chart.chinese.element], DIRECTION_COLOR[dir], chart.western.planets.sun.sign === 'Leo' ? 'gold' : 'antique gold'].filter(Boolean);
 }
 
-export function visionPrompt(kind: VisionKind, chart: Chart, look: Look = {}, place?: { label: string; planet: string }): string {
+/** A different twist each time, so the same chart never paints the same picture twice. */
+export const TWISTS: Record<VisionKind, string[]> = {
+  outfit: ['styled for a summer evening out', 'styled for a crisp autumn day', 'styled for a cozy winter weekend', 'styled for a spring brunch', 'styled for a big night out', 'styled for travel day', 'styled for a creative workday', 'styled for a beach getaway'],
+  makeup: ['soft and natural daytime version', 'bold evening version', 'dewy summer glow', 'graphic editorial liner', 'warm sunset tones', 'cool moonlit shimmer'],
+  nails: ['short almond shape', 'long coffin shape', 'short square shape', 'oval shape with chrome accents', 'minimal negative-space design', 'glossy jelly finish'],
+  hair: ['styled for a wedding guest', 'an everyday easy version', 'with a statement hair accessory', 'a sleek evening version', 'a playful festival version', 'soft and romantic'],
+  getaway: ['at blue hour just after sunset', 'on a bright spring morning', 'in warm golden afternoon light', 'under a starry night sky', 'after a summer rain', 'in a festive season'],
+  lovestory: ['on a rainy evening', 'at golden hour', 'on a starry night', 'on a lazy Sunday morning', 'in the first snow', 'on a warm summer night'],
+};
+export const pickTwist = (kind: VisionKind, rand = Math.random) => TWISTS[kind][Math.floor(rand() * TWISTS[kind].length)];
+
+export function visionPrompt(kind: VisionKind, chart: Chart, look: Look = {}, place?: { label: string; planet: string }, twist?: string): string {
+  const base = basePrompt(kind, chart, look, place);
+  return twist ? `${base} This time: ${twist}.` : base;
+}
+
+function basePrompt(kind: VisionKind, chart: Chart, look: Look, place?: { label: string; planet: string }): string {
   const sun = chart.western.planets.sun.sign, moon = chart.moonSignOptions[0], rising = chart.western.ascendant?.sign ?? null;
   const signs = [sun, moon, rising].filter(Boolean) as Sign[];
   const moods = Array.from(new Set(signs.map((s) => ELEMENT_MOOD[ELEMENT_OF(s)]))).join('; ');
