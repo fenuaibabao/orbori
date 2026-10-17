@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useBirthFields } from '@/components/BirthFields';
 import { Constellation } from '@/components/Constellation';
 import { LinkedPeople } from '@/components/LinkedPeople';
+import { LiveSky } from '@/components/LiveSky';
 import { MatchResult } from '@/components/MatchResult';
 import { btnPrimary } from '@/components/ui';
 import type { Compatibility } from '@/lib/compat';
@@ -94,6 +95,8 @@ export default function CompatibilityPage() {
   return (
     <div className="flex flex-col gap-6 lg:max-w-3xl">
       <h1 className="font-display text-[26px] font-bold">Compatibility</h1>
+
+      <LiveSky />
 
       <LinkedPeople />
 

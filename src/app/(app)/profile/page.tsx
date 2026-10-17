@@ -9,6 +9,7 @@ import { big3, cardUrl, shareCard } from '@/lib/share';
 import { MySigil } from '@/components/Rewards';
 import { NightlyReminder } from '@/components/NightlyReminder';
 import { DeleteAccount } from '@/components/DeleteAccount';
+import { replayTour } from '@/components/WelcomeTour';
 import { Bar } from '@/components/ui';
 import { useChart } from '@/lib/hooks';
 import { handleFromSeed } from '@/lib/identity';
@@ -195,6 +196,12 @@ export default function Profile() {
             </span>
             <span className="text-dim">›</span>
           </Link>
+          <button type="button" onClick={() => { replayTour(); router.push('/today'); }} className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2 text-left">
+            <span className="flex-1 text-[15px]">Take the tour
+              <span className="mt-0.5 block text-xs text-dim">A 30-second walk through Orbori</span>
+            </span>
+            <span className="text-dim">›</span>
+          </button>
         </div>
       </section>
 

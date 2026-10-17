@@ -75,14 +75,14 @@ export default function Today() {
           <span className="flex items-center gap-1.5 lg:hidden"><Logo size={28} /><span className="rounded-full border border-gold px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.1em] text-gold-lite">BETA</span></span>
           <span className="hidden font-mono text-xs tracking-[0.08em] text-gold-lite lg:block">{pretty} · TODAY&apos;S COSMIC COUNCIL</span>
           <div className="flex items-center gap-2">
-            <Link href="/profile" aria-label={`${progress.streak}-night check-in streak`}
+            <Link href="/profile" data-tour="points" aria-label={`${progress.streak}-night check-in streak`}
               className="flex h-9 items-center gap-1.5 rounded-full border border-royal bg-night pl-2 pr-3">
               <MyFlame /><span className="font-mono text-sm font-bold">{progress.streak}</span>
             </Link>
             <Link href="/chart" aria-label="My chart" className="rounded-full"><MySigil seed={profile.seed} size={40} /></Link>
           </div>
         </div>
-        <Link href="/rewards" aria-label="Level progress and rewards" className="flex flex-col gap-1.5 lg:w-80 lg:self-end">
+        <Link href="/rewards" data-tour="points" aria-label="Level progress and rewards" className="flex flex-col gap-1.5 lg:w-80 lg:self-end">
           <div className="flex justify-between gap-4 font-mono text-[11px] tracking-[0.06em]">
             <span><span className="text-muted lg:hidden">{pretty} · </span><span className="text-gold-lite">{progress.level.toUpperCase()}</span></span>
             <span className="text-muted">{progress.xp.toLocaleString('en-US')}{progress.nextLevel ? ` / ${progress.nextLevel.xp.toLocaleString('en-US')} XP` : ' XP'}</span>
@@ -106,14 +106,14 @@ export default function Today() {
               <p className="mx-auto mt-3 max-w-md text-sm text-muted">Every voice on the Council says the same thing today. Not one differs. It happens about as often as a blue moon, and you were here for it: <span className="font-semibold text-gold-lite">Converged badge earned.</span></p>
             </section>
           )}
-          <section aria-labelledby="council" className="flex flex-col gap-1">
+          <section aria-labelledby="council" data-tour="day" className="flex flex-col gap-1">
             <div className="lg:hidden"><Eyebrow>TODAY&apos;S COSMIC COUNCIL</Eyebrow></div>
             <h1 id="council" className="font-display text-[28px] font-bold leading-[1.15] lg:text-[40px]">{reading.headline}</h1>
           </section>
 
           {/* Mobile: score, systems, then the check-in last. Desktop: score + check-in side by side. */}
           <div className="flex flex-col gap-6 lg:grid lg:grid-cols-3 lg:gap-4">
-            <section aria-label="Convergence score" className="flex flex-col gap-4 rounded-3xl border border-royal bg-night p-[22px] lg:col-span-2">
+            <section aria-label="Convergence score" data-tour="day" className="flex flex-col gap-4 rounded-3xl border border-royal bg-night p-[22px] lg:col-span-2">
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <p className="mb-1 text-[13px] font-semibold text-muted">Convergence Score</p>
@@ -237,7 +237,7 @@ export default function Today() {
 
           <InstallPrompt />
 
-          <section aria-labelledby="systems" className="flex flex-col gap-3 lg:col-span-3 lg:mt-2">
+          <section aria-labelledby="systems" data-tour="voices" className="flex flex-col gap-3 lg:col-span-3 lg:mt-2">
             <h2 id="systems" className="font-display text-xl font-bold">What each tradition says</h2>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {reading.systems.map((s) => (

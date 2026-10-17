@@ -15,6 +15,8 @@ export interface InvitePayload {
   nickname?: string;
   /** Inviter's account id, when they were signed in: lets the accepter link accounts. */
   uid?: string;
+  /** 'constellation' for a "Join my constellation" invite. */
+  kind?: 'constellation';
   iat: number;
 }
 

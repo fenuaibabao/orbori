@@ -70,6 +70,8 @@ export interface Activity {
   notified?: boolean;
   /** Opened Orbori on a Convergence day (all 7 voices agreed). */
   converged?: boolean;
+  /** Everyone in your constellation checked in that night. */
+  fullSky?: boolean;
 }
 export type ActivityLog = Record<string, Activity>;
 
@@ -129,6 +131,8 @@ export interface Progress {
   thisWeek: Challenge[];
   /** Convergence days seen. */
   converged: number;
+  /** Nights your whole constellation was lit. */
+  fullSky: number;
 }
 
 export interface ProgressInput {
@@ -198,6 +202,7 @@ export function computeProgress(input: ProgressInput): Progress {
     knockedBack: since === 2 && run > 1,
     thisWeek: weekChallenges(checkIns, activity, weekStart(today)),
     converged: Object.values(activity).filter((a) => a.converged).length,
+    fullSky: Object.values(activity).filter((a) => a.fullSky).length,
   };
 }
 
@@ -213,6 +218,7 @@ export function badges(p: Progress, opts: { mythic: boolean; matches: number; fo
     { id: 'thirty-night', name: '30-Night Orbit', how: '30-night streak', earned: p.bestStreak >= 30, status: p.bestStreak >= 30 ? 'EARNED' : `${Math.min(p.streak, 30)} / 30`, icon: 'M12 4a8 8 0 110 16a8 8 0 010-16zM12 1v6' },
     { id: 'founding-celestial', name: 'Founding Celestial', how: 'Reach Celestial, the top level', earned: p.levelIndex >= 4, status: p.levelIndex >= 4 ? 'EARNED' : 'CELESTIAL', icon: 'M12 2l1.8 5.5H19l-4.6 3.4 1.8 5.6L12 13l-4.2 3.5 1.8-5.6L5 7.5h5.2z' },
     { id: 'converged', name: 'Converged', how: 'Be here on a Convergence day, when all 7 voices agree', earned: p.converged >= 1, status: p.converged >= 1 ? (p.converged > 1 ? `×${p.converged}` : 'EARNED') : 'RARE', icon: 'M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3M12 9a3 3 0 110 6a3 3 0 010-6z' },
+    { id: 'full-sky', name: 'Full Sky', how: 'Every star in your constellation lit on the same night', earned: p.fullSky >= 1, status: p.fullSky >= 1 ? (p.fullSky > 1 ? `×${p.fullSky}` : 'EARNED') : 'TOGETHER', icon: 'M5 18l4-9 5 4 5-8M5 18h0M9 9h0M14 13h0M19 5h0' },
     { id: 'mythic', name: 'Mythic Chart', how: 'Mythic chart rarity', earned: opts.mythic, status: opts.mythic ? 'EARNED' : 'MYTHIC ONLY', icon: 'M12 3l2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6z' },
   ];
 }

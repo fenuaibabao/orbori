@@ -100,3 +100,8 @@ html[data-theme="aurora"] {
 .glow-al { animation: glow-breathe 2.6s ease-in-out infinite; }
 .glow-cv { animation: glow-breathe 1.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .glow-al, .glow-cv { animation: none; } }
+
+/* Live constellation: stars that checked in tonight glow */
+@keyframes star-glow { 0%, 100% { box-shadow: 0 0 10px 2px rgba(212, 162, 76, 0.45); } 50% { box-shadow: 0 0 20px 6px rgba(212, 162, 76, 0.75); } }
+.star-glow { animation: star-glow 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .star-glow { animation: none; box-shadow: 0 0 14px 4px rgba(212, 162, 76, 0.6); } }
