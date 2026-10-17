@@ -9,7 +9,7 @@ import { currentUser, supabaseAdmin } from '@/lib/supabase/server';
 import { parseBirthInput } from '@/lib/validate';
 import { imageCost, PACKS } from '@/lib/credits';
 import { BETA } from '@/lib/beta';
-import { HAIR, palette, pickTwist, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
+import { HAIR, isLens, lensStyle, LENSES, palette, pickTwist, SKIN, visionPrompt, VISION_KINDS, type Look, type VisionKind } from '@/lib/visions';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -139,9 +139,12 @@ export async function POST(req: Request) {
       const big3 = [`Sun in ${chart.western.planets.sun.sign}`, `Moon in ${chart.moonSignOptions[0]}`, chart.western.ascendant ? `${chart.western.ascendant.sign} Rising` : null].filter(Boolean).join(', ');
       note = `Inspired by ${big3}. Colors: ${palette(chart).join(', ')}.`;
     }
+    const lens = isLens(body?.lens) ? body.lens : 'all';
+    const ls = lensStyle(lens, chart);
+    if (ls) note = `Through ${LENSES.find((l) => l.id === lens)!.name}. Inspired by ${ls.from.replace(/^[^:]*: /, '')}. Colors: ${ls.colors.join(', ')}.${place ? ` Set in ${place.label}.` : ''}`;
     const twist = pickTwist(kind);
     note = `${note} This one: ${twist}.`;
-    const prompt = visionPrompt(kind, chart, look, place, twist);
+    const prompt = visionPrompt(kind, chart, look, place, twist, lens);
 
     const call = (model: string) => fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',

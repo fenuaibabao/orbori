@@ -8,7 +8,7 @@ import { setPrefs, usePrefs } from '@/lib/prefs';
 import { useAppStore } from '@/lib/store';
 import { useProgress } from '@/lib/use-progress';
 import { saveImage } from '@/lib/save-image';
-import { HAIR, SKIN, VISION_KINDS, type VisionKind } from '@/lib/visions';
+import { HAIR, LENSES, SKIN, VISION_KINDS, type Lens, type VisionKind } from '@/lib/visions';
 
 interface Vision { id: string; kind: VisionKind; note: string | null; url: string | null; created_at: string }
 const nameOf = (k: string) => VISION_KINDS.find((v) => v.id === k)?.name ?? k;
@@ -48,9 +48,14 @@ export default function Visions() {
     return `/api/art/${kind}?${q}`;
   };
 
+  // Which tradition paints each card (remembered on this device).
+  const [lens, setLensState] = useState<Record<string, Lens>>({});
+  useEffect(() => { try { setLensState(JSON.parse(localStorage.getItem('orbori-lens') ?? '{}')); } catch { /* none yet */ } }, []);
+  const setLens = (k: VisionKind, l: Lens) => setLensState((m) => { const n = { ...m, [k]: l }; try { localStorage.setItem('orbori-lens', JSON.stringify(n)); } catch { /* private mode */ } return n; });
+
   const make = async (kind: VisionKind) => {
     setBusy(kind); setErr(null);
-    const r = await fetch('/api/visions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind, input: state.profile.input, look: prefs.look }) });
+    const r = await fetch('/api/visions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind, input: state.profile.input, look: prefs.look, lens: lens[kind] ?? 'all' }) });
     const d = await r.json().catch(() => ({}));
     setBusy(null);
     if (!r.ok) { setErr(d.error ?? 'Something went wrong.'); return; }
@@ -123,14 +128,14 @@ export default function Visions() {
           <summary className="cursor-pointer font-semibold">How should we picture you? <span className="font-normal text-muted">(optional, for makeup, nails and hair)</span></summary>
           <div className="mt-3 flex flex-col gap-3">
             <label className="flex flex-col gap-1">Skin tone
-              <select value={prefs.look.skin ?? ''} onChange={(e) => setPrefs({ look: { ...prefs.look, skin: e.target.value || undefined } })} className="h-11 rounded-xl border border-line-2 bg-deep px-3">
+              <span className="relative"><select value={prefs.look.skin ?? ''} onChange={(e) => setPrefs({ look: { ...prefs.look, skin: e.target.value || undefined } })} className="h-11 w-full appearance-none rounded-xl border-2 border-gold bg-deep pl-3 pr-12">
                 <option value="">Surprise me</option>{SKIN.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              </select><span aria-hidden="true" className="pointer-events-none absolute inset-y-1 right-1 flex w-9 items-center justify-center rounded-lg bg-gold text-space"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span></span>
             </label>
             <label className="flex flex-col gap-1">Hair
-              <select value={prefs.look.hair ?? ''} onChange={(e) => setPrefs({ look: { ...prefs.look, hair: e.target.value || undefined } })} className="h-11 rounded-xl border border-line-2 bg-deep px-3">
+              <span className="relative"><select value={prefs.look.hair ?? ''} onChange={(e) => setPrefs({ look: { ...prefs.look, hair: e.target.value || undefined } })} className="h-11 w-full appearance-none rounded-xl border-2 border-gold bg-deep pl-3 pr-12">
                 <option value="">Surprise me</option>{HAIR.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              </select><span aria-hidden="true" className="pointer-events-none absolute inset-y-1 right-1 flex w-9 items-center justify-center rounded-lg bg-gold text-space"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span></span>
             </label>
             <p className="text-xs text-dim">Saved on this device only. Visions never show a real person.</p>
           </div>
@@ -141,6 +146,19 @@ export default function Visions() {
             <article key={v.id} className="flex flex-col gap-2 rounded-3xl border border-royal bg-night p-4">
               <h3 className="font-display text-lg font-bold">{v.name}</h3>
               <p className="text-sm text-muted">{v.blurb}</p>
+              <label className="mt-1 flex flex-col gap-1">
+                <span className="font-mono text-[10px] font-bold tracking-[0.12em] text-gold-lite">PAINT IT THROUGH</span>
+                <span className="relative">
+                  <select value={lens[v.id] ?? 'all'} onChange={(e) => setLens(v.id, e.target.value as Lens)} disabled={!!busy}
+                    className="h-11 w-full appearance-none rounded-xl border-2 border-gold bg-deep pl-3 pr-12 text-sm font-bold text-starlight">
+                    {LENSES.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+                  </select>
+                  {/* A big gold arrow on its own dark-gold chip, so it never blends in. */}
+                  <span aria-hidden="true" className="pointer-events-none absolute inset-y-1 right-1 flex w-9 items-center justify-center rounded-lg bg-gold text-space">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                </span>
+              </label>
               <button type="button" onClick={() => make(v.id)} disabled={!canMake || !!busy}
                 className={`mt-auto flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f3cf7d,#d4a24c_45%,#a2752c)] px-5 text-[15px] font-extrabold text-space shadow-[0_0_18px_rgba(212,162,76,0.45)] transition hover:brightness-110 active:scale-[0.98] ${busy === v.id ? 'animate-pulse disabled:opacity-100' : 'disabled:opacity-50 disabled:shadow-none'}`}>
                 {busy === v.id ? 'Creating your image… about a minute' : busy ? 'One at a time: finishing your other image…' : !canMake && user && info?.enabled && left === 0 && credits === 0 ? 'All used for today · more tomorrow' : left > 0 || info?.unlimited ? 'Create my image ✦' : 'Create my image · 1 credit'}
