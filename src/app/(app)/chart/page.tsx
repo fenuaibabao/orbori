@@ -3,6 +3,7 @@ import { useProgress } from '@/lib/use-progress';
 import Link from 'next/link';
 import { useState } from 'react';
 import { BadgeShelf } from '@/components/BadgeShelf';
+import { ChartCouncil } from '@/components/ChartCouncil';
 import { ChevronIcon, ShareIcon } from '@/components/icons';
 import { Sigil } from '@/components/Sigil';
 import { Tag } from '@/components/ui';
@@ -149,6 +150,7 @@ export default function MyChart() {
         </div>
 
         <div className="flex flex-1 flex-col gap-5">
+          <ChartCouncil chart={chart} />
           {groups(chart).map((g) => (
             <section key={g.name} className="flex flex-col gap-2">
               <div className="flex items-center justify-between gap-3">

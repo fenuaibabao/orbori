@@ -21,6 +21,20 @@ import { goToBilling, usePlus } from '@/lib/plus';
 import { supabase } from '@/lib/supabase/client';
 import { clearAccount } from '@/lib/sync';
 
+const Ic = ({ d }: { d: React.ReactNode }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+);
+/** The Explore tiles on Me: small, tappable, one per feature. */
+const EXPLORE: { id: string; label: string; note: string; href?: string; bg: string; icon: React.ReactNode }[] = [
+  { id: 'match', label: 'Constellation', note: 'Compatibility and your constellation · +25 XP each match', href: '/compatibility', bg: '#3b2f8f', icon: <Ic d={<><circle cx="9" cy="12" r="6" /><circle cx="15" cy="12" r="6" /></>} /> },
+  { id: 'conv', label: 'Convergence', note: 'The days all seven voices agree, a year ahead', href: '/convergence', bg: '#7a4a1d', icon: <Ic d={<><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></>} /> },
+  { id: 'rewards', label: 'Rewards', note: 'What every level unlocks', href: '/rewards', bg: '#6b5418', icon: <Ic d={<><path d="M12 3l2.2 4.6 5 .7-3.6 3.5.9 5L12 14.5 7.5 16.8l.9-5L4.8 8.3l5-.7z" /></>} /> },
+  { id: 'play', label: 'Play', note: 'Term Quest and Nawal Pairs', href: '/play', bg: '#1f5f5b', icon: <Ic d={<><rect x="3" y="7" width="18" height="11" rx="5" /><path d="M8 11v3M6.5 12.5h3M15.5 12h.01M18 13.5h.01" /></>} /> },
+  { id: 'journal', label: 'Journal', note: 'Your private running diary', href: '/journal', bg: '#5a2a63', icon: <Ic d={<><path d="M6 3h11a2 2 0 012 2v16H6a2 2 0 01-2-2V5a2 2 0 012-2z" /><path d="M8 8h7M8 12h7M8 16h4" /></>} /> },
+  { id: 'learn', label: 'Learn', note: 'Every astrology term, in plain English', href: '/learn', bg: '#24508a', icon: <Ic d={<><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z" /><path d="M4 21V5M8 7h7" /></>} /> },
+  { id: 'tour', label: 'Tour', note: 'A 30-second walk through Orbori', bg: '#2f6b3a', icon: <Ic d={<><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></>} /> },
+];
+
 export default function Profile() {
   const router = useRouter();
   const { state, reset, record } = useAppStore();
@@ -149,59 +163,30 @@ export default function Profile() {
 
       <section>
         <p className="mb-2 ml-1 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">BIRTH PROFILE</p>
-        <div className="overflow-hidden rounded-[18px] bg-night">
-          <button type="button" onClick={editBirth} className="flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left">
-            <span className="flex-1 text-[15px]">Edit birth details
-              <span className="mt-0.5 block text-xs text-dim">
-                {profile.input.date} · {profile.input.time ?? 'time unknown'} · {profile.cityLabel}
-              </span>
-            </span>
-            <span className="text-dim">›</span>
-          </button>
-          <Link href="/compatibility" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Compatibility &amp; Constellation
-              <span className="mt-0.5 block text-xs text-dim">
-                {state.matches.length ? `${state.matches.length} ${state.matches.length === 1 ? 'match' : 'matches'}` : 'Add your first match'} · +25 XP each
-              </span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <Link href="/convergence" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Convergence Calendar
-              <span className="mt-0.5 block text-xs text-dim">The days all seven voices agree, a year ahead</span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <Link href="/rewards" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Rewards
-              <span className="mt-0.5 block text-xs text-dim">What every level unlocks</span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <Link href="/play" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Play
-              <span className="mt-0.5 block text-xs text-dim">Term Quest and Nawal Pairs</span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <Link href="/journal" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Journal
-              <span className="mt-0.5 block text-xs text-dim">Your private running diary</span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <Link href="/learn" className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2">
-            <span className="flex-1 text-[15px]">Learn
-              <span className="mt-0.5 block text-xs text-dim">Every astrology term, in plain English</span>
-            </span>
-            <span className="text-dim">›</span>
-          </Link>
-          <button type="button" onClick={() => { replayTour(); router.push('/today'); }} className="flex min-h-14 w-full items-center gap-3 border-t border-line px-4 py-2 text-left">
-            <span className="flex-1 text-[15px]">Take the tour
-              <span className="mt-0.5 block text-xs text-dim">A 30-second walk through Orbori</span>
-            </span>
-            <span className="text-dim">›</span>
-          </button>
+        <button type="button" onClick={editBirth} className="flex w-full items-center gap-3 rounded-[18px] border-[1.5px] border-gold bg-[linear-gradient(135deg,#2a2380,var(--color-night))] p-3 text-left">
+          <span aria-hidden="true" className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gold text-lg text-space">☉</span>
+          <span className="min-w-0 flex-1">
+            <b className="block text-[15px]">{profile.input.date} · {profile.input.time ?? 'time unknown'}</b>
+            <span className="block truncate text-xs text-muted">{profile.cityLabel}</span>
+          </span>
+          <span className="flex-none rounded-full bg-gold px-3 py-1.5 text-xs font-extrabold text-space">Edit</span>
+        </button>
+
+        <p className="mb-2 ml-1 mt-5 font-mono text-[11px] font-bold tracking-[0.08em] text-gold-lite">EXPLORE</p>
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+          {EXPLORE.map((t) => {
+            const inner = (
+              <>
+                <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-[10px] text-starlight" style={{ background: t.bg }}>{t.icon}</span>
+                <span className="text-[11px] font-semibold leading-tight">{t.label}</span>
+                {t.id === 'match' && <span className="absolute right-1 top-1 rounded-full bg-gold-lite px-1 font-mono text-[8px] font-extrabold text-space">+25</span>}
+              </>
+            );
+            const cls = 'relative flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-line bg-night px-1 py-2 text-center transition hover:border-gold active:scale-[0.97]';
+            return t.href
+              ? <Link key={t.id} href={t.href} className={cls} title={t.note}>{inner}</Link>
+              : <button key={t.id} type="button" title={t.note} onClick={() => { replayTour(); router.push('/today'); }} className={cls}>{inner}</button>;
+          })}
         </div>
       </section>
 
