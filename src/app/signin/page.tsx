@@ -14,7 +14,16 @@ export default function SignInPage() {
 function SignIn() {
   const router = useRouter();
   const params = useSearchParams();
-  const { ready, user, enabled, signInWithEmail, signInWithGoogle, signInWithApple, appleEnabled } = useAuth();
+  const { ready, user, enabled, signInWithEmail, signInWithGoogle, verifyEmailCode, signInWithApple, appleEnabled } = useAuth();
+  const [code, setCode] = useState('');
+  const [checking, setChecking] = useState(false);
+  const verify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChecking(true); setError(null);
+    const r = await verifyEmailCode(email.trim(), code);
+    setChecking(false);
+    if (r.error) setError(r.error);
+  };
   const next = params.get('next') ?? '/';
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
@@ -46,7 +55,15 @@ function SignIn() {
       ) : sent ? (
         <div className="flex flex-col gap-3 rounded-[22px] border border-royal bg-night p-5 text-center">
           <p className="font-display text-lg font-bold">Check your email</p>
-          <p className="text-sm text-muted">We sent a sign-in link to <span className="text-starlight">{email}</span>. Open it on this device and you&apos;re in. It can take a few minutes to arrive.</p>
+          <p className="text-sm text-muted">We sent an email to <span className="text-starlight">{email}</span> with a sign-in link and a code. It can take a minute to arrive.</p>
+          <form onSubmit={verify} className="flex flex-col gap-2">
+            <label htmlFor="code" className="text-xs text-dim">Using Orbori from your Home Screen? Type the code from the email here:</label>
+            <input id="code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="Code"
+              className="h-14 rounded-2xl border border-line-2 bg-deep px-4 text-center font-mono text-2xl tracking-[0.3em] text-starlight placeholder:text-dim placeholder:tracking-normal" />
+            <button type="submit" disabled={checking || code.length < 6} className={btnPrimary}>{checking ? 'Checking…' : 'Sign in with code'}</button>
+            {error && <p role="alert" className="text-sm text-mauve-lite">{error}</p>}
+          </form>
+          <p className="text-xs text-dim">Or tap the link in the email on this device.</p>
           <p className="text-xs text-dim">Don&apos;t see it? Check your spam or junk folder for &ldquo;Your sign-in link&rdquo; from Orbori, and mark it &ldquo;not spam&rdquo; so the next one lands in your inbox.</p>
           <button type="button" onClick={() => setSent(false)} className="text-sm text-gold-lite">Use a different email</button>
         </div>

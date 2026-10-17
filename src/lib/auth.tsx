@@ -11,6 +11,8 @@ export interface Auth {
   enabled: boolean;
   signInWithEmail: (email: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
+  /** Sign in with the code from the email (works inside the Home Screen app, where the link opens Safari instead). */
+  verifyEmailCode: (email: string, code: string) => Promise<{ error: string | null }>;
   signInWithApple: () => Promise<{ error: string | null }>;
   /** Sign in with Apple is switched on once it's set up with Apple. */
   appleEnabled: boolean;
@@ -47,6 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error ? friendly(error.message) : null };
   }, []);
 
+  const verifyEmailCode = useCallback(async (email: string, code: string) => {
+    const sb = supabase();
+    if (!sb) return { error: 'Accounts are not set up yet.' };
+    const { error } = await sb.auth.verifyOtp({ email, token: code.replace(/\D/g, ''), type: 'email' });
+    return { error: error ? (/expired|invalid/i.test(error.message) ? 'That code didn\'t work. Check it, or request a new email.' : friendly(error.message)) : null };
+  }, []);
+
   const signInWithApple = useCallback(async () => {
     const sb = supabase();
     if (!sb) return { error: 'Accounts are not set up yet.' };
@@ -56,8 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => { await supabase()?.auth.signOut(); }, []);
 
-  const value = useMemo<Auth>(() => ({ ready, user, enabled: accountsEnabled, signInWithEmail, signInWithGoogle, signInWithApple, appleEnabled: process.env.NEXT_PUBLIC_APPLE_SIGNIN === '1', signOut }),
-    [ready, user, signInWithEmail, signInWithGoogle, signInWithApple, signOut]);
+  const value = useMemo<Auth>(() => ({ ready, user, enabled: accountsEnabled, signInWithEmail, signInWithGoogle, verifyEmailCode, signInWithApple, appleEnabled: process.env.NEXT_PUBLIC_APPLE_SIGNIN === '1', signOut }),
+    [ready, user, signInWithEmail, signInWithGoogle, verifyEmailCode, signInWithApple, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
